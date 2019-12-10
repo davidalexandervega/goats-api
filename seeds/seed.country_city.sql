@@ -1,4 +1,4 @@
-TRUNCATE city, country CASCADE;
+TRUNCATE city, country;
 
 COPY country(country_name, country_code)
 FROM '/Users/user/code/killeraliens/goats-api/seeds/countries.csv' DELIMITER ',' CSV HEADER;
@@ -9,6 +9,6 @@ VALUES
   ('West Bank', 'XW'),
   ('Kosovo', 'XK');
 
-COPY city(city_name,city_ascii,lat,lng,country,country_id,iso3,admin_name,capital,population,id)
+COPY city(city_name,city_ascii,lat,lng,country,country_code,iso3,admin_name,capital,population,id)
 FROM '/Users/user/code/killeraliens/goats-api/seeds/worldcities.csv'
 DELIMITER ',' CSV HEADER;

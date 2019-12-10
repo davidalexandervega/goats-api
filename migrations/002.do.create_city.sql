@@ -4,7 +4,7 @@ CREATE TABLE city (
   lat FLOAT,
   lng FLOAT,
   country TEXT,
-  country_id TEXT REFERENCES country(country_code) ON DELETE CASCADE,
+  country_code TEXT REFERENCES country(country_code) ON DELETE CASCADE,
   iso3 TEXT,
   admin_name TEXT,
   capital TEXT,
