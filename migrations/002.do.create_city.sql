@@ -12,4 +12,6 @@ CREATE TABLE city (
   id INT PRIMARY KEY
 )
 
+-- https://simplemaps.com/data/world-cities
+
 
