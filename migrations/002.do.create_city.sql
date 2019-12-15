@@ -10,7 +10,7 @@ CREATE TABLE city (
   capital TEXT,
   population TEXT,
   id INT PRIMARY KEY
-)
+);
 
 -- https://simplemaps.com/data/world-cities
 
