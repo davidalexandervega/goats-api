@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken')
+
 const createToken = function (auth) {
   return jwt.sign({
     id: auth.id
@@ -8,13 +10,17 @@ const createToken = function (auth) {
   });
 };
 
+function generateToken(req, res, next) {
+  req.token = createToken(req.auth);
+  return next();
+}
+
+function sendToken(req, res) {
+  res.setHeader('x-auth-token', req.token);
+  return res.status(200).send(JSON.stringify(req.user));
+}
+
 module.exports = {
-  generateToken: function (req, res, next) {
-    req.token = createToken(req.auth);
-    return next();
-  },
-  sendToken: function (req, res) {
-    res.setHeader('x-auth-token', req.token);
-    return res.status(200).send(JSON.stringify(req.user));
-  }
+  generateToken,
+  sendToken
 };

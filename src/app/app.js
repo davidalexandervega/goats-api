@@ -24,7 +24,7 @@ const corsOption = {
 
 const eventRouter = require('./event/eventRouter')
 const userRouter = require('./user/userRouter');
-const authRouter = require('./routes/authRouter');
+const fbRouter = require('./fb/fbRouter');
 
 app.use(morgan(morganOption))
 app.use(helmet())
@@ -34,26 +34,11 @@ app.use(bodyParser.urlencoded({
   extended: false
 }))
 app.use(cookieParser())
-//app.use(express.static(path.join(__dirname, 'public')))
-// app.use(session({
-//   secret: 'anystringwilldo',
-//   saveUninitialized: true,
-//   resave: true
-// }))
-// app.use(passport.initialize())
-// app.use(session())
-// app.use(flash())
 
 app.use('/api/event', eventRouter)
 app.use('/api/user', userRouter)
-app.use('/api/v1/', authRouter)
+app.use('/api/v1/', fbRouter)
 
-// app.post('/api/v1/auth/facebook', (req, res, next) => {
-//   const tokenBlob = req.body
-//   // res.json({message: tokenBlob.size})
-//   res.send('got the token blob')
-
-// })
 
 // app.get('/auth/facebook', passport.authenticate('facebook'))
 // app.get('/auth/facebook/callback',
