@@ -2,7 +2,7 @@
 
 //require('./mongoose')();
 const passport = require('passport');
-const uuid = require('uuid');
+const uuid = require('uuid/v1');
 //var User = require('mongoose').model('User');
 //const userRouter = require('./user/userRouter');
 const UserService = require('./user/user-service');
@@ -23,43 +23,41 @@ module.exports = function () {
       // User.upsertFbUser(accessToken, refreshToken, profile, function (err, user) {
       //   return done(err, user);
       // });
-      // const user = profile;
-      // if (!profile) {
-        //   err = new Error({error: {message: 'no profile'}})
-        // }
 
-      let error;
+      let error; // use in case there is no error
+      let user;  // use in case there is no user
 
       UserService
-      .getByFBId(knexI, profile.id)
+        .getByFBId(knexI, profile.id)
+        .then(existingUser => {
+          if (!existingUser) {
 
-      // const postBody = {
-      //   id: uuid()
-      //   fullName: profile.displayName,
-      //   email: profile.emails[0].value,
-      //   facebookProvider_id: profile.id,
-      //   facebookProvider_token: accessToken
-      // }
+            const postBody = {
+              id: uuid(),
+              fullname: profile.displayName,
+              email: profile.emails[0].value,
+              facebook_provider_id: profile.id,
+              facebook_provider_token: accessToken
+            }
 
-      // UserService
-      //   .post(knexI, postBody)
-      //   .then(newUser => {
-      //     if (!newUser.facebookProvider_id) {
-      //       error = new Error('User already exists')s
-      //       return done(error, newUser)
-      //     }
-      //     return error, newUser
-      //   })
-      //   .then((error, user) => {
-      //     UserService
-      //       .getByFBId(knexI, user.facebookProvider_id)
-      //   })
-      //   .catch(error => {
-      //     return done(err, postBody)
-      //   })
-      // or how would I use...
-      // app.use('/api/user', userRouter)
-      //UserService.postUser(knexI, postBody)
+            UserService.postUser(knexI, postBody)
+              .then(newUser => {
+                if(!newUser) {
+                  error = new Error('Trouble saving new user')
+                  return done(error, user)
+                }
+                return done(error, newUser)
+              })
+
+          }
+          return done(error, existingUser)
+        })
+        .catch(err => {
+          console.log('ERR ON PASSPORT', err)
+          error = err;
+          return done(error, user)
+        })
+
   }));
 
 };

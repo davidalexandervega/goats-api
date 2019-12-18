@@ -24,6 +24,7 @@ const corsOption = {
 
 const eventRouter = require('./event/eventRouter')
 const userRouter = require('./user/userRouter');
+const countryRouter = require('./country/countryRouter');
 const fbRouter = require('./fb/fbRouter');
 
 app.use(morgan(morganOption))
@@ -37,6 +38,7 @@ app.use(cookieParser())
 
 app.use('/api/event', eventRouter)
 app.use('/api/user', userRouter)
+app.use('/api/country', countryRouter)
 app.use('/api/v1/', fbRouter)
 
 

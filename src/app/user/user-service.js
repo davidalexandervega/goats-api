@@ -17,7 +17,7 @@ const UserService = {
     return knex
       .select('*')
       .from('app_user')
-      .where('facebookProvider_id', id)
+      .where('facebook_provider_id', id)
       .first()
   },
 

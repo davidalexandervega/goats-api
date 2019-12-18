@@ -5,11 +5,12 @@ const xss = require('xss')
 const sanitize = user => {
   return {
     id: user.id,
+    fullname: xss(user.fullname)
     username: xss(user.username),
     //password: xss(user.password),
-    email: xss(user.email),
-    //type: ,
-    //city_id
+    //email: xss(user.email),
+    //type: user.type,
+    //city_id: user.city_id
   }
 }
 
@@ -36,7 +37,7 @@ function postUser(req, res, next) {
   console.log('req BODY', req.body)
   console.log('RES', res)
   //res.json({message: 'check console'})
-  return next()
+
 }
 
 

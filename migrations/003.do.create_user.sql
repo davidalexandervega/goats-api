@@ -1,7 +1,7 @@
 CREATE TABLE app_user (
   id UUID PRIMARY KEY NOT NULL,
-  facebookProvider_id TEXT UNIQUE,
-  facebookProvider_token TEXT,
+  facebook_provider_id TEXT UNIQUE,
+  facebook_provider_token TEXT,
   email CHAR(128),
   fullname CHAR(128),
   username CHAR(60) UNIQUE,
@@ -9,3 +9,4 @@ CREATE TABLE app_user (
   type TEXT,
   city_id INT REFERENCES city(id) ON DELETE SET NULL
 );
+
