@@ -33,6 +33,7 @@
     "passport-facebook-token": "^3.3.0",
     "pg": "^7.14.0",
     "request": "^2.88.0",
+    "request-promise": "^4.2.5",
     "serve-favicon": "^2.5.0",
     "session": "^0.1.0",
     "uuid": "^3.3.3",

@@ -16,17 +16,7 @@ fbRouter.route('/auth/facebook')
     sendToken
   );
 
-function isSaved(req, res, next) {
-  const knexI = req.app.get('db')
-  if( req.user) {
-    console.log('USER EXISTS NEEDSS SAVING', req.user)
 
-    next()
-  }
-
-  res.send(401, 'Errir in isSaved')
-  //return res.send(401, 'User Not Authenticated');
-}
 
 function isAuthorized(req, res, next) {
   if (!req.user) {

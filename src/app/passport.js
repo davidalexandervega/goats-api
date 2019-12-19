@@ -5,6 +5,7 @@ const passport = require('passport');
 const uuid = require('uuid/v1');
 //var User = require('mongoose').model('User');
 //const userRouter = require('./user/userRouter');
+const { UserFB } = require('./user/user');
 const UserService = require('./user/user-service');
 var FacebookTokenStrategy = require('passport-facebook-token');
 
@@ -16,6 +17,7 @@ module.exports = function () {
   passport.use(new FacebookTokenStrategy({
     clientID: config.facebookAuth.clientID,
     clientSecret: config.facebookAuth.clientSecret,
+    fbGraphVersion: 'v5.0',
     passReqToCallback: true
   },
   function (req, accessToken, refreshToken, profile, done) {
@@ -32,15 +34,22 @@ module.exports = function () {
         .then(existingUser => {
           if (!existingUser) {
 
-            const postBody = {
-              id: uuid(),
-              fullname: profile.displayName,
-              email: profile.emails[0].value,
-              facebook_provider_id: profile.id,
-              facebook_provider_token: accessToken
-            }
+            // const postBody = {
+            //   id: uuid(),
+            //   fullname: profile.displayName,
+            //   email: profile.emails[0].value,
+            //   facebook_provider_id: profile.id,
+            //   facebook_provider_token: accessToken
+            // }
+            const postBody = new UserFB(
+              uuid(),
+              profile.displayName,
+              profile.emails[0].value,
+              profile.id,
+              accessToken
+            )
 
-            UserService.postUser(knexI, postBody)
+            UserService.insertUser(knexI, postBody)
               .then(newUser => {
                 if(!newUser) {
                   error = new Error('Trouble saving new user')

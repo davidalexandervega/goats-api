@@ -5,7 +5,7 @@ const UserService = {
       .from('app_user')
   },
 
-  postUser(knex, postBody) {
+  insertUser(knex, postBody) {
     return knex
       .insert(postBody)
       .into('app_user')
