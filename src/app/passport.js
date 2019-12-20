@@ -1,15 +1,10 @@
 'use strict';
-
-//require('./mongoose')();
 const passport = require('passport');
 const uuid = require('uuid/v1');
-//var User = require('mongoose').model('User');
-//const userRouter = require('./user/userRouter');
 const { UserFB } = require('./user/user');
 const UserService = require('./user/user-service');
-var FacebookTokenStrategy = require('passport-facebook-token');
-
-var config = require('../config/auth-config');
+const FacebookTokenStrategy = require('passport-facebook-token');
+const config = require('../config/auth-config');
 
 
 module.exports = function () {
@@ -25,34 +20,29 @@ module.exports = function () {
 
       let error; // use in case there is no error
       let user;  // use in case there is no user
-      console.log('PASSPRTS FB ACCESSTOKEN', accessToken)
+      //console.log('PASSPRTS FB ACCESSTOKEN', accessToken)
       UserService
         .getByFBId(knexI, profile.id)
         .then(existingUser => {
-          if (!existingUser) {
-            console.log('no user, making post')
-            const postBody = {
-              id: uuid(),
-              fullname: profile.displayName,
-              email: profile.emails[0].value,
-              facebook_provider_id: profile.id,
-              facebook_provider_token: accessToken
-            }
-            // const postBody = new UserFB(
-            //   uuid(),
-            //   profile.displayName,
-            //   profile.emails[0].value,
-            //   profile.id,
-            //   accessToken,
-            // )
 
-            UserService.insertUser(knexI, postBody)
+          if (!existingUser) {
+            //console.log('no user, making post')
+
+            const postBody = new UserFB(
+              uuid(),
+              profile.displayName,
+              profile.emails[0].value,
+              profile.id,
+              accessToken
+            )
+
+            return UserService.insertUser(knexI, postBody)
               .then(newUser => {
                 if(!newUser) {
                   error = new Error('Trouble saving new user')
                   return done(error, user)
                 }
-                console.log('returning new user', newUser)
+                //console.log('returning new user', newUser)
                 return done(error, newUser)
               })
 
@@ -66,8 +56,8 @@ module.exports = function () {
                     error = new Error('Trouble updating user')
                     return done(error, user)
                   }
-                  console.log('returning updated user', updatedUser.facebook_provider_id)
-                  console.log('with saved token', updatedUser.facebook_provider_token)
+                  //console.log('returning updated user', updatedUser.facebook_provider_id)
+                  //console.log('with saved token', updatedUser.facebook_provider_token)
                   return done(error, updatedUser)
                 })
             })
@@ -76,9 +66,6 @@ module.exports = function () {
               error = err;
               return done(error, user)
             })
-          //existingUser.accessToken = accessToken
-          // console.log('returning existing user', existingUser.facebook_provider_id)
-          // console.log('with saved token', existingUser.facebook_provider_token)
           // return done(error, existingUser)
         })
         .catch(err => {
