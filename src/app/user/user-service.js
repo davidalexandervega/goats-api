@@ -13,12 +13,30 @@ const UserService = {
       .then(rows => rows[0])
   },
 
-  getByFBId(knex, id) {
+  getByFBId(knex, fbId) {
     return knex
       .select('*')
       .from('app_user')
-      .where('facebook_provider_id', id)
+      .where('facebook_provider_id', fbId)
       .first()
+  },
+
+  getById(knex, id) {
+    return knex
+      .select('*')
+      .from('app_user')
+      .where('id', id)
+      .first()
+  },
+
+  updateUser(knex, id, patchBody) {
+    return knex
+      .where('id', id)
+      .from('app_user')
+      .update(patchBody)
+      // .returning('*')
+      // .where('id', id)
+      // .first()
   },
 
 }

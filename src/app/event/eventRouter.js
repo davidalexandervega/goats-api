@@ -1,5 +1,6 @@
 const express = require('express')
-const request = require('request-promise')
+//const request = require('request-promise')
+const { facebookAuth } = require('../../config/auth-config')
 const eventRouter = express.Router()
 const EventService = require('./event-service')
 const bodyParser = express.json()
@@ -15,8 +16,10 @@ const sanitize = event => {
     updated_time: event.updated_time
   }
 }
-// const passport = require('passport');
-// require('../passport')();
+// const FB = require('fb')
+const { Facebook, FacebookApiException } = require('fb')
+const fb = new Facebook({ version: 'v4.0' });
+
 
 eventRouter
   .route('/')
@@ -24,42 +27,54 @@ eventRouter
 
 eventRouter
   .route('/facebook')
-  .post(
-    bodyParser,
-    postEventFromFacebook
-  )
+  .post( postEventFromFacebook )
+
+// function postEventFromFacebook(req, res, next) {
+//   const { eventId, facebookProviderToken, facebookProviderId } = req.body
+
+//   // you need permission for most of these fields
+//   const eventFieldSet = 'id, name, description';
+
+//   const options = {
+//     method: 'GET',
+//     uri: `https://graph.facebook.com/v5.0/${eventId}`,
+//     //uri: `https://graph.facebook.com/v5.0/search`,
+//     qs: {
+//       access_token: facebookProviderToken,
+//       fields: eventFieldSet,
+//       type: 'event'
+//     }
+//   };
+
+//   request(options)
+//     .then(fbRes => {
+//       if (!fbRes.ok) {
+//         return fbRes.json().then(error => Promise.reject(error))
+//       }
+//       console.log(fbRes)
+//       const parsedRes = JSON.parse(fbRes).data;
+//       return res.json(parsedRes);
+//     })
+//     .catch(next)
+
+// }
 
 function postEventFromFacebook(req, res, next) {
   const { eventId, facebookProviderToken, facebookProviderId } = req.body
-
-  // you need permission for most of these fields
-  // const eventFieldSet = 'id, name, description';
-
-  const options = {
-    method: 'GET',
-    //uri: `https://graph.facebook.com/v5/${eventId}`,
-    uri: `https://graph.facebook.com/v5/search`,
-    qs: {
-      access_token: facebookProviderToken,
-      q: 'Fiat',
-      fields: 'name, category, link, picture, is_verified',
-      type: 'page'
+  //FB.options({version: 'v4.0'});
+  console.log('CURRENT REG user server state', req.user)
+  console.log('PROVIDER TOKEN getting passed to api', facebookProviderToken)
+  //fb.setAccessToken(facebookProviderToken);
+  fb.api('me', { fields: ['id', 'name'], accessToken: facebookProviderToken }, function (res) {
+    if (!res || res.error) {
+      console.log(!res ? 'error occurred' : res.error);
+      return;
     }
-  };
-
-  request(options)
-    .then(fbRes => {
-      if (!fbRes.ok) {
-        return fbRes.json().then(error => Promise.reject(error))
-      }
-      console.log(fbRes)
-      const parsedRes = JSON.parse(fbRes).data;
-      return res.json(parsedRes);
-    })
-    .catch(next)
-
-
+    console.log(res.id);
+    console.log(res.name);
+  });
 }
+
 
 function getAllEvents(req, res, next) {
   const knexI = req.app.get('db')
