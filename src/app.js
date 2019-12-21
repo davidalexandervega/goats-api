@@ -1,5 +1,5 @@
 require('dotenv').config()
-const { NODE_ENV } = require('../config/config')
+const { NODE_ENV } = require('./config/config')
 const express = require('express')
 const favicon = require('serve-favicon')
 const path = require('path')
@@ -22,10 +22,12 @@ const corsOption = {
   exposedHeaders: ['x-auth-token']
 }
 
-const eventRouter = require('./event/eventRouter')
-const userRouter = require('./user/userRouter');
-const countryRouter = require('./country/countryRouter');
-const fbRouter = require('./fb/fbRouter');
+const {
+  eventRouter,
+  userRouter,
+  countryRouter,
+  authFbRouter
+} = require('./routers')
 
 app.use(morgan(morganOption))
 app.use(helmet())
@@ -35,34 +37,22 @@ app.use(bodyParser.urlencoded({
   extended: false
 }))
 app.use(cookieParser())
+// app.use(session({
+//   secret: process.env.SECRET_KEY,
+//   resave: false,
+//   saveUninitialized: true
+// }))
+// app.use(passport.initialize());
+// app.use(passport.session());
+// app.use(flash());
+// app.use(express.static(path.join(__dirname, '..', '..', 'client')));
 
 app.use('/api/event', eventRouter)
 app.use('/api/user', userRouter)
 app.use('/api/country', countryRouter)
-app.use('/api/v1/', fbRouter)
+app.use('/api/v1/', authFbRouter)
 
-
-
-// app.get('/auth/facebook', passport.authenticate('facebook'))
-// app.get('/auth/facebook/callback',
-//   passport.authenticate('facebook',
-//     {
-//       successRedirect: '/',
-//       failureRedirect: '/login'
-//     }
-//   )
-// )
-
-//app.use(passportLocalStrategy)
-// app.get('/', (req, res) => {
-//   res.send('Hello boilerplate')
-// })
-//app.use('/user', userRouter)
 app.use(errorHandler)
-
-// function passportLocalStrategy(req, res, next) {
-//   return new LocalStrategy(username, password)
-// }
 
 function errorHandler(error, req, res, next) {
   let response

@@ -1,9 +1,7 @@
-const getUuid = require('uuid-by-string')
-
 function makeUsers() {
   return [
     {
-      id: `${getUuid('Hello killer')}`,
+      id: 1,
       username: 'killer',
       password: `killerpassword`,
       email: `killeraliens@outlook.com`,
@@ -11,7 +9,7 @@ function makeUsers() {
       city_id: 1392685764
     },
     {
-      id: `${getUuid('Hello aliens')}`,
+      id: 2,
       username: 'aliens',
       password: `alienspassword`,
       email: `alexandrabrinncampbell@gmail.com`,
@@ -24,7 +22,7 @@ function makeUsers() {
 const makeUser = {
   good() {
     return {
-      id: `${getUuid('Hello killer')}`,
+      id: 1,
       username: 'killer',
       password: `killerpassword`,
       email: `killeraliens@outlook.com`,
@@ -43,7 +41,7 @@ const makeUser = {
 
   withXss() {
     return {
-      id: `${getUuid('Hello killer')}`,
+      id: 1,
       username: 'killer naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
       password: `killerpassword`,
       email: `killeraliens@outlook.com`,
@@ -54,7 +52,7 @@ const makeUser = {
 
   withSanitizedXss() {
     return {
-      id: `${getUuid('Hello killer')}`,
+      id: 1,
       username: 'killer naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt; Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
       password: `killerpassword`,
       email: `killeraliens@outlook.com`,

@@ -1,6 +1,5 @@
-const app = require('../src/app/app')
+const app = require('../src/app')
 const knex = require('knex')
-const getUuid = require('uuid-by-string')
 const { makeUsers, makeUser } = require('./user-fixtures')
 
 describe('User endpoints', () => {

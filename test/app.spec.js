@@ -1,4 +1,4 @@
-const app = require('../src/app/app')
+const app = require('../src/app')
 
 describe('App', () => {
   it('should exist', () => {

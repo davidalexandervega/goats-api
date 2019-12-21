@@ -1,7 +1,7 @@
 const express = require('express')
 const path = require('path')
-const UserService = require('./user-service')
-const { UserCustom } = require('./user')
+const UserService = require('../services/user-service')
+const { UserCustom } = require('../models/user')
 const uuid = require('uuid/v1')
 const bodyParser = express.json()
 const xss = require('xss')
@@ -24,7 +24,7 @@ const userRouter = express.Router()
 userRouter
   .route('/')
   .get(getAllUsers)
-  .post(postUser)
+  .post(bodyParser, postUser)
 
 // userRouter
 //   .route('/:id')
@@ -107,7 +107,6 @@ function postUser(req, res, next) {
 
 
   const postBody = new UserCustom(
-    uuid(),
     username,
     email,
     password

@@ -1,6 +1,6 @@
 const express = require('express')
 const countryRouter = express.Router()
-const CountryService = require('./country-service')
+const CountryService = require('../services/country-service')
 const bodyParser = express.json()
 const xss = require('xss')
 // const sanitize = event => {

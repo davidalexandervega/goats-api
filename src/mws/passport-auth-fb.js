@@ -1,17 +1,16 @@
 'use strict';
 const passport = require('passport');
-const uuid = require('uuid/v1');
-const { UserFB } = require('../user/user');
-const UserService = require('../user/user-service');
+const { UserFB } = require('../models/user');
+const UserService = require('../services/user-service');
 const FacebookTokenStrategy = require('passport-facebook-token');
-const config = require('../../config/auth-config');
+const {facebookAuth} = require('../config/auth-config');
 
 
 module.exports = function () {
 
   passport.use(new FacebookTokenStrategy({
-    clientID: config.facebookAuth.clientID,
-    clientSecret: config.facebookAuth.clientSecret,
+    clientID: facebookAuth.clientID,
+    clientSecret: facebookAuth.clientSecret,
     fbGraphVersion: 'v5.0',
     passReqToCallback: true
   },
@@ -29,7 +28,6 @@ module.exports = function () {
             //console.log('no user, making post')
 
             const postBody = new UserFB(
-              uuid(),
               profile.displayName,
               profile.emails[0].value,
               profile.id,

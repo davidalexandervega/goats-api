@@ -1,5 +1,4 @@
-function UserCustom(id, username, email, password) {
-  this.id = id;
+function UserCustom(username, email, password) {
   this.username = username;
   this.email = email;
   this.password = password;
@@ -7,12 +6,11 @@ function UserCustom(id, username, email, password) {
   this.fullname = null;
   this.facebook_provider_id = null;
   this.facebook_provider_token = null;
-  this.type = 'entry';
+  this.admin = false;
 }
 
 
-function UserFB(id, fullname, email, facebook_provider_id, facebook_provider_token) {
-  this.id = id;
+function UserFB(fullname, email, facebook_provider_id, facebook_provider_token) {
   this.fullname = fullname;
   this.email = email;
   this.facebook_provider_id = facebook_provider_id;
@@ -20,7 +18,7 @@ function UserFB(id, fullname, email, facebook_provider_id, facebook_provider_tok
   this.city_id = null;
   this.username = null;
   this.password = null;
-  this.type = 'entry';
+  this.admin = false;
 }
 
 
