@@ -29,14 +29,19 @@ const UserService = {
       .first()
   },
 
+  getByUsername(knex, username) {
+    return knex
+      .select('*')
+      .from('app_user')
+      .where('username', 'ilike', username)
+      .first()
+  },
+
   updateUser(knex, id, patchBody) {
     return knex
       .where('id', id)
       .from('app_user')
       .update(patchBody)
-      // .returning('*')
-      // .where('id', id)
-      // .first()
   },
 
 }

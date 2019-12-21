@@ -1,4 +1,4 @@
-TRUNCATE city, country CASCADE;
+-- TRUNCATE city, country, app_user;
 
 COPY country(country_name, country_code)
 FROM '/Users/user/code/killeraliens/goats-api/seeds/countries.csv' DELIMITER ',' CSV HEADER;

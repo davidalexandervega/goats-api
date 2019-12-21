@@ -1,14 +1,16 @@
 const express = require('express')
+const path = require('path')
 const UserService = require('./user-service')
+const { UserCustom } = require('./user')
 const uuid = require('uuid/v1')
 const bodyParser = express.json()
 const xss = require('xss')
 const sanitize = user => {
   return {
     id: user.id,
-    fullname: xss(user.fullname),
     username: xss(user.username),
-    city_id: user.city_id
+    city_id: user.city_id,
+    //fullname: xss(user.fullname),
     //password: xss(user.password),
     //email: xss(user.email),
     //type: user.type,
@@ -22,42 +24,107 @@ const userRouter = express.Router()
 userRouter
   .route('/')
   .get(getAllUsers)
-  //.post(postUser)
+  .post(postUser)
 
 // userRouter
 //   .route('/:id')
-  //.all(checkExists)
+//   .all(checkExists)
+//   .get(getById)
 
-// function checkExists(req, res, next) {
-//   const { id } = req.params
-//   const db = req.app.get('db')
+userRouter
+  .route('/:username')
+  .all(checkUsernameExists)
+  .get(getByUsername)
 
-//   BookmarksService
-//     .getById(db, id)
-//     .then(bookmark => {
-//       if (!bookmark) {
-//         return res.status(404).json({ error: { message: `Bookmark doesn't exist` } })
-//       }
-//       res.bookmark = bookmark
-//       next()
-//     })
-//     .catch(next)
-// }
+function checkExists(req, res, next) {
+  const { id } = req.params
+  const db = req.app.get('db')
+
+  UsersService
+    .getById(db, id)
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({ error: { message: `User doesn't exist` } })
+      }
+      res.user = user
+      next()
+    })
+    .catch(next)
+}
+
+function checkUsernameExists(req, res, next) {
+  const { username } = req.params
+  const db = req.app.get('db')
+
+  UserService
+    .getByUsername(db, username)
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({ error: { message: `Username doesn't exist` } })
+      }
+      res.user = user
+      next()
+    })
+    .catch(next)
+}
+
+function getByUsername(req, res, next) {
+  res.json(sanitize(res.user))
+}
 
 function getAllUsers(req, res, next) {
   const knexI = req.app.get('db')
   UserService
-    .getAllEvents(knexI)
+    .getAllUsers(knexI)
     .then(users => {
-      const sanitized = events.map(user => sanitize(user))
+      const sanitized = users.map(user => sanitize(user))
       res.json(sanitized)
     })
     .catch(next)
 }
 
-// function postUser(req, res, next) {
-//   const knexI = req.app.get('db')
-// }
+function getById(req, res, next) {
+  res.json(sanitize(res.user))
+}
+
+function postUser(req, res, next) {
+  const knexI = req.app.get('db')
+  const { username, password, email } = req.body
+  const requiredFields = { username, password, email }
+
+  for (const [key, value] of Object.entries(requiredFields)) {
+    if (!value) {
+      return res.status(400).json({ error: { message: `${key} required in post body` } })
+    }
+  }
+
+
+  const regex = new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/);
+  if (!regex.test(email)) {
+    //logger.error(`${url} is not a valid url`)
+    return res.status(400).json({ error: { message: 'url is invalid' } })
+  }
+
+
+  const postBody = new UserCustom(
+    uuid(),
+    username,
+    email,
+    password
+  )
+
+
+
+  UserService
+    .insertUser(knexI, postBody)
+    .then(user => {
+      res
+      .status(201)
+      .location(path.posix.join(req.originalUrl, `/${user.username}`))
+      .json(sanitize(user))
+    })
+    .catch(next)
+}
 
 
 
