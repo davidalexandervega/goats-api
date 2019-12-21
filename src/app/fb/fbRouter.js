@@ -1,9 +1,8 @@
 const express = require('express');
 var passport = require('passport');
-//const request = require('request');
 const fbRouter = express.Router();
 const { generateToken, sendToken } = require('../utils/token.utils');
-require('../passport')();
+require('./passport')();
 
 //passport.use(new FacebookTokenStrategy({ ..saves data from req in db
 fbRouter.route('/auth/facebook')

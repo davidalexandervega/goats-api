@@ -1,10 +1,10 @@
 'use strict';
 const passport = require('passport');
 const uuid = require('uuid/v1');
-const { UserFB } = require('./user/user');
-const UserService = require('./user/user-service');
+const { UserFB } = require('../user/user');
+const UserService = require('../user/user-service');
 const FacebookTokenStrategy = require('passport-facebook-token');
-const config = require('../config/auth-config');
+const config = require('../../config/auth-config');
 
 
 module.exports = function () {

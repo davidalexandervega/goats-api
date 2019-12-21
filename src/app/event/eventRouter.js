@@ -1,6 +1,5 @@
 const express = require('express')
 //const request = require('request-promise')
-const { facebookAuth } = require('../../config/auth-config')
 const eventRouter = express.Router()
 const EventService = require('./event-service')
 const bodyParser = express.json()
@@ -16,9 +15,13 @@ const sanitize = event => {
     updated_time: event.updated_time
   }
 }
-// const FB = require('fb')
+const { facebookAuth } = require('../../config/auth-config')
 const { Facebook, FacebookApiException } = require('fb')
-const fb = new Facebook({ version: 'v4.0' });
+const fb = new Facebook({
+  version: 'v2.4',
+  appId: facebookAuth.clientID,
+  appSecret: facebookAuth.clientSecret
+});
 
 
 eventRouter
@@ -59,19 +62,22 @@ eventRouter
 
 // }
 
-function postEventFromFacebook(req, res, next) {
+function postEventFromFacebook(req) {
   const { eventId, facebookProviderToken, facebookProviderId } = req.body
   //FB.options({version: 'v4.0'});
-  console.log('CURRENT REG user server state', req.user)
-  console.log('PROVIDER TOKEN getting passed to api', facebookProviderToken)
-  //fb.setAccessToken(facebookProviderToken);
-  fb.api('me', { fields: ['id', 'name'], accessToken: facebookProviderToken }, function (res) {
+  console.log('POST EVENT FROM FACEBOOK BACKEND')
+  console.log('USER ACCESS TOKEN getting passed to api', facebookProviderToken)
+  fb.setAccessToken(facebookProviderToken);
+  fb.api(`/${eventId}`, {  accessToken: facebookProviderToken }, function (res) {
     if (!res || res.error) {
       console.log(!res ? 'error occurred' : res.error);
       return;
     }
-    console.log(res.id);
-    console.log(res.name);
+
+    console.log(res);
+    return
+    // console.log(res.id);
+    // console.log(res.name);
   });
 }
 
