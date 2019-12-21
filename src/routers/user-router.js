@@ -26,21 +26,21 @@ userRouter
   .get(getAllUsers)
   .post(bodyParser, postUser)
 
-// userRouter
-//   .route('/:id')
-//   .all(checkExists)
-//   .get(getById)
-
 userRouter
-  .route('/:username')
-  .all(checkUsernameExists)
-  .get(getByUsername)
+  .route('/:id')
+  .all(checkExists)
+  .get(getById)
+
+// userRouter
+//   .route('/:username')
+//   .all(checkUsernameExists)
+//   .get(getByUsername)
 
 function checkExists(req, res, next) {
   const { id } = req.params
   const db = req.app.get('db')
 
-  UsersService
+  UserService
     .getById(db, id)
     .then(user => {
       if (!user) {
@@ -52,25 +52,25 @@ function checkExists(req, res, next) {
     .catch(next)
 }
 
-function checkUsernameExists(req, res, next) {
-  const { username } = req.params
-  const db = req.app.get('db')
+// function checkUsernameExists(req, res, next) {
+//   const { username } = req.params
+//   const db = req.app.get('db')
 
-  UserService
-    .getByUsername(db, username)
-    .then(user => {
-      if (!user) {
-        return res.status(404).json({ error: { message: `Username doesn't exist` } })
-      }
-      res.user = user
-      next()
-    })
-    .catch(next)
-}
+//   UserService
+//     .getByUsername(db, username)
+//     .then(user => {
+//       if (!user) {
+//         return res.status(404).json({ error: { message: `Username doesn't exist` } })
+//       }
+//       res.user = user
+//       next()
+//     })
+//     .catch(next)
+// }
 
-function getByUsername(req, res, next) {
-  res.json(sanitize(res.user))
-}
+// function getByUsername(req, res, next) {
+//   res.json(sanitize(res.user))
+// }
 
 function getAllUsers(req, res, next) {
   const knexI = req.app.get('db')
@@ -119,7 +119,7 @@ function postUser(req, res, next) {
     .then(user => {
       res
       .status(201)
-      .location(path.posix.join(req.originalUrl, `/${user.username}`))
+      .location(path.posix.join(req.originalUrl, `/${user.id}`))
       .json(sanitize(user))
     })
     .catch(next)

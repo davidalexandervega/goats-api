@@ -99,7 +99,7 @@ describe('User endpoints', () => {
     })
   })
 
-  describe('GET /api/user/:username', () => {
+  describe('GET /api/user/:id', () => {
 
     context('given user exists', () => {
       beforeEach('insert user into db', () => {
@@ -115,7 +115,7 @@ describe('User endpoints', () => {
         delete testUser['password']
         delete testUser['fullname']
         return supertest(app)
-          .get(`/api/user/${testUser.username}`)
+          .get(`/api/user/${testUser.id}`)
           .expect(200, testUser)
       })
     })
@@ -123,8 +123,8 @@ describe('User endpoints', () => {
     context('given user does not exist', () => {
       const testUser = makeUser.good()
       return supertest(app)
-        .get(`/api/user/${testUser.username}`)
-        .expect(404, { error: { message: `Username does not exist` } })
+        .get(`/api/user/${testUser.id}`)
+        .expect(404, { error: { message: `User does not exist` } })
     })
   })
 
@@ -133,8 +133,8 @@ describe('User endpoints', () => {
       const postBody = makeUser.postBody()
       it('responds with 201 and new user with id', () => {
         const expected = {
-          ...postBody,
-          // id: `${getUuid('Hello killer')}`
+          id: 1,
+          ...postBody
         }
         return supertest(app)
           .post('/api/user')
@@ -144,13 +144,13 @@ describe('User endpoints', () => {
             expect(res.body).to.have.property('id')
             expect(res.body.username).to.eql(expected.username)
             expect(res.body.city_id).to.eql(null)
-            expect(res.headers.location).to.eql(`/api/user/${res.body.username}`)
+            expect(res.headers.location).to.eql(`/api/user/${res.body.id}`)
             // expect(res.body.email).to.eql(expected.email)
             return res
           })
           .then(res => {
             return supertest(app)
-              .get(`/api/user/${res.body.username}`)
+              .get(`/api/user/${res.body.id}`)
               .expect(200)
           })
       })
