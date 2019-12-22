@@ -1,7 +1,7 @@
 require('dotenv').config()
-const { NODE_ENV } = require('./config/config')
+const { NODE_ENV, API_KEY } = require('./config/config')
 const express = require('express')
-const favicon = require('serve-favicon')
+//const favicon = require('serve-favicon')
 const path = require('path')
 const morgan = require('morgan')
 const helmet = require('helmet')
@@ -9,10 +9,10 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 
-// const flash = require('connect-flash')
-// const passport = require('passport')
+const flash = require('connect-flash')
+const passport = require('passport')
+const session = require('express-session')
 // const request = require('request')
-// const session = require('express-session')
 const app = express()
 const morganOption = NODE_ENV === 'production' ? 'tiny' : 'dev'
 const corsOption = {
@@ -26,7 +26,8 @@ const {
   eventRouter,
   userRouter,
   countryRouter,
-  authFbRouter
+  authFbRouter,
+  authRouter
 } = require('./routers')
 
 app.use(morgan(morganOption))
@@ -37,20 +38,24 @@ app.use(bodyParser.urlencoded({
   extended: false
 }))
 app.use(cookieParser())
-// app.use(session({
-//   secret: process.env.SECRET_KEY,
-//   resave: false,
-//   saveUninitialized: true
-// }))
-// app.use(passport.initialize());
-// app.use(passport.session());
-// app.use(flash());
-// app.use(express.static(path.join(__dirname, '..', '..', 'client')));
+////
+app.use(session({
+  secret: 'my-secret',
+  resave: false,
+  saveUninitialized: true
+}))
+// app.use(passport.initialize({ passReqToCallback: true}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+app.use(express.static(path.join(__dirname, '..', '..', 'client')));
+//////
 
 app.use('/api/event', eventRouter)
 app.use('/api/user', userRouter)
 app.use('/api/country', countryRouter)
 app.use('/api/v1/', authFbRouter)
+app.use('/api/auth/', authRouter)
 
 app.use(errorHandler)
 

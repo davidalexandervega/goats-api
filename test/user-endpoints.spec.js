@@ -1,6 +1,7 @@
 const app = require('../src/app')
 const knex = require('knex')
 const { makeUsers, makeUser } = require('./user-fixtures')
+const { hashPassword, createToken, checkPassword } = require('../src/utils/token.utils')
 
 describe('User endpoints', () => {
   let db;
@@ -65,7 +66,7 @@ describe('User endpoints', () => {
       it('responds with 200 and array of users without private fields', () => {
         const expectedUser = testUsers[0]
         delete expectedUser['email']
-        delete expectedUser['password']
+        delete expectedUser['password_digest']
         delete expectedUser['fullname']
         return supertest(app)
           .get('/api/user')
@@ -87,7 +88,7 @@ describe('User endpoints', () => {
       it('responds with 200 and sanitized users', () => {
         const expected = makeUser.withSanitizedXss()
         delete expected['email']
-        delete expected['password']
+        delete expected['password_digest']
         delete expected['fullname']
         return supertest(app)
           .get(`/api/user`)
@@ -112,7 +113,7 @@ describe('User endpoints', () => {
       it('responds with 200 and requested user', () => {
         const testUser = makeUser.good()
         delete testUser['email']
-        delete testUser['password']
+        delete testUser['password_digest']
         delete testUser['fullname']
         return supertest(app)
           .get(`/api/user/${testUser.id}`)
@@ -134,8 +135,12 @@ describe('User endpoints', () => {
       it('responds with 201 and new user with id', () => {
         const expected = {
           id: 1,
+          city_id: null,
           ...postBody
         }
+        delete expected['email']
+        delete expected['password']
+
         return supertest(app)
           .post('/api/user')
           .send(postBody)
@@ -151,7 +156,7 @@ describe('User endpoints', () => {
           .then(res => {
             return supertest(app)
               .get(`/api/user/${res.body.id}`)
-              .expect(200)
+              .expect(200, expected)
           })
       })
     })

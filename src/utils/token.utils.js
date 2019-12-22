@@ -1,31 +1,38 @@
-const jwt = require('jsonwebtoken')
-const { facebookAuth } = require('../../config/auth-config')
+const bcrypt = require('bcrypt')                         // bcrypt will encrypt passwords to be saved in db
+const crypto = require('crypto')
 
-const createToken = function (auth) {
-
-  return jwt.sign({
-    id: auth.id
-  },
-  // `${facebookAuth.clientSecret}`,
-  'my-secret',
-  {
-    expiresIn: 60 * 120
-  });
-};
-
-function generateToken(req, res, next) {
-  //req.token = req.user.facebook_provider_token
-  req.token = createToken(req.auth);
-  return next();
+const hashPassword = (password) => {
+  return new Promise((resolve, reject) =>
+    bcrypt.hash(password, 10, (err, hash) => {
+      err ? reject(err) : resolve(hash)
+    })
+  )
 }
 
-function sendToken(req, res) {
-  res.setHeader('x-auth-token', req.token);
-  //return res.status(200).json(req.user);
-  res.status(200).send(JSON.stringify(req.user));
+const createToken = () => {
+  return new Promise((resolve, reject) => {
+    crypto.randomBytes(16, (err, data) => {
+      err ? reject(err) : resolve(data.toString('base64'))
+    })
+  })
+}
+
+const checkPassword = (password, foundUser) => {
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(password, foundUser.password_digest, (error, response) => {
+      if(error) {
+        reject(error)
+      } else if (response) {
+        resolve(response)
+      } else {
+        reject(new Error('Passwords do not match.'))
+      }
+    })
+  })
 }
 
 module.exports = {
-  generateToken,
-  sendToken
+  hashPassword,
+  createToken,
+  checkPassword
 };

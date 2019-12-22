@@ -2,7 +2,7 @@ const express = require('express')
 const path = require('path')
 const UserService = require('../services/user-service')
 const { UserCustom } = require('../models/user')
-const uuid = require('uuid/v1')
+const { createToken, hashPassword, checkPassword } = require('../utils/token.utils')
 const bodyParser = express.json()
 const xss = require('xss')
 const sanitize = user => {
@@ -10,12 +10,12 @@ const sanitize = user => {
     id: user.id,
     username: xss(user.username),
     city_id: user.city_id,
-    //fullname: xss(user.fullname),
     //password: xss(user.password),
     //email: xss(user.email),
-    //type: user.type,
+    //fullname: xss(user.fullname),
     //facebook_provider_id: user.facebook_provider_id,
     //facebook_provider_token: user.facebook_provider_token,
+    //admin: user.admin,
   }
 }
 
@@ -30,6 +30,11 @@ userRouter
   .route('/:id')
   .all(checkExists)
   .get(getById)
+
+userRouter
+  .route('/signin')
+  .post(bodyParser, signin)
+
 
 // userRouter
 //   .route('/:username')
@@ -52,25 +57,43 @@ function checkExists(req, res, next) {
     .catch(next)
 }
 
-// function checkUsernameExists(req, res, next) {
-//   const { username } = req.params
-//   const db = req.app.get('db')
 
-//   UserService
-//     .getByUsername(db, username)
-//     .then(user => {
-//       if (!user) {
-//         return res.status(404).json({ error: { message: `Username doesn't exist` } })
-//       }
-//       res.user = user
-//       next()
-//     })
-//     .catch(next)
-// }
+function signin(req, res, next) {
+  const knexI = req.app.get('db')
+  const { username, password } = req.body
+  const requiredFields = { username, password }
 
-// function getByUsername(req, res, next) {
-//   res.json(sanitize(res.user))
-// }
+  for (const [key, value] of Object.entries(requiredFields)) {
+    if (!value) {
+      return res.status(400).json({ error: { message: `${key} required for signin` } })
+    }
+
+  }
+  let user;
+
+  UserService
+    .getByUsername(knexI, username)
+    .then(foundUser => {
+      if (!foundUser) {
+        return res.status(404).json({ error: { message: `Username doesn't exist` } })
+      }
+      user = foundUser
+      return checkPassword( password, foundUser)
+    })
+    .then(result => createToken())
+    .then(token => {
+      const patchBody = { token }
+      return UserService
+        .updateUser(knexI, user.id, patchBody)
+        .catch(next)
+    })
+    .then(() => {
+      delete user.password_digest
+      res.json(sanitize(user))
+    })
+    .catch(next)
+
+}
 
 function getAllUsers(req, res, next) {
   const knexI = req.app.get('db')
@@ -98,32 +121,38 @@ function postUser(req, res, next) {
     }
   }
 
-
   const regex = new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/);
   if (!regex.test(email)) {
     //logger.error(`${url} is not a valid url`)
-    return res.status(400).json({ error: { message: 'url is invalid' } })
+    return res.status(400).json({ error: { message: 'email is invalid' } })
   }
 
+  let postBody = {
+    username, email, password
+  }
+  //let postBody = new UserCustom({ username, email, password })
 
-  const postBody = new UserCustom(
-    username,
-    email,
-    password
-  )
-
-
-
-  UserService
-    .insertUser(knexI, postBody)
-    .then(user => {
-      res
-      .status(201)
-      .location(path.posix.join(req.originalUrl, `/${user.id}`))
-      .json(sanitize(user))
+  hashPassword(password)
+    .then(hashedPassword => {
+      delete postBody.password
+      postBody.password_digest = hashedPassword
+    })
+    .then(createToken())
+    .then(token => postBody.token = token)
+    .then(() => {
+      return UserService
+        .insertUser(knexI, postBody)
+        .then(user => {
+          res
+          .status(201)
+          .location(path.posix.join(req.originalUrl, `/${user.id}`))
+          .json(sanitize(user))
+        })
     })
     .catch(next)
+
 }
+
 
 
 

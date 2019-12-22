@@ -1,7 +1,10 @@
-function UserCustom(username, email, password) {
+const UserService = require('../services/user-service')
+
+function UserCustom({username, email, password_digest, token}) {
   this.username = username;
   this.email = email;
-  this.password = password;
+  this.password_digest = password_digest;
+  this.token = token;
   this.city_id = null;
   this.fullname = null;
   this.facebook_provider_id = null;
@@ -17,7 +20,7 @@ function UserFB(fullname, email, facebook_provider_id, facebook_provider_token) 
   this.facebook_provider_token = facebook_provider_token;
   this.city_id = null;
   this.username = null;
-  this.password = null;
+  this.password_digest = null;
   this.admin = false;
 }
 
