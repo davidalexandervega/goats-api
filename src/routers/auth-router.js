@@ -15,7 +15,21 @@ const sanitize = user => {
     //fullname: xss(user.fullname),
     //facebook_provider_id: user.facebook_provider_id,
     //facebook_provider_token: user.facebook_provider_token,
-    //admin: user.admin,
+    admin: user.admin
+  }
+}
+const sanitizeAuthed = user => {
+  return {
+    id: user.id,
+    username: xss(user.username),
+    city_id: user.city_id,
+    token: user.token,
+    //password: xss(user.password),
+    email: xss(user.email),
+    fullname: xss(user.fullname),
+    //facebook_provider_id: user.facebook_provider_id,
+    //facebook_provider_token: user.facebook_provider_token,
+    admin: user.admin
   }
 }
 
@@ -50,6 +64,7 @@ function signin(req, res, next) {
     })
     .then(result => createToken())
     .then(token => {
+      user.token = token
       const patchBody = { token }
       return UserService
         .updateUser(knexI, user.id, patchBody)
@@ -57,7 +72,7 @@ function signin(req, res, next) {
     })
     .then(() => {
       delete user.password_digest
-      res.json(sanitize(user))
+      res.json(sanitizeAuthed(user))
     })
     .catch(next)
 

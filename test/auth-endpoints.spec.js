@@ -55,22 +55,32 @@ describe('User endpoints', () => {
           .post('/api/user')
           .send(postBody)
           .then(res => {
-            return db
-              .where('id', res.body.id)
-              .from('app_user')
-              .update({ city_id: 1392685764})
+            return db('app_user')
+              .where({id: res.body.id})
+              .update({
+                fullname: 'Orlando Garcia',
+                city_id: 1392685764,
+                email: "killeraliens@outlook.com"
+              })
           })
       })
 
-      it('responds with 200 and signed in user', () => {
+      it('responds with 200 and signed in user (with auth fields)', () => {
         const signinBody = makeUser.signinGood()
         const expected = makeUser.signedInRes()
-
 
         return supertest(app)
           .post('/api/auth/signin')
           .send(signinBody)
-          .expect(200, expected)
+          .expect(200)
+          .expect(res => {
+            expect(res.body.id).to.eql(expected.id)
+            expect(res.body.username).to.eql(expected.username)
+            expect(res.body.city_id).to.eql(expected.city_id)
+            expect(res.body.admin).to.eql(expected.admin)
+            expect(res.body.email).to.eql(expected.email)
+            expect(res.body.token).to.not.eql(null)
+          })
 
       })
     })

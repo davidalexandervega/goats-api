@@ -133,14 +133,8 @@ describe('User endpoints', () => {
     context('given the post body is accurate', () => {
       const postBody = makeUser.postBody()
       it('responds with 201 and new user with id', () => {
-        const expected = {
-          id: 1,
-          city_id: null,
-          ...postBody
-        }
-        delete expected['email']
-        delete expected['password']
-
+        const expected = makeUser.postResp()
+        const publicRes = makeUser.publicRes()
         return supertest(app)
           .post('/api/user')
           .send(postBody)
@@ -149,14 +143,16 @@ describe('User endpoints', () => {
             expect(res.body).to.have.property('id')
             expect(res.body.username).to.eql(expected.username)
             expect(res.body.city_id).to.eql(null)
+            expect(res.body.admin).to.eql(false)
             expect(res.headers.location).to.eql(`/api/user/${res.body.id}`)
-            // expect(res.body.email).to.eql(expected.email)
+            expect(res.body.email).to.eql(expected.email)
+            expect(res.body.token).to.not.eql(null)
             return res
           })
           .then(res => {
             return supertest(app)
               .get(`/api/user/${res.body.id}`)
-              .expect(200, expected)
+              .expect(200, publicRes)
           })
       })
     })
@@ -165,5 +161,6 @@ describe('User endpoints', () => {
 
     })
   })
+
 
 })

@@ -15,7 +15,21 @@ const sanitize = user => {
     //fullname: xss(user.fullname),
     //facebook_provider_id: user.facebook_provider_id,
     //facebook_provider_token: user.facebook_provider_token,
-    //admin: user.admin,
+    admin: user.admin
+  }
+}
+const sanitizeAuthed = user => {
+  return {
+    id: user.id,
+    username: xss(user.username),
+    city_id: user.city_id,
+    //password: xss(user.password),
+    email: xss(user.email),
+    fullname: xss(user.fullname),
+    token: user.token,
+    //facebook_provider_id: user.facebook_provider_id,
+    //facebook_provider_token: user.facebook_provider_token,
+    admin: user.admin
   }
 }
 
@@ -31,15 +45,6 @@ userRouter
   .all(checkExists)
   .get(getById)
 
-userRouter
-  .route('/signin')
-  .post(bodyParser, signin)
-
-
-// userRouter
-//   .route('/:username')
-//   .all(checkUsernameExists)
-//   .get(getByUsername)
 
 function checkExists(req, res, next) {
   const { id } = req.params
@@ -55,44 +60,6 @@ function checkExists(req, res, next) {
       next()
     })
     .catch(next)
-}
-
-
-function signin(req, res, next) {
-  const knexI = req.app.get('db')
-  const { username, password } = req.body
-  const requiredFields = { username, password }
-
-  for (const [key, value] of Object.entries(requiredFields)) {
-    if (!value) {
-      return res.status(400).json({ error: { message: `${key} required for signin` } })
-    }
-
-  }
-  let user;
-
-  UserService
-    .getByUsername(knexI, username)
-    .then(foundUser => {
-      if (!foundUser) {
-        return res.status(404).json({ error: { message: `Username doesn't exist` } })
-      }
-      user = foundUser
-      return checkPassword( password, foundUser)
-    })
-    .then(result => createToken())
-    .then(token => {
-      const patchBody = { token }
-      return UserService
-        .updateUser(knexI, user.id, patchBody)
-        .catch(next)
-    })
-    .then(() => {
-      delete user.password_digest
-      res.json(sanitize(user))
-    })
-    .catch(next)
-
 }
 
 function getAllUsers(req, res, next) {
@@ -127,18 +94,22 @@ function postUser(req, res, next) {
     return res.status(400).json({ error: { message: 'email is invalid' } })
   }
 
+  //check if username is unique
+  // res.status(400).json({ error: { message: 'username already exists' }})
+
   let postBody = {
     username, email, password
   }
-  //let postBody = new UserCustom({ username, email, password })
 
   hashPassword(password)
     .then(hashedPassword => {
       delete postBody.password
       postBody.password_digest = hashedPassword
     })
-    .then(createToken())
-    .then(token => postBody.token = token)
+    .then(() => createToken())
+    .then(token => {
+      postBody.token = token
+    })
     .then(() => {
       return UserService
         .insertUser(knexI, postBody)
@@ -146,7 +117,7 @@ function postUser(req, res, next) {
           res
           .status(201)
           .location(path.posix.join(req.originalUrl, `/${user.id}`))
-          .json(sanitize(user))
+          .json(sanitizeAuthed(user))
         })
     })
     .catch(next)
