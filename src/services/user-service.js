@@ -37,6 +37,14 @@ const UserService = {
       .first()
   },
 
+  getByToken(knex, token) {
+    return knex
+      .select('*')
+      .from('app_user')
+      .where('token', token)
+      .first()
+  },
+
   updateUser(knex, id, patchBody) {
     return knex
       .where('id', id)

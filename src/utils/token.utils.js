@@ -31,6 +31,7 @@ const checkPassword = (password, foundUser) => {
   })
 }
 
+
 module.exports = {
   hashPassword,
   createToken,

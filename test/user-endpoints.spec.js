@@ -1,7 +1,6 @@
 const app = require('../src/app')
 const knex = require('knex')
 const { makeUsers, makeUser } = require('./user-fixtures')
-const { hashPassword, createToken, checkPassword } = require('../src/utils/token.utils')
 
 describe('User endpoints', () => {
   let db;
@@ -67,7 +66,9 @@ describe('User endpoints', () => {
         const expectedUser = testUsers[0]
         delete expectedUser['email']
         delete expectedUser['password_digest']
+        delete expectedUser['token']
         delete expectedUser['fullname']
+
         return supertest(app)
           .get('/api/user')
           .expect(200)
@@ -103,32 +104,143 @@ describe('User endpoints', () => {
   describe('GET /api/user/:id', () => {
 
     context('given user exists', () => {
-      beforeEach('insert user into db', () => {
-        const testUser = makeUser.good()
-        return db
-          .insert([testUser])
-          .into('app_user')
+      let authedUser;
+
+      beforeEach('signup test user, insert additional fields', () => {
+        const postBody = makeUser.postBody()
+        return supertest(app)
+          .post('/api/auth/signup')
+          .send(postBody)
+          .then(res => {
+            authedUser = res.body
+            authedUser = {
+              ...authedUser,
+              fullname: 'Orlando Garcia',
+              city_id: 1392685764,
+              email: "killeraliens@outlook.com"
+            }
+            return db('app_user')
+              .where({ id: authedUser.id })
+              .update({
+                fullname: 'Orlando Garcia',
+                city_id: 1392685764,
+                email: "killeraliens@outlook.com"
+              })
+          })
       })
 
-      it('responds with 200 and requested user', () => {
-        const testUser = makeUser.good()
-        delete testUser['email']
-        delete testUser['password_digest']
-        delete testUser['fullname']
-        return supertest(app)
-          .get(`/api/user/${testUser.id}`)
-          .expect(200, testUser)
+      context('given the user is signed in', () => {
+        const signInBody = makeUser.signinGood()
+
+        it('responds with 200 and requested user (with additional auth fields)', () => {
+          const expected = authedUser;
+          delete expected['password_digest']
+          // delete expected['token']
+
+          return supertest(app)
+            .post('/api/auth/signin')
+            .send(signInBody)
+            .expect(res => {
+              authedUser = res.body
+              return supertest(app)
+                .get(`/api/user/${authedUser.id}`)
+                .set({
+                  "Authorization": `Bearer ${authedUser.token}`
+                })
+                .expect(200, expected)
+            })
+        })
+      })
+
+      context('given the user is not signed in', () => {
+        it('responds with 200 and requested user', () => {
+          const expected = makeUser.good()
+          delete expected['email']
+          delete expected['password_digest']
+          delete expected['fullname']
+
+          return supertest(app)
+            .get(`/api/user/${expected.id}`)
+            .expect(200, expected)
+        })
       })
     })
 
     context('given user does not exist', () => {
-      const testUser = makeUser.good()
+      const expected = makeUser.good()
       return supertest(app)
-        .get(`/api/user/${testUser.id}`)
+        .get(`/api/user/${expected.id}`)
         .expect(404, { error: { message: `User does not exist` } })
     })
   })
 
+  describe('PATCH /api/user/:id endpoint', () => {
+    context('given the user exists', () => {
+      let authedUser;
 
+      beforeEach('signup test user', () => {
+        const postBody = makeUser.postBody()
+        return supertest(app)
+          .post('/api/auth/signup')
+          .send(postBody)
+          .then(res => {
+            authedUser = res.body
+          })
+      })
+
+      context('given the user is signed in', () => {
+        it('responds with 204 and user is updated in db', () => {
+          const signInBody = makeUser.signinGood()
+          const patchBody = makeUser.patchBody()
+
+          return supertest(app)
+            .post('/api/auth/signin')
+            .send(signInBody)
+            .then(res => {
+              authedUser = res.body
+
+              return supertest(app)
+                .patch(`/api/user/${authedUser.id}`)
+                .send(patchBody)
+                .set({
+                  "Authorization": `Bearer ${authedUser.token}`
+                })
+                .expect(204)
+                .then(() => {
+                  return supertest(app)
+                    .get(`/api/user/${authedUser.id}`)
+                    .set({
+                      "Authorization": `Bearer ${authedUser.token}`
+                    })
+                    .expect(200)
+                    .then(res => {
+                      const expected = {
+                        ...authedUser,
+                        ...patchBody
+                      }
+                      delete expected.password
+                      expected.admin = false
+
+                      expect(res.body).to.eql(expected)
+                    })
+                })
+            })
+        })
+      })
+
+      context('given the user is not signed in', () => {
+        it('responds with 401', () => {
+          const patchBody = makeUser.patchBody()
+          // patchBody.token = authedUser.token
+          //console.log('patch body', patchBody)
+          return supertest(app)
+            .patch(`/api/user/${authedUser.id}`)
+            .send(patchBody)
+            .expect(401, { error: { message: 'must be authenticated'}})
+        })
+      })
+
+    })
+  })
 
 })

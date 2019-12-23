@@ -110,11 +110,12 @@ function signin(req, res, next) {
     })
     .then(() => {
       delete user.password_digest
+      // req.user = user
+      // return next()
       res.json(sanitizeAuthed(user))
     })
     .catch(next)
 
 }
-
 
 module.exports = authRouter;

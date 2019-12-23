@@ -3,7 +3,8 @@ function makeUsers() {
     {
       id: 1,
       username: 'killer',
-      password_digest: `killerpassword`,
+      password_digest: `killerpasswordNOTHASHED`,
+      token: 'notRealToken',
       email: `killeraliens@outlook.com`,
       fullname: 'Orlando Garcia',
       city_id: 1392685764,
@@ -12,7 +13,8 @@ function makeUsers() {
     {
       id: 2,
       username: 'aliens',
-      password_digest: `alienspassword`,
+      password_digest: `alienspasswordNOTHASHED`,
+      token: 'notRealToken',
       email: `alexandrabrinncampbell@gmail.com`,
       fullname: 'Ali Campbell',
       city_id: 1792756324,
@@ -51,6 +53,16 @@ const makeUser = {
       username: 'killer',
       password: `killerpassword`,
       email: `killeraliens@outlook.com`,
+    }
+  },
+
+  patchBody() {
+    return {
+      username: 'nowkiller',
+      password: 'newkillerpassword',
+      email: 'newemail',
+      city_id: 1792756324,
+      admin: true //should not be patchable
     }
   },
 
