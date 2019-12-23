@@ -1,9 +1,6 @@
 const express = require('express')
-const path = require('path')
 const UserService = require('../services/user-service')
-const { UserCustom } = require('../models/user')
-const { createToken, hashPassword, checkPassword } = require('../utils/token.utils')
-const bodyParser = express.json()
+//const bodyParser = express.json()
 const xss = require('xss')
 const sanitize = user => {
   return {
@@ -18,27 +15,12 @@ const sanitize = user => {
     admin: user.admin
   }
 }
-const sanitizeAuthed = user => {
-  return {
-    id: user.id,
-    username: xss(user.username),
-    city_id: user.city_id,
-    //password: xss(user.password),
-    email: xss(user.email),
-    fullname: xss(user.fullname),
-    token: user.token,
-    //facebook_provider_id: user.facebook_provider_id,
-    //facebook_provider_token: user.facebook_provider_token,
-    admin: user.admin
-  }
-}
 
 const userRouter = express.Router()
 
 userRouter
   .route('/')
   .get(getAllUsers)
-  .post(bodyParser, postUser)
 
 userRouter
   .route('/:id')
@@ -77,52 +59,52 @@ function getById(req, res, next) {
   res.json(sanitize(res.user))
 }
 
-function postUser(req, res, next) {
-  const knexI = req.app.get('db')
-  const { username, password, email } = req.body
-  const requiredFields = { username, password, email }
+// function postUser(req, res, next) {
+//   const knexI = req.app.get('db')
+//   const { username, password, email } = req.body
+//   const requiredFields = { username, password, email }
 
-  for (const [key, value] of Object.entries(requiredFields)) {
-    if (!value) {
-      return res.status(400).json({ error: { message: `${key} required in post body` } })
-    }
-  }
+//   for (const [key, value] of Object.entries(requiredFields)) {
+//     if (!value) {
+//       return res.status(400).json({ error: { message: `${key} required in post body` } })
+//     }
+//   }
 
-  const regex = new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/);
-  if (!regex.test(email)) {
-    //logger.error(`${url} is not a valid url`)
-    return res.status(400).json({ error: { message: 'email is invalid' } })
-  }
+//   const regex = new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/);
+//   if (!regex.test(email)) {
+//     //logger.error(`${url} is not a valid url`)
+//     return res.status(400).json({ error: { message: 'email is invalid' } })
+//   }
 
-  //check if username is unique
-  // res.status(400).json({ error: { message: 'username already exists' }})
+//   //check if username is unique
+//   // res.status(400).json({ error: { message: 'username already exists' }})
 
-  let postBody = {
-    username, email, password
-  }
+//   let postBody = {
+//     username, email, password
+//   }
 
-  hashPassword(password)
-    .then(hashedPassword => {
-      delete postBody.password
-      postBody.password_digest = hashedPassword
-    })
-    .then(() => createToken())
-    .then(token => {
-      postBody.token = token
-    })
-    .then(() => {
-      return UserService
-        .insertUser(knexI, postBody)
-        .then(user => {
-          res
-          .status(201)
-          .location(path.posix.join(req.originalUrl, `/${user.id}`))
-          .json(sanitizeAuthed(user))
-        })
-    })
-    .catch(next)
+//   hashPassword(password)
+//     .then(hashedPassword => {
+//       delete postBody.password
+//       postBody.password_digest = hashedPassword
+//     })
+//     .then(() => createToken())
+//     .then(token => {
+//       postBody.token = token
+//     })
+//     .then(() => {
+//       return UserService
+//         .insertUser(knexI, postBody)
+//         .then(user => {
+//           res
+//           .status(201)
+//           .location(path.posix.join(req.originalUrl, `/${user.id}`))
+//           .json(sanitizeAuthed(user))
+//         })
+//     })
+//     .catch(next)
 
-}
+// }
 
 
 

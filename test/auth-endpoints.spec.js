@@ -46,13 +46,45 @@ describe('User endpoints', () => {
     return db.destroy()
   })
 
+  describe('POST /api/auth/signup endpoint', () => {
+    context('given the post body is accurate', () => {
+      const postBody = makeUser.postBody()
+      it('responds with 201 and new user with id (with additional auth fields)', () => {
+        const expected = makeUser.postResp()
+        const publicRes = makeUser.publicRes()
+        return supertest(app)
+          .post('/api/auth/signup')
+          .send(postBody)
+          .expect(201)
+          .then(res => {
+            expect(res.body).to.have.property('id')
+            expect(res.body.username).to.eql(expected.username)
+            expect(res.body.city_id).to.eql(null)
+            expect(res.body.admin).to.eql(false)
+            expect(res.headers.location).to.eql(`/api/user/${res.body.id}`)
+            expect(res.body.email).to.eql(expected.email)
+            expect(res.body.token).to.not.eql(null)
+            return res
+          })
+          .then(res => {
+            return supertest(app)
+              .get(`/api/user/${res.body.id}`)
+              .expect(200, publicRes)
+          })
+      })
+    })
+
+    context('given there are errors in post body', () => {
+
+    })
+  })
 
   describe('POST /api/auth/signin endpoint', () => {
     context('given the username and password are correct', () => {
-      beforeEach('post new user', () => {
+      beforeEach('post a new user to match signedInRes', () => {
         const postBody = makeUser.postBody()
         return supertest(app)
-          .post('/api/user')
+          .post('/api/auth/signup')
           .send(postBody)
           .then(res => {
             return db('app_user')
@@ -65,7 +97,7 @@ describe('User endpoints', () => {
           })
       })
 
-      it('responds with 200 and signed in user (with auth fields)', () => {
+      it('responds with 200 and signed in user (with additional auth fields)', () => {
         const signinBody = makeUser.signinGood()
         const expected = makeUser.signedInRes()
 
@@ -85,4 +117,6 @@ describe('User endpoints', () => {
       })
     })
   })
+
+
 })
