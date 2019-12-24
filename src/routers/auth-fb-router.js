@@ -20,7 +20,6 @@ function isAuthorized(req, res, next) {
   if (!req.user) {
     return res.send(401, 'User Not Authenticated');
   }
-  console.log('is authorize function req user', req.user)
   req.auth = {
     id: req.user.facebook_provider_id
   };
