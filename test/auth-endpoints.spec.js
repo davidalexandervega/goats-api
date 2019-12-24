@@ -1,10 +1,10 @@
 const app = require('../src/app')
 const knex = require('knex')
 const { makeUsers, makeUser } = require('./user-fixtures')
-const { hashPassword, createToken, checkPassword } = require('../src/utils/token.utils')
+
 
 describe('User endpoints', () => {
-  let db;
+  let db
   before('create knex db instance', () => {
     db = knex({
       client: 'pg',
@@ -118,5 +118,51 @@ describe('User endpoints', () => {
     })
   })
 
+  describe('GET /api/auth/signout endpoint', () => {
+    context('given the user exists', () => {
+      let authedUser;
+
+      beforeEach('signup test user', () => {
+        const postBody = makeUser.postBody()
+        return supertest(app)
+          .post('/api/auth/signup')
+          .send(postBody)
+          .then(res => {
+            authedUser = res.body
+          })
+      })
+
+
+      context('given the user is signed in', () => {
+        const signInBody = makeUser.signinGood()
+        it('it responds with 204 and kills the session', () => {
+
+          return supertest(app)
+            .post('/api/auth/signin')
+            .send(signInBody)
+            .then( res => {
+              authedUser = res.body
+              //expect(res.status).to.eql(400)
+              return supertest(app)
+                .get(`/api/auth/signout`)
+                .set({
+                  "Authorization": `Bearer ${authedUser.token}`
+                })
+                .expect(204)
+            })
+        })
+      })
+
+      context('given the user does not have token', () => {
+        it('responds with 404', () => {
+          return supertest(app)
+            .get(`/api/auth/signout`)
+            .expect(404)
+        })
+      })
+
+    })
+  })
 
 })
+

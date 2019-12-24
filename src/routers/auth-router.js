@@ -30,8 +30,22 @@ authRouter
   .route('/signup')
   .post(bodyParser, signup)
 
+authRouter
+  .route('/signout')
+  .get(signout)
+
+
+function signout(req, res, next) {
+  if(req.user && Object.keys(req.user).length !== 0) {
+    delete req.user
+    return res.status(204).end()
+  }
+  delete req.user
+  res.status(404).end()
+}
 
 function signup(req, res, next) {
+
   const knexI = req.app.get('db')
   const { username, password, email } = req.body
   const requiredFields = { username, password, email }
@@ -52,7 +66,9 @@ function signup(req, res, next) {
   // res.status(400).json({ error: { message: 'username already exists' }})
 
   let postBody = {
-    username, email, password
+    username,
+    email,
+    password
   }
 
   hashPassword(password)
@@ -68,6 +84,8 @@ function signup(req, res, next) {
       return UserService
         .insertUser(knexI, postBody)
         .then(user => {
+          //console.log('user at signup', req.user)
+          //req.user = user
           res
             .status(201)
             .location(path.posix.join('/api/user', `/${user.id}`))
@@ -79,6 +97,7 @@ function signup(req, res, next) {
 }
 
 function signin(req, res, next) {
+  //console.log('user at signin', req.user)
   const knexI = req.app.get('db')
   const { username, password } = req.body
   const requiredFields = { username, password }
@@ -112,6 +131,7 @@ function signin(req, res, next) {
       delete user.password_digest
       // req.user = user
       // return next()
+      //req.user = user
       res.json(sanitizeAuthed(user))
     })
     .catch(next)
