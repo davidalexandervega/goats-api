@@ -9,9 +9,9 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 
-const flash = require('connect-flash')
-const passport = require('passport')
-const session = require('express-session')
+//const flash = require('connect-flash')
+//const passport = require('passport')
+//const session = require('express-session')
 // const request = require('request')
 const app = express()
 const morganOption = NODE_ENV === 'production' ? 'tiny' : 'dev'
@@ -38,33 +38,34 @@ app.use(bodyParser.urlencoded({
   extended: false
 }))
 app.use(cookieParser())
-////
-app.use(session({
-  secret: 'my-secret',
-  resave: false,
-  saveUninitialized: true
-}))
-// app.use(passport.initialize({ passReqToCallback: true}));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(flash());
-app.use(express.static(path.join(__dirname, '..', '..', 'client')));
+//// implemented for custom login
+// app.use(session({
+//   secret: 'my-secret',
+//   resave: true,
+//   saveUninitialized: true
+// }))
+//app.use(passport.initialize());
+// app.use(passport.session());
+// app.use(flash());
+// app.use(express.static(path.join(__dirname, '..', '..', 'client')));
 //////
-
+app.use(setReqUserBearerToken)
 app.use('/api/v1', authFbRouter)
-app.use('/api/auth', authRouter)
+app.use('/api/auth',  authRouter)
 app.use('/api/event', eventRouter)
-app.use('/api/user', setReqUserBearerToken, userRouter)
+app.use('/api/user', userRouter)
 app.use('/api/country', countryRouter)
 
 app.use(errorHandler)
 
 function setReqUserBearerToken(req, res, next) {
+  //console.log('Session at requestBearer', req)
   const knexI = req.app.get('db')
   const authHeader = req.get('Authorization')
   const bearerToken = authHeader ? authHeader.split(' ')[1] : null;
   if (!bearerToken) {
     req.user = {}
+    //req.user = {}
     return next()
   }
 
@@ -73,8 +74,10 @@ function setReqUserBearerToken(req, res, next) {
       if (!user) {
         req.user = {}
         return next()
+      } else if (!req.user) {
+        req.user = {}
       }
-      req.user = {}
+
       req.user.token = bearerToken
       return next()
     })
