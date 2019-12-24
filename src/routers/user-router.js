@@ -100,7 +100,6 @@ function isAuthenticated(knexI, id, reqUser) {
 }
 
 function getById(req, res, next) {
-  console.log('REQ AT GET BYID', req.user)
   const knexI = req.app.get('db')
 
   if(isAuthenticated(knexI, res.user.id, req.user)) {
@@ -122,7 +121,6 @@ function getAllUsers(req, res, next) {
 }
 
 function patchUser(req, res, next) {
-  console.log('USERS TOKEN in Patch', req.user.token)
   const knexI = req.app.get('db')
   const { id } = req.params
   const { username, password, fullname, city_id, email } = req.body
