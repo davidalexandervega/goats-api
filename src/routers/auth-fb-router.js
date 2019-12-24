@@ -3,10 +3,11 @@ var passport = require('passport');
 const authFbRouter = express.Router();
 //const { generateToken, sendToken } = require('../utils/token.utils');
 require('../mws/passport-auth-fb')();
-
+const bodyParser = express.json()
 
 authFbRouter.route('/auth/facebook')
   .post(
+    bodyParser,
     passport.authenticate('facebook-token', { session: false }),
     isAuthorized,
     sendFBToken
