@@ -1,9 +1,9 @@
 const express = require('express');
 var passport = require('passport');
 const authFbRouter = express.Router();
-//const { generateToken, sendToken } = require('../utils/token.utils');
-require('../mws/passport-auth-fb')();
 const bodyParser = express.json()
+
+require('../mws/passport-auth-fb')();
 
 authFbRouter.route('/auth/facebook')
   .post(
@@ -13,7 +13,7 @@ authFbRouter.route('/auth/facebook')
     sendFBToken
     //generateToken,
     //sendToken
-  );
+  )
 
 
 function isAuthorized(req, res, next) {
@@ -31,5 +31,8 @@ function sendFBToken(req, res) {
   res.setHeader('x-auth-token', req.auth.id);
   return res.status(200).send(JSON.stringify(req.user));
 }
+
+
+
 
 module.exports = authFbRouter;

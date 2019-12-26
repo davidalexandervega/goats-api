@@ -1,32 +1,51 @@
 const UserService = require('../services/user-service')
+const xss = require('xss')
 
-function User() {
-  this.username = null;
-  this.email = null;
-  this.password_digest = null;
-  this.token = null;
-  this.city_id = null;
-  this.fullname = null;
-  this.facebook_provider_id = null;
-  this.facebook_provider_token = null;
-  this.admin = false;
+class User {
+  constructor() {
+    this.username = null;
+    this.email = null;
+    this.password_digest = null;
+    this.token = null;
+    this.city_id = null;
+    this.fullname = null;
+    this.facebook_provider_id = null;
+    this.facebook_provider_token = null;
+    this.admin = false;
+  }
+}
+  // this.sanitizeAuthed = function sanitizeAuthed() {
+  //   return {
+  //     id: this.id,
+  //     username: xss(this.username),
+  //     city_id: this.city_id,
+  //     token: this.token,
+  //     email: xss(this.email),
+  //     fullname: xss(this.fullname),
+  //     admin: this.admin
+  //   }
+  // }
+
+
+class UserCustom extends User {
+  constructor({ username, email, password_digest, token }) {
+    super();
+    this.username = username;
+    this.email = email;
+    this.password_digest = password_digest;
+    this.token = token;
+  }
 }
 
-function UserCustom({username, email, password_digest, token}) {
-  User.call(this)
-  this.username = username;
-  this.email = email;
-  this.password_digest = password_digest;
-  this.token = token;
-}
 
-
-function UserFB({fullname, email, facebook_provider_id, facebook_provider_token}) {
-  User.call(this)
-  this.fullname = fullname;
-  this.email = email;
-  this.facebook_provider_id = facebook_provider_id;
-  this.facebook_provider_token = facebook_provider_token;
+class UserFB extends User {
+  constructor({fullname, email, facebook_provider_id, facebook_provider_token}) {
+    super();
+    this.fullname = fullname;
+    this.email = email;
+    this.facebook_provider_id = facebook_provider_id;
+    this.facebook_provider_token = facebook_provider_token;
+  }
 }
 
 

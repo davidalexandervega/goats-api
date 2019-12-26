@@ -51,6 +51,7 @@ function postEventFromFacebook(req) {
 
 
 function getAllEvents(req, res, next) {
+  console.log('Current reg user in EVENTS', req.user)
   const knexI = req.app.get('db')
   EventService
     .getAllEvents(knexI)

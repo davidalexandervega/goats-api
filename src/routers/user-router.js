@@ -74,7 +74,7 @@ function authenticate(req, res, next) {
     .then(user => {
       if (user.id == id) {
         req.user = user
-        console.log('SETTING req USER', req.user)
+        //console.log('SETTING req USER', req.user)
         return next()
       }
       return res.status(403).json({ error: { message: 'must be authenticated' } })
@@ -102,7 +102,8 @@ function getById(req, res, next) {
   const knexI = req.app.get('db')
 
   if(isAuthenticated(knexI, res.user.id, req.user)) {
-    return res.json(sanitizeAuthed(res.user))
+   return res.json(sanitizeAuthed(res.user))
+   //return res.json(res.user.sanitizeAuthed())
   }
 
   res.json(sanitize(res.user))
@@ -125,9 +126,12 @@ function patchUser(req, res, next) {
   const { username, password, fullname, city_id, email } = req.body
   const userReq = { username, password, fullname, city_id, email }
 
- if(!hasAtLeastOne(userReq)) {
-   return res.status(400).json(`patch body must contain at least one required field`)
- }
+
+  const arrWithVals = Object.values(userReq).filter(val => val)
+  if (arrWithVals.length === 0) {
+    return res.status(400).json({ message: 'Request body must contain at least one required field'})
+  }
+
 
   let patchBody
 

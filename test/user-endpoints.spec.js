@@ -244,7 +244,7 @@ describe('User endpoints', () => {
                 .set({
                   "Authorization": `Bearer ${authedUser.token}`
                 })
-                .expect(400)
+                .expect(400, { message: 'Request body must contain at least one required field'})
                 .then(() => {
                   return supertest(app)
                     .get(`/api/user/${authedUser.id}`)
