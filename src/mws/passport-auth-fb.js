@@ -19,28 +19,26 @@ module.exports = function () {
 
       let error; // use in case there is no error
       let user;  // use in case there is no user
-      //console.log('PASSPRTS FB ACCESSTOKEN', accessToken)
+
       UserService
         .getByFBId(knexI, profile.id)
         .then(existingUser => {
 
           if (!existingUser) {
-            //console.log('no user, making post')
 
-            const postBody = new UserFB(
-              profile.displayName,
-              profile.emails[0].value,
-              profile.id,
-              accessToken
-            )
+            const newUser = new UserFB({
+              fullname: profile.displayName,
+              email: profile.emails[0].value,
+              facebook_provider_id: profile.id,
+              facebook_provider_token: accessToken
+            })
 
-            return UserService.insertUser(knexI, postBody)
+            return UserService.insertUser(knexI, newUser)
               .then(newUser => {
                 if(!newUser) {
                   error = new Error('Trouble saving new user')
                   return done(error, user)
                 }
-                //console.log('returning new user', newUser)
                 return done(error, newUser)
               })
 
@@ -54,8 +52,6 @@ module.exports = function () {
                     error = new Error('Trouble updating user')
                     return done(error, user)
                   }
-                  //console.log('returning updated user', updatedUser.facebook_provider_id)
-                  //console.log('with saved token', updatedUser.facebook_provider_token)
                   return done(error, updatedUser)
                 })
             })

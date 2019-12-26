@@ -1,7 +1,7 @@
 const express = require('express')
 const path = require('path')
 const UserService = require('../services/user-service')
-//const { UserCustom } = require('../models/user')
+const { UserCustom } = require('../models/user')
 const { createToken, hashPassword, checkPassword } = require('../utils/token.utils')
 const bodyParser = express.json()
 const xss = require('xss')
@@ -65,39 +65,36 @@ function signup(req, res, next) {
   //check if username is unique
   // res.status(400).json({ error: { message: 'username already exists' }})
 
-  let postBody = {
+  let newUser = new UserCustom ({
     username,
-    email,
-    password
-  }
+    email
+  })
 
   hashPassword(password)
     .then(hashedPassword => {
-      delete postBody.password
-      postBody.password_digest = hashedPassword
+      newUser.password_digest = hashedPassword
     })
     .then(() => createToken())
     .then(token => {
-      postBody.token = token
+      newUser.token = token
     })
     .then(() => {
+
       return UserService
-        .insertUser(knexI, postBody)
+        .insertUser(knexI, newUser)
         .then(user => {
-          //console.log('user at signup', req.user)
-          //req.user = user
           res
             .status(201)
             .location(path.posix.join('/api/user', `/${user.id}`))
             .json(sanitizeAuthed(user))
         })
+        .catch(next)
     })
     .catch(next)
 
 }
 
 function signin(req, res, next) {
-  //console.log('user at signin', req.user)
   const knexI = req.app.get('db')
   const { username, password } = req.body
   const requiredFields = { username, password }
@@ -114,7 +111,7 @@ function signin(req, res, next) {
     .getByUsername(knexI, username)
     .then(foundUser => {
       if (!foundUser) {
-        return res.status(404).json({ error: { message: `Username doesn't exist` } })
+        return res.status(404).json({ error: { message: `Check your username or password` } })
       }
       user = foundUser
       return checkPassword(password, foundUser)
@@ -129,9 +126,6 @@ function signin(req, res, next) {
     })
     .then(() => {
       delete user.password_digest
-      // req.user = user
-      // return next()
-      //req.user = user
       res.json(sanitizeAuthed(user))
     })
     .catch(next)
