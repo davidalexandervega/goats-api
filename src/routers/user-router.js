@@ -96,7 +96,6 @@ function isAuthenticated(knexI, id, reqUser) {
       }
       return false
     })
-    //.catch(next)
 }
 
 function getById(req, res, next) {
@@ -125,12 +124,12 @@ function patchUser(req, res, next) {
   const { id } = req.params
   const { username, password, fullname, city_id, email } = req.body
   const userReq = { username, password, fullname, city_id, email }
+
+ if(!hasAtLeastOne(userReq)) {
+   return res.status(400).json(`patch body must contain at least one required field`)
+ }
+
   let patchBody
-  //hasAtLeastOne(patchBody)
-  const arrWithVals = Object.values(userReq).filter(val => val)
-  if (arrWithVals.length === 0) {
-    return res.status(400).json(`patch body must contain at least one required field`)
-  }
 
   if(password) {
     const password_digest = hashPassword(password) //validate and encrypt

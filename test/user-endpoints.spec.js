@@ -226,6 +226,45 @@ describe('User endpoints', () => {
                 })
             })
         })
+
+        it('responds with 400 when no relevant fields are supplied', () => {
+          const signInBody = makeUser.signinGood()
+          const patchBody = makeUser.patchBodyMissingField()
+
+
+          return supertest(app)
+            .post('/api/auth/signin')
+            .send(signInBody)
+            .then(res => {
+              authedUser = res.body
+
+              return supertest(app)
+                .patch(`/api/user/${authedUser.id}`)
+                .send(patchBody)
+                .set({
+                  "Authorization": `Bearer ${authedUser.token}`
+                })
+                .expect(400)
+                .then(() => {
+                  return supertest(app)
+                    .get(`/api/user/${authedUser.id}`)
+                    .set({
+                      "Authorization": `Bearer ${authedUser.token}`
+                    })
+                    .expect(200)
+                    .then(res => {
+                      const expected = {
+                        ...authedUser,
+                        // ...patchBody
+                      }
+                      delete expected.password
+                      expected.admin = false
+
+                      expect(res.body).to.eql(expected)
+                    })
+                })
+            })
+        })
       })
 
       context('given the user is not signed in', () => {

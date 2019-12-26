@@ -66,6 +66,12 @@ const makeUser = {
     }
   },
 
+  patchBodyMissingField() {
+    return {
+      notafield: 'bad field'
+    }
+  },
+
   postResp() {
     return {
       id: 1,
