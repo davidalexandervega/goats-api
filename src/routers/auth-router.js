@@ -35,7 +35,7 @@ authRouter
   .get(signout)
 
 
-function signout(req, res, next) {
+function signout(req, res) {
   if(req.user && Object.keys(req.user).length !== 0) {
     delete req.user
     return res.status(204).end()

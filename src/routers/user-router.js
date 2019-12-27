@@ -1,4 +1,5 @@
 const express = require('express')
+//const { User } = require('../models/user')
 const UserService = require('../services/user-service')
 const bodyParser = express.json()
 const { hashPassword, checkPassword } = require('../utils/token.utils')
@@ -55,6 +56,7 @@ function checkExists(req, res, next) {
       if (!user) {
         return res.status(404).json({ error: { message: `User doesn't exist` } })
       }
+      //res.user = user
       res.user = user
 
       next()
@@ -102,7 +104,7 @@ function getById(req, res, next) {
   const knexI = req.app.get('db')
 
   if(isAuthenticated(knexI, res.user.id, req.user)) {
-   return res.json(sanitizeAuthed(res.user))
+    return res.json(sanitizeAuthed(res.user))
    //return res.json(res.user.sanitizeAuthed())
   }
 

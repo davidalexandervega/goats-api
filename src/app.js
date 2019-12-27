@@ -59,13 +59,12 @@ app.use('/api/country', countryRouter)
 app.use(errorHandler)
 
 function setReqUserBearerToken(req, res, next) {
-  //console.log('Session at requestBearer', req)
   const knexI = req.app.get('db')
   const authHeader = req.get('Authorization')
   const bearerToken = authHeader ? authHeader.split(' ')[1] : null;
+
   if (!bearerToken) {
     req.user = {}
-    //req.user = {}
     return next()
   }
 

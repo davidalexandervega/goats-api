@@ -13,18 +13,9 @@ class User {
     this.facebook_provider_token = null;
     this.admin = false;
   }
+
 }
-  // this.sanitizeAuthed = function sanitizeAuthed() {
-  //   return {
-  //     id: this.id,
-  //     username: xss(this.username),
-  //     city_id: this.city_id,
-  //     token: this.token,
-  //     email: xss(this.email),
-  //     fullname: xss(this.fullname),
-  //     admin: this.admin
-  //   }
-  // }
+
 
 
 class UserCustom extends User {
@@ -35,6 +26,7 @@ class UserCustom extends User {
     this.password_digest = password_digest;
     this.token = token;
   }
+
 }
 
 
@@ -49,4 +41,4 @@ class UserFB extends User {
 }
 
 
-module.exports = { UserCustom, UserFB };
+module.exports = { UserCustom, UserFB, User };
