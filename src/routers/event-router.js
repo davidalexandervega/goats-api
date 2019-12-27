@@ -3,6 +3,7 @@ const express = require('express')
 const eventRouter = express.Router()
 const EventService = require('../services/event-service')
 const bodyParser = express.json()
+const logger = require('../utils/logger.utils')
 const xss = require('xss')
 const sanitize = event => {
   return {
@@ -40,22 +41,23 @@ function postEventFromFacebook(req) {
   fb.api(`/v3.2/${facebookProviderId}/events`, function (res) {
   //fb.api(`/${facebookProviderId}/permissions`, function (res) {
     if (!res || res.error) {
-      console.log(!res ? 'error occurred' : res.error);
+      //console.log(!res ? 'error occurred' : res.error);
+      logger.error(`Error within fb api cb ${!res ? 'error occurred' : res.error}`)
       return;
     }
 
-    console.log(res);
+    logger.error(`Fb api cb res ${JSON.stringify(res)}`)
     return
   });
 }
 
 
 function getAllEvents(req, res, next) {
-  console.log('Current reg user in EVENTS', req.user)
   const knexI = req.app.get('db')
   EventService
     .getAllEvents(knexI)
     .then(events => {
+      logger.info(`Successful GET /event`)
       const sanitized = events.map(event => sanitize(event))
       res.json(sanitized)
     })

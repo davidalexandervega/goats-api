@@ -1,7 +1,8 @@
 const express = require('express');
 var passport = require('passport');
 const authFbRouter = express.Router();
-const bodyParser = express.json()
+const bodyParser = express.json();
+const logger = require('../utils/logger.utils')
 
 require('../mws/passport-auth-fb')();
 
@@ -18,6 +19,7 @@ authFbRouter.route('/auth/facebook')
 
 function isAuthorized(req, res, next) {
   if (!req.user) {
+    logger.error(`POST /auth/facebook User not authenticated`)
     return res.send(401, 'User Not Authenticated');
   }
   req.auth = {
@@ -27,7 +29,7 @@ function isAuthorized(req, res, next) {
 }
 
 function sendFBToken(req, res) {
-
+  logger.info(`Successful POST /auth/facebook token retrieval by id ${req.user.id}`)
   res.setHeader('x-auth-token', req.auth.id);
   return res.status(200).send(JSON.stringify(req.user));
 }

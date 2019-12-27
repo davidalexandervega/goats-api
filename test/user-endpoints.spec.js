@@ -277,7 +277,7 @@ describe('User endpoints', () => {
           return supertest(app)
             .patch(`/api/user/${authedUser.id}`)
             .send(patchBody)
-            .expect(401, { error: { message: 'must be authenticated'}})
+            .expect(401, { error: { message: 'Must be authenticated'}})
         })
       })
 

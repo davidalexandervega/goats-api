@@ -2,6 +2,7 @@ const express = require('express')
 const UserService = require('../services/user-service')
 const UserUtils = require('../utils/user.utils')
 const bodyParser = express.json()
+const logger = require('../utils/logger.utils')
 
 const userRouter = express.Router()
 
@@ -24,6 +25,7 @@ function checkExists(req, res, next) {
     .getById(db, id)
     .then(user => {
       if (!user) {
+        logger.error(`User with id ${id} does not exist`)
         return res.status(404).json({ error: { message: `User doesn't exist` } })
       }
       //res.user = user
@@ -39,7 +41,8 @@ function authenticate(req, res, next) {
   const { id } = req.params
   const { token } = req.user
   if (!token) {
-    return res.status(401).json({ error: { message: 'must be authenticated' } })
+    logger.error(`Must be authenticated`)
+    return res.status(401).json({ error: { message: 'Must be authenticated' } })
   }
 
   UserService.getByToken(knexI, token)
@@ -49,7 +52,8 @@ function authenticate(req, res, next) {
         //console.log('SETTING req USER', req.user)
         return next()
       }
-      return res.status(403).json({ error: { message: 'must be authenticated' } })
+      logger.error(`Must be authenticated`)
+      return res.status(403).json({ error: { message: 'Must be authenticated' } })
     })
     .catch(next)
 }
@@ -73,10 +77,10 @@ function getById(req, res, next) {
   const knexI = req.app.get('db')
 
   if(isAuthenticated(knexI, res.user.id, req.user)) {
-   // return res.json(sanitizeAuthed(res.user))
-   return res.json(UserUtils.sanitizeAuthed(res.user))
+    logger.info(`Successful GET /user/:id by authed user ${res.user.id}`)
+    return res.json(UserUtils.sanitizeAuthed(res.user))
   }
-
+  logger.info(`Successful GET /user/:id by public user`)
   res.json(UserUtils.sanitize(res.user))
 }
 
@@ -85,6 +89,7 @@ function getAllUsers(req, res, next) {
   UserService
     .getAllUsers(knexI)
     .then(users => {
+      logger.info(`Successful GET /user by user`)
       const sanitized = users.map(user => UserUtils.sanitize(user))
       res.json(sanitized)
     })
@@ -100,9 +105,9 @@ function patchUser(req, res, next) {
 
   const arrWithVals = Object.values(userReq).filter(val => val)
   if (arrWithVals.length === 0) {
+    logger.error(`PATCH /user/${id} Request body must contain at least one required field`)
     return res.status(400).json({ message: 'Request body must contain at least one required field'})
   }
-
 
   let patchBody
 
@@ -116,7 +121,8 @@ function patchUser(req, res, next) {
 
   UserService
     .updateUser(knexI, id, patchBody)
-    .then(() => {
+    .then(numOfFieldsAffected => {
+      logger.info(`Successful PATCH /user/${id}, affecting ${numOfFieldsAffected} fields`)
       return res.status(204).end()
     })
     .catch(next)

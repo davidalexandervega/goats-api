@@ -118,6 +118,7 @@ function signin(req, res, next) {
     })
     .then(() => {
       delete user.password_digest
+      logger.info(`Successful POST /signin by username ${user.username}`)
       res.json(UserUtils.sanitizeAuthed(user))
     })
     .catch(next)
