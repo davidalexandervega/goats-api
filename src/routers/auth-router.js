@@ -1,24 +1,10 @@
 const express = require('express')
 const path = require('path')
-const UserService = require('../services/user-service')
 const { UserCustom } = require('../models/user')
-const { createToken, hashPassword, checkPassword } = require('../utils/token.utils')
+const UserService = require('../services/user-service')
+const UserUtils = require('../utils/user.utils')
 const bodyParser = express.json()
-const xss = require('xss')
-const sanitizeAuthed = user => {
-  return {
-    id: user.id,
-    username: xss(user.username),
-    city_id: user.city_id,
-    token: user.token,
-    //password: xss(user.password),
-    email: xss(user.email),
-    fullname: xss(user.fullname),
-    //facebook_provider_id: user.facebook_provider_id,
-    //facebook_provider_token: user.facebook_provider_token,
-    admin: user.admin
-  }
-}
+
 
 const authRouter = express.Router()
 
@@ -70,11 +56,11 @@ function signup(req, res, next) {
     email
   })
 
-  hashPassword(password)
+  UserUtils.hashPassword(password)
     .then(hashedPassword => {
       newUser.password_digest = hashedPassword
     })
-    .then(() => createToken())
+    .then(() => UserUtils.createToken())
     .then(token => {
       newUser.token = token
     })
@@ -86,7 +72,7 @@ function signup(req, res, next) {
           res
             .status(201)
             .location(path.posix.join('/api/user', `/${user.id}`))
-            .json(sanitizeAuthed(user))
+            .json(UserUtils.sanitizeAuthed(user))
         })
         .catch(next)
     })
@@ -114,9 +100,9 @@ function signin(req, res, next) {
         return res.status(404).json({ error: { message: `Check your username or password` } })
       }
       user = foundUser
-      return checkPassword(password, foundUser)
+      return UserUtils.checkPassword(password, foundUser)
     })
-    .then(result => createToken())
+    .then(result => UserUtils.createToken())
     .then(token => {
       user.token = token
       const patchBody = { token }
@@ -126,7 +112,7 @@ function signin(req, res, next) {
     })
     .then(() => {
       delete user.password_digest
-      res.json(sanitizeAuthed(user))
+      res.json(UserUtils.sanitizeAuthed(user))
     })
     .catch(next)
 

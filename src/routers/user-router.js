@@ -1,37 +1,7 @@
 const express = require('express')
-//const { User } = require('../models/user')
 const UserService = require('../services/user-service')
+const UserUtils = require('../utils/user.utils')
 const bodyParser = express.json()
-const { hashPassword, checkPassword } = require('../utils/token.utils')
-const { hasAtLeastOne } = require('../utils/validations.utils')
-const xss = require('xss')
-const sanitize = user => {
-  return {
-    id: user.id,
-    username: xss(user.username),
-    city_id: user.city_id,
-    //password: xss(user.password),
-    //email: xss(user.email),
-    //fullname: xss(user.fullname),
-    //facebook_provider_id: user.facebook_provider_id,
-    //facebook_provider_token: user.facebook_provider_token,
-    admin: user.admin
-  }
-}
-const sanitizeAuthed = user => {
-  return {
-    id: user.id,
-    username: xss(user.username),
-    city_id: user.city_id,
-    token: user.token,
-    //password: xss(user.password),
-    email: xss(user.email),
-    fullname: xss(user.fullname),
-    //facebook_provider_id: user.facebook_provider_id,
-    //facebook_provider_token: user.facebook_provider_token,
-    admin: user.admin
-  }
-}
 
 const userRouter = express.Router()
 
@@ -85,7 +55,6 @@ function authenticate(req, res, next) {
 }
 
 function isAuthenticated(knexI, id, reqUser) {
-
   const { token } = reqUser
   if (!token) {
     return false
@@ -104,11 +73,11 @@ function getById(req, res, next) {
   const knexI = req.app.get('db')
 
   if(isAuthenticated(knexI, res.user.id, req.user)) {
-    return res.json(sanitizeAuthed(res.user))
-   //return res.json(res.user.sanitizeAuthed())
+   // return res.json(sanitizeAuthed(res.user))
+   return res.json(UserUtils.sanitizeAuthed(res.user))
   }
 
-  res.json(sanitize(res.user))
+  res.json(UserUtils.sanitize(res.user))
 }
 
 function getAllUsers(req, res, next) {
@@ -116,7 +85,7 @@ function getAllUsers(req, res, next) {
   UserService
     .getAllUsers(knexI)
     .then(users => {
-      const sanitized = users.map(user => sanitize(user))
+      const sanitized = users.map(user => UserUtils.sanitize(user))
       res.json(sanitized)
     })
     .catch(next)
@@ -138,7 +107,7 @@ function patchUser(req, res, next) {
   let patchBody
 
   if(password) {
-    const password_digest = hashPassword(password) //validate and encrypt
+    const password_digest = UserUtils.hashPassword(password) //validate and encrypt
     patchBody = { username, fullname, password_digest, city_id, email }
   } else {
     //validate all as in signup
