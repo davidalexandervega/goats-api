@@ -3,7 +3,7 @@ const knex = require('knex')
 const { makeUsers, makeUser } = require('./user-fixtures')
 
 
-describe('User endpoints', () => {
+describe('Auth endpoints', () => {
   let db
   before('create knex db instance', () => {
     db = knex({
@@ -13,8 +13,11 @@ describe('User endpoints', () => {
     app.set('db', db)
   })
 
-  before('clears city country app_user tables', () => {
-    return db.raw('TRUNCATE city, country, app_user')
+  before('clears app_user and related tables', () => {
+    return db.raw(`
+      TRUNCATE city, country, app_user, venue, event, band, band_event
+      RESTART IDENTITY CASCADE
+    `)
   })
 
   before('insert country_city city_id FK', () => {
@@ -34,12 +37,16 @@ describe('User endpoints', () => {
     `)
   })
 
-  beforeEach('clears app_user table', () => {
-    return db.truncate('app_user')
+  beforeEach('clears app_user and child tables', () => {
+    return db.raw(`
+      TRUNCATE app_user, venue, event, band, band_event RESTART IDENTITY CASCADE
+    `)
   })
 
-  afterEach('clears app_user table', () => {
-    return db.truncate('app_user')
+  afterEach('clears app_user and child tables', () => {
+    return db.raw(`
+      TRUNCATE app_user, venue, event, band, band_event RESTART IDENTITY CASCADE
+    `)
   })
 
   after('kill knex db', () => {

@@ -11,16 +11,16 @@ describe('Event endpoints', () => {
     app.set('db', db)
   })
 
-  before('clears event table', () => {
-    return db.truncate('event')
+  before('clears event and child tables', () => {
+    return db.raw(`TRUNCATE event, band_event RESTART IDENTITY CASCADE`)
   })
 
-  beforeEach('clears event table', () => {
-    return db.truncate('event')
+  beforeEach('clears event and child tables', () => {
+    return db.raw(`TRUNCATE event, band_event RESTART IDENTITY CASCADE`)
   })
 
-  afterEach('clears event table', () => {
-    return db.truncate('event')
+  afterEach('clears event and child tables', () => {
+    return db.raw(`TRUNCATE event, band_event RESTART IDENTITY CASCADE`)
   })
 
   after('kill knex db', () => {

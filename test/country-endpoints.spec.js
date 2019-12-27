@@ -11,16 +11,16 @@ describe('Country endpoints', () => {
     app.set('db', db)
   })
 
-  before('clears country table', () => {
-    return db.raw('TRUNCATE city, country, app_user')
+  before('clears country and all child tables', () => {
+    return db.raw('TRUNCATE city, country, app_user, venue, event, band, band_event')
   })
 
-  beforeEach('clears country table', () => {
-    return db.raw('TRUNCATE city, country, app_user')
+  beforeEach('clears country and all child tables', () => {
+    return db.raw('TRUNCATE city, country, app_user, venue, event, band,  band_event')
   })
 
-  afterEach('clears country table', () => {
-    return db.raw('TRUNCATE city, country,  app_user')
+  afterEach('clears country and all child tables', () => {
+    return db.raw('TRUNCATE city, country, app_user, venue, event, band,  band_event')
   })
 
   after('kill knex db', () => {

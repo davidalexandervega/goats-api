@@ -12,8 +12,11 @@ describe('User endpoints', () => {
     app.set('db', db)
   })
 
-  before('clears city country app_user tables', () => {
-    return db.raw('TRUNCATE city, country, app_user')
+  before('clears app_user and related tables', () => {
+    return db.raw(`
+      TRUNCATE city, country, app_user, venue, event, band, band_event
+      RESTART IDENTITY CASCADE
+    `)
   })
 
   before('insert country_city city_id FK', () => {
@@ -33,12 +36,16 @@ describe('User endpoints', () => {
     `)
   })
 
-  beforeEach('clears app_user table', () => {
-    return db.truncate('app_user')
+  beforeEach('clears app_user and child tables', () => {
+    return db.raw(`
+      TRUNCATE app_user, venue, event, band, band_event RESTART IDENTITY CASCADE
+    `)
   })
 
-  afterEach('clears app_user table', () => {
-    return db.truncate('app_user')
+  afterEach('clears app_user and child tables', () => {
+    return db.raw(`
+      TRUNCATE app_user, venue, event, band, band_event RESTART IDENTITY CASCADE
+    `)
   })
 
   after('kill knex db', () => {
@@ -130,25 +137,27 @@ describe('User endpoints', () => {
       })
 
       context('given the user is signed in', () => {
-        const signInBody = makeUser.signinGood()
-
-        it('responds with 200 and requested user (with additional auth fields)', () => {
-          const expected = authedUser;
-          delete expected['password_digest']
-          // delete expected['token']
-
+        beforeEach('signin test user', () => {
+          const signInBody = makeUser.signinGood()
           return supertest(app)
             .post('/api/auth/signin')
             .send(signInBody)
             .expect(res => {
               authedUser = res.body
-              return supertest(app)
-                .get(`/api/user/${authedUser.id}`)
-                .set({
-                  "Authorization": `Bearer ${authedUser.token}`
-                })
-                .expect(200, expected)
             })
+
+        })
+
+        it('responds with 200 and requested user (with additional auth fields)', () => {
+          const expected = authedUser;
+          delete expected['password_digest']
+          // delete expected['token']
+          return supertest(app)
+            .get(`/api/user/${authedUser.id}`)
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(200, expected)
         })
       })
 
@@ -189,40 +198,41 @@ describe('User endpoints', () => {
       })
 
       context('given the user is signed in', () => {
-        it('responds with 204 and user is updated in db', () => {
+        beforeEach('signin test user', () => {
           const signInBody = makeUser.signinGood()
-          const patchBody = makeUser.patchBody()
-
           return supertest(app)
             .post('/api/auth/signin')
             .send(signInBody)
-            .then(res => {
+            .expect(res => {
               authedUser = res.body
+            })
+        })
 
+        it('responds with 204 and user is updated in db', () => {
+          const patchBody = makeUser.patchBody()
+          return supertest(app)
+            .patch(`/api/user/${authedUser.id}`)
+            .send(patchBody)
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(204)
+            .then(() => {
               return supertest(app)
-                .patch(`/api/user/${authedUser.id}`)
-                .send(patchBody)
+                .get(`/api/user/${authedUser.id}`)
                 .set({
                   "Authorization": `Bearer ${authedUser.token}`
                 })
-                .expect(204)
-                .then(() => {
-                  return supertest(app)
-                    .get(`/api/user/${authedUser.id}`)
-                    .set({
-                      "Authorization": `Bearer ${authedUser.token}`
-                    })
-                    .expect(200)
-                    .then(res => {
-                      const expected = {
-                        ...authedUser,
-                        ...patchBody
-                      }
-                      delete expected.password
-                      expected.admin = false
+                .expect(200)
+                .then(res => {
+                  const expected = {
+                    ...authedUser,
+                    ...patchBody
+                  }
+                  delete expected.password
+                  expected.admin = false
 
-                      expect(res.body).to.eql(expected)
-                    })
+                  expect(res.body).to.eql(expected)
                 })
             })
         })
@@ -231,37 +241,29 @@ describe('User endpoints', () => {
           const signInBody = makeUser.signinGood()
           const patchBody = makeUser.patchBodyMissingField()
 
-
           return supertest(app)
-            .post('/api/auth/signin')
-            .send(signInBody)
-            .then(res => {
-              authedUser = res.body
-
+            .patch(`/api/user/${authedUser.id}`)
+            .send(patchBody)
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(400, { message: 'Request body must contain at least one required field'})
+            .then(() => {
               return supertest(app)
-                .patch(`/api/user/${authedUser.id}`)
-                .send(patchBody)
+                .get(`/api/user/${authedUser.id}`)
                 .set({
                   "Authorization": `Bearer ${authedUser.token}`
                 })
-                .expect(400, { message: 'Request body must contain at least one required field'})
-                .then(() => {
-                  return supertest(app)
-                    .get(`/api/user/${authedUser.id}`)
-                    .set({
-                      "Authorization": `Bearer ${authedUser.token}`
-                    })
-                    .expect(200)
-                    .then(res => {
-                      const expected = {
-                        ...authedUser,
-                        // ...patchBody
-                      }
-                      delete expected.password
-                      expected.admin = false
+                .expect(200)
+                .then(res => {
+                  const expected = {
+                    ...authedUser,
+                    // ...patchBody
+                  }
+                  delete expected.password
+                  expected.admin = false
 
-                      expect(res.body).to.eql(expected)
-                    })
+                  expect(res.body).to.eql(expected)
                 })
             })
         })

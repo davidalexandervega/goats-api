@@ -1,9 +1,8 @@
 const express = require('express')
 const countryRouter = express.Router()
 const CountryService = require('../services/country-service')
-const bodyParser = express.json()
-const xss = require('xss')
-// const sanitize = event => {
+// const xss = require('xss')
+// const sanitize = country => {
 //   return {
 //     id: event.id,
 //     fb_place_id: event.fb_place_id,
@@ -24,7 +23,7 @@ function getAllCountries(req, res, next) {
   CountryService
     .getAllCountries(knexI)
     .then(countries => {
-      const sanitized = countries.map(country => sanitize(country))
+      const sanitized = countries.map(country => country)
       res.json(sanitized)
     })
 }
