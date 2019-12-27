@@ -9,6 +9,6 @@ CREATE TABLE app_user (
   password_digest TEXT,
   admin BOOL DEFAULT false,
   city_id INT REFERENCES city(id) ON DELETE SET NULL,
-  created_at TIMESTAMP
+  created_at TIMESTAMP DEFAULT now()
 );
 
