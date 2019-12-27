@@ -1,7 +1,7 @@
 require('dotenv').config()
 const { NODE_ENV, API_KEY } = require('./config/config')
 const express = require('express')
-//const favicon = require('serve-favicon')
+const logger = require('./utils/logger.utils')
 const path = require('path')
 const morgan = require('morgan')
 const helmet = require('helmet')
@@ -95,6 +95,7 @@ function setReqUserBearerToken(req, res, next) {
 function errorHandler(error, req, res, next) {
   let response
   if (NODE_ENV === "production") {
+    logger.error(`500 Error message: ${error.message}`)
     response = { error: { message: "Server Error" } }
   } else {
     console.log(error)

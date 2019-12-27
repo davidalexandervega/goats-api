@@ -4,7 +4,7 @@ const { UserCustom } = require('../models/user')
 const UserService = require('../services/user-service')
 const UserUtils = require('../utils/user.utils')
 const bodyParser = express.json()
-
+const logger = require('../utils/logger.utils')
 
 const authRouter = express.Router()
 
@@ -23,10 +23,12 @@ authRouter
 
 function signout(req, res) {
   if(req.user && Object.keys(req.user).length !== 0) {
+    logger.info(`successful GET /signout by ${req.user.id}`)
     delete req.user
     return res.status(204).end()
   }
   delete req.user
+  logger.error('unauthed req.user GET /signout')
   res.status(404).end()
 }
 
@@ -38,13 +40,14 @@ function signup(req, res, next) {
 
   for (const [key, value] of Object.entries(requiredFields)) {
     if (!value) {
+      logger.error(`POST /signup missing required value ${key}`)
       return res.status(400).json({ error: { message: `${key} required in post body` } })
     }
   }
 
   const regex = new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/);
   if (!regex.test(email)) {
-    //logger.error(`${url} is not a valid url`)
+    logger.error(`POST /signup ${url} is not a valid url`)
     return res.status(400).json({ error: { message: 'email is invalid' } })
   }
 
@@ -69,6 +72,7 @@ function signup(req, res, next) {
       return UserService
         .insertUser(knexI, newUser)
         .then(user => {
+          logger.info(`successful POST /signup by username ${user.username}`)
           res
             .status(201)
             .location(path.posix.join('/api/user', `/${user.id}`))
@@ -87,6 +91,7 @@ function signin(req, res, next) {
 
   for (const [key, value] of Object.entries(requiredFields)) {
     if (!value) {
+      logger.error(`POST /signin missing required value ${key}`)
       return res.status(400).json({ error: { message: `${key} required for signin` } })
     }
 
@@ -97,6 +102,7 @@ function signin(req, res, next) {
     .getByUsername(knexI, username)
     .then(foundUser => {
       if (!foundUser) {
+        logger.error(`POST /signin username ${username} does not exist`)
         return res.status(404).json({ error: { message: `Check your username or password` } })
       }
       user = foundUser
