@@ -110,8 +110,11 @@ function signin(req, res, next) {
     })
     .then(result => UserUtils.createToken())
     .then(token => {
+      let last_login =  Date.now()
+      last_login = new Date(last_login)
       user.token = token
-      const patchBody = { token }
+      user.last_login = last_login
+      const patchBody = { token, last_login }
       return UserService
         .updateUser(knexI, user.id, patchBody)
         .catch(next)

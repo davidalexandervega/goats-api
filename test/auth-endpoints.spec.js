@@ -58,7 +58,7 @@ describe('Auth endpoints', () => {
       const postBody = makeUser.postBody()
       it('responds with 201 and new user with id (with additional auth fields)', () => {
         const expected = makeUser.postResp()
-        const publicRes = makeUser.publicRes()
+
         return supertest(app)
           .post('/api/auth/signup')
           .send(postBody)
@@ -71,12 +71,15 @@ describe('Auth endpoints', () => {
             expect(res.headers.location).to.eql(`/api/user/${res.body.id}`)
             expect(res.body.email).to.eql(expected.email)
             expect(res.body.token).to.not.eql(null)
+            const expectedDate = new Date().toLocaleString()
+            const actualDate = new Date(res.body.created).toLocaleString()
+            expect(actualDate).to.eql(expectedDate)
             return res
           })
           .then(res => {
             return supertest(app)
               .get(`/api/user/${res.body.id}`)
-              .expect(200, publicRes)
+              .expect(200)
           })
       })
     })
@@ -119,6 +122,11 @@ describe('Auth endpoints', () => {
             expect(res.body.admin).to.eql(expected.admin)
             expect(res.body.email).to.eql(expected.email)
             expect(res.body.token).to.not.eql(null)
+            const expectedDate = new Date().toLocaleString()
+            const actualLastLoginDate = new Date(res.body.last_login).toLocaleString()
+            const actualCreatedDate = new Date(res.body.last_login).toLocaleString()
+            expect(actualLastLoginDate).to.eql(expectedDate)
+            expect(actualCreatedDate).to.eql(expectedDate)
           })
 
       })

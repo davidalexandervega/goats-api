@@ -11,6 +11,6 @@ CREATE TABLE app_user (
   city_id INT REFERENCES city(id) ON DELETE NO ACTION,
   created TIMESTAMP DEFAULT now(),
   modified TIMESTAMP DEFAULT now(),
-  last_login DATE
+  last_login TIMESTAMP
 );
 

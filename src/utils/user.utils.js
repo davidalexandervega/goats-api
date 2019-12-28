@@ -12,7 +12,10 @@ const sanitize = user => {
     //fullname: xss(user.fullname),
     //facebook_provider_id: user.facebook_provider_id,
     //facebook_provider_token: user.facebook_provider_token,
-    admin: user.admin
+    admin: user.admin,
+    created: user.created,
+    //modified: user.modified,
+    //last_login: user.last_login
   }
 }
 
@@ -27,7 +30,10 @@ const sanitizeAuthed = user => {
     fullname: xss(user.fullname),
     //facebook_provider_id: user.facebook_provider_id,
     //facebook_provider_token: user.facebook_provider_token,
-    admin: user.admin
+    admin: user.admin,
+    created: user.created,
+    modified: user.modified,
+    last_login: user.last_login
   }
 }
 

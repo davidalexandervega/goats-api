@@ -1,7 +1,7 @@
 const app = require('../src/app')
 const knex = require('knex')
 const { makeUsers, makeUser } = require('./user-fixtures')
-
+makeUser.good()
 describe('User endpoints', () => {
   let db;
   before('create knex db instance', () => {
@@ -75,13 +75,16 @@ describe('User endpoints', () => {
         delete expectedUser['password_digest']
         delete expectedUser['token']
         delete expectedUser['fullname']
+        delete expectedUser['modified']
+        delete expectedUser['last_login']
 
         return supertest(app)
           .get('/api/user')
           .expect(200)
           .expect(res => {
             expect(res.body.length).to.equal(2)
-            expect(res.body[0]).to.eql(expectedUser)
+            expect(res.body[0]).to.have.property('created')
+            expect(delete res.body[0].created).to.eql(delete expectedUser.created)
           })
       })
     })
@@ -102,7 +105,9 @@ describe('User endpoints', () => {
           .get(`/api/user`)
           .expect(200)
           .expect(res => {
-            expect(res.body[0]).to.eql(expected)
+            expect(res.body.length).to.equal(1)
+            expect(res.body[0]).to.have.property('created')
+            expect(delete res.body[0].created).to.eql(delete expected.created)
           })
       })
     })
@@ -149,15 +154,24 @@ describe('User endpoints', () => {
         })
 
         it('responds with 200 and requested user (with additional auth fields)', () => {
-          const expected = authedUser;
-          delete expected['password_digest']
-          // delete expected['token']
           return supertest(app)
             .get(`/api/user/${authedUser.id}`)
             .set({
               "Authorization": `Bearer ${authedUser.token}`
             })
-            .expect(200, expected)
+            .expect(200)
+            .expect(res => {
+              expect(res.body).to.have.property('id')
+              expect(res.body).to.have.property('email')
+              expect(res.body).to.have.property('created')
+              expect(res.body).to.have.property('last_login')
+              expect(res.body).to.have.property('modified')
+              expect(res.body).to.have.property('fullname')
+              expect(res.body).to.have.property('token')
+              //expect(res.body).to.have.property('facebook_auth_token')
+              expect(res.body.password_digest).to.eql(undefined)
+              expect(res.body).to.eql(authedUser)
+            })
         })
       })
 
@@ -165,20 +179,26 @@ describe('User endpoints', () => {
         it('responds with 200 and requested user', () => {
           const expected = makeUser.good()
           delete expected['email']
-          delete expected['password_digest']
           delete expected['fullname']
+          delete expected['modified']
+          delete expected['last_login']
 
           return supertest(app)
             .get(`/api/user/${expected.id}`)
-            .expect(200, expected)
+            .expect(200)
+            .expect(res => {
+              expect(res.body).to.have.property('created')
+              delete res.body['created']
+              delete expected['created']
+              expect(res.body).to.eql(expected)
+            })
         })
       })
     })
 
     context('given user does not exist', () => {
-      const expected = makeUser.good()
       return supertest(app)
-        .get(`/api/user/${expected.id}`)
+        .get(`/api/user/666`)
         .expect(404, { error: { message: `User does not exist` } })
     })
   })
@@ -208,7 +228,8 @@ describe('User endpoints', () => {
             })
         })
 
-        it('responds with 204 and user is updated in db', () => {
+        it('responds with 204 and user is updated in db', function() {
+          this.retries(3)
           const patchBody = makeUser.patchBody()
           return supertest(app)
             .patch(`/api/user/${authedUser.id}`)
@@ -229,16 +250,18 @@ describe('User endpoints', () => {
                     ...authedUser,
                     ...patchBody
                   }
-                  delete expected.password
-                  expected.admin = false
+                  delete expected['password']
+                  expected['admin'] = false
 
+                  const expectedDate = new Date().toLocaleString()
+                  const actualDate = new Date(res.body.modified).toLocaleString()
+                  expect(actualDate).to.eql(expectedDate)
                   expect(res.body).to.eql(expected)
                 })
             })
         })
 
-        it('responds with 400 when no relevant fields are supplied', () => {
-          const signInBody = makeUser.signinGood()
+        it('responds with 400 when no relevant fields are supplied, does not update', () => {
           const patchBody = makeUser.patchBodyMissingField()
 
           return supertest(app)
@@ -260,9 +283,8 @@ describe('User endpoints', () => {
                     ...authedUser,
                     // ...patchBody
                   }
-                  delete expected.password
-                  expected.admin = false
-
+                  delete expected['password']
+                  expected['admin'] = false
                   expect(res.body).to.eql(expected)
                 })
             })
@@ -272,8 +294,6 @@ describe('User endpoints', () => {
       context('given the user is not signed in', () => {
         it('responds with 401', () => {
           const patchBody = makeUser.patchBody()
-          // patchBody.token = authedUser.token
-          //console.log('patch body', patchBody)
           return supertest(app)
             .patch(`/api/user/${authedUser.id}`)
             .send(patchBody)

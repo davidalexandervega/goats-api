@@ -8,7 +8,7 @@ function makeUsers() {
       email: `killeraliens@outlook.com`,
       fullname: 'Orlando Garcia',
       city_id: 1392685764,
-      admin: false
+      admin: false,
     },
     {
       id: 2,
@@ -18,7 +18,7 @@ function makeUsers() {
       email: `alexandrabrinncampbell@gmail.com`,
       fullname: 'Ali Campbell',
       city_id: 1792756324,
-      admin: false
+      admin: false,
     },
   ]
 }
@@ -28,7 +28,6 @@ const makeUser = {
     return {
       id: 1,
       username: 'killer',
-      password_digest: `killerpassword`,
       email: `killeraliens@outlook.com`,
       fullname: 'Orlando Garcia',
       city_id: 1392685764,
@@ -44,7 +43,7 @@ const makeUser = {
       fullname: 'Orlando Garcia',
       city_id: 1392685764,
       token: 'notNull',
-      admin: false
+      admin: false,
     }
   },
 
@@ -80,15 +79,6 @@ const makeUser = {
       admin: false,
       city_id: null,
       token: 'notnull'
-    }
-  },
-
-  publicRes() {
-    return {
-      id: 1,
-      username: 'killer',
-      admin: false,
-      city_id: null,
     }
   },
 
