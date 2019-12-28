@@ -41,8 +41,8 @@ function authenticate(req, res, next) {
   const { id } = req.params
   const { token } = req.user
   if (!token) {
-    logger.error(`Must be authenticated`)
-    return res.status(401).json({ error: { message: 'Must be authenticated' } })
+    logger.error(`Not authorized!`)
+    return res.status(401).json({ error: { message: 'Not authorized!' } })
   }
 
   UserService.getByToken(knexI, token)
@@ -52,8 +52,8 @@ function authenticate(req, res, next) {
         //console.log('SETTING req USER', req.user)
         return next()
       }
-      logger.error(`Must be authenticated`)
-      return res.status(403).json({ error: { message: 'Must be authenticated' } })
+      logger.error(`Not authorized!`)
+      return res.status(401).json({ error: { message: 'Not authorized!' } })
     })
     .catch(next)
 }

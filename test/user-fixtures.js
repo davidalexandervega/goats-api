@@ -55,6 +55,14 @@ const makeUser = {
     }
   },
 
+  postBody2() {
+    return {
+      username: 'aliens',
+      password: `alienspassword`,
+      email: `alexandrabrinncampbell@gmail.com`,
+    }
+  },
+
   patchBody() {
     return {
       username: 'nowkiller',

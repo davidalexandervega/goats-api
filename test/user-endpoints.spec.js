@@ -206,7 +206,7 @@ describe('User endpoints', () => {
   describe('PATCH /api/user/:id endpoint', () => {
     context('given the user exists', () => {
       let authedUser;
-
+      let anotherUser;
       beforeEach('signup test user', () => {
         const postBody = makeUser.postBody()
         return supertest(app)
@@ -214,6 +214,16 @@ describe('User endpoints', () => {
           .send(postBody)
           .then(res => {
             authedUser = res.body
+          })
+      })
+
+      beforeEach('signup second test user', () => {
+        const postBody = makeUser.postBody2()
+        return supertest(app)
+          .post('/api/auth/signup')
+          .send(postBody)
+          .then(res => {
+            anotherUser = res.body
           })
       })
 
@@ -289,17 +299,30 @@ describe('User endpoints', () => {
                 })
             })
         })
-      })
 
-      context('given the user is not signed in', () => {
-        it('responds with 401', () => {
+        it('responds with 401 when sent anothers token', () => {
           const patchBody = makeUser.patchBody()
           return supertest(app)
             .patch(`/api/user/${authedUser.id}`)
             .send(patchBody)
-            .expect(401, { error: { message: 'Must be authenticated'}})
+            .set({
+              "Authorization": `Bearer ${anotherUser.token}`
+            })
+            .expect(401, { error: { message: 'Not authorized!' } })
         })
       })
+
+      context('given the user is not signed in', () => {
+        it('responds with 401 when missing auth header', () => {
+          const patchBody = makeUser.patchBody()
+          return supertest(app)
+            .patch(`/api/user/${authedUser.id}`)
+            .send(patchBody)
+            .expect(401, { error: { message: 'Not authorized!'}})
+        })
+
+      })
+
 
     })
   })
