@@ -2,9 +2,10 @@ CREATE TABLE band (
   id SERIAL PRIMARY KEY,
   description TEXT,
   band_name TEXT,
+  image_url TEXT,
   created TIMESTAMP DEFAULT now(),
   modified TIMESTAMP DEFAULT now(),
-  creator SERIAL REFERENCES app_user(id) ON DELETE SET NULL,
+  creator_id SERIAL REFERENCES app_user(id) ON DELETE SET NULL,
   city_id INT REFERENCES city(id) ON DELETE NO ACTION
 );
 

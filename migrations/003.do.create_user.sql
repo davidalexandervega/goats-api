@@ -1,6 +1,7 @@
 CREATE TABLE app_user (
   id SERIAL PRIMARY KEY,
   token TEXT,
+  image_url TEXT,
   facebook_provider_id TEXT UNIQUE,
   facebook_provider_token TEXT,
   email TEXT,
