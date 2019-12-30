@@ -4,6 +4,7 @@ const EventService = {
       .select('*')
       .from('event')
   },
+
 }
 
 module.exports = EventService;

@@ -17,12 +17,19 @@
 // ADD COLUMN listing_state listing_state DEFAULT 'Public';
 
 
+// standard
 function Band({ band_name, city_id, creator_id }) {
   this.creator_id = creator_id;
   this.band_name = band_name;
   this.city_id = city_id;
 }
 
+// for autonomous functions, no creator
+function BandBot({ band_name, city_id }) {
+  this.band_name = band_name;
+  this.city_id = city_id;
+}
+
 module.exports = {
-  Band
+  Band, BandBot
 };

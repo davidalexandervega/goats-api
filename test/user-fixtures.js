@@ -3,7 +3,7 @@ function makeUsers() {
     {
       id: 1,
       username: 'killer',
-      password_digest: `$2a$10$woR.meJcG0nFVI/kmuSgiurGz.LnwJx0VrCYVtLWaPF1rs5lRJF66`, //killerpassword
+      password_digest: `$2a$10$woR.meJcG0nFVI/kmuSgiurGz.LnwJx0VrCYVtLWaPF1rs5lRJF66`, //killerpassword123
       token: 'notRealToken',
       email: `killeraliens@outlook.com`,
       fullname: 'Orlando Garcia',

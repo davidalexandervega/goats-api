@@ -5,17 +5,7 @@ const EventService = require('../services/event-service')
 const bodyParser = express.json()
 const logger = require('../utils/logger.utils')
 const xss = require('xss')
-const sanitize = event => {
-  return {
-    id: event.id,
-    fb_place_id: event.fb_place_id,
-    fb_cover_photo_id: event.fb_cover_photo_id,
-    event_times: event.event_times,
-    event_name: xss(event.event_name),
-    description: xss(event.description),
-    updated_time: event.updated_time
-  }
-}
+const EventUtils = require('../utils/event.utils')
 const { facebookAuth } = require('../config/auth-config')
 const { Facebook } = require('fb')
 const fb = new Facebook({
@@ -58,7 +48,7 @@ function getAllEvents(req, res, next) {
     .getAllEvents(knexI)
     .then(events => {
       logger.info(`Successful GET /event`)
-      const sanitized = events.map(event => sanitize(event))
+      const sanitized = events.map(event => EventUtils.sanitize(event))
       res.json(sanitized)
     })
     .catch(next)
