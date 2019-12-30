@@ -56,8 +56,9 @@ describe('Auth endpoints', () => {
   describe('POST /api/auth/signup endpoint', () => {
     context('given the post body is accurate', () => {
       const postBody = makeUser.postBody()
-      it('responds with 201 and new user with id (with additional auth fields)', () => {
-        const expected = makeUser.postResp()
+      it('responds with 201 and new user with id (with additional auth fields)', function() {
+        this.retries(3)
+        const authedUser = makeUser.postResp()
 
         return supertest(app)
           .post('/api/auth/signup')
@@ -65,15 +66,27 @@ describe('Auth endpoints', () => {
           .expect(201)
           .then(res => {
             expect(res.body).to.have.property('id')
-            expect(res.body.username).to.eql(expected.username)
+            expect(res.body.id).to.eql(authedUser.id)
+            expect(res.body.username).to.eql(authedUser.username)
+            expect(res.body).to.have.property('email')
+            expect(res.body.email).to.eql(authedUser.email)
+            expect(res.body).to.have.property('created')
+            const expectedCreated = new Date(Date.now()).toLocaleString()
+            const actualCreated = new Date(res.body.created).toLocaleString()
+            expect(actualCreated).to.eql(expectedCreated)
+            expect(res.body).to.have.property('last_login')
+            const expectedLastLogin = new Date(Date.now()).toLocaleString()
+            const actualLastLogin = new Date(res.body.last_login).toLocaleString()
+            expect(actualLastLogin).to.eql(expectedLastLogin)
+            expect(res.body).to.have.property('city_id')
             expect(res.body.city_id).to.eql(null)
+            expect(res.body).to.have.property('admin')
             expect(res.body.admin).to.eql(false)
-            expect(res.headers.location).to.eql(`/api/user/${res.body.id}`)
-            expect(res.body.email).to.eql(expected.email)
+            expect(res.body).to.have.property('token')
             expect(res.body.token).to.not.eql(null)
-            const expectedDate = new Date().toLocaleString()
-            const actualDate = new Date(res.body.created).toLocaleString()
-            expect(actualDate).to.eql(expectedDate)
+            expect(res.body.password_digest).to.eql(undefined)
+            expect(res.body.listing_state).to.eql(undefined)
+            expect(res.headers.location).to.eql(`/api/user/${res.body.id}`)
             return res
           })
           .then(res => {

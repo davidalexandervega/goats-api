@@ -3,7 +3,7 @@ function makeUsers() {
     {
       id: 1,
       username: 'killer',
-      password_digest: `killerpasswordNOTHASHED`,
+      password_digest: `$2a$10$woR.meJcG0nFVI/kmuSgiurGz.LnwJx0VrCYVtLWaPF1rs5lRJF66`, //killerpassword
       token: 'notRealToken',
       email: `killeraliens@outlook.com`,
       fullname: 'Orlando Garcia',
@@ -13,7 +13,7 @@ function makeUsers() {
     {
       id: 2,
       username: 'aliens',
-      password_digest: `alienspasswordNOTHASHED`,
+      password_digest: `$2a$10$HgAo1uMvj3GpfuTAPgXQ1evGCKOkYRTnn1WgfPkhgF0qCUiNw2E4G`,
       token: 'notRealToken',
       email: `alexandrabrinncampbell@gmail.com`,
       fullname: 'Ali Campbell',
@@ -41,7 +41,7 @@ const makeUser = {
   postBody() {
     return {
       username: 'killer',
-      password: `killerpassword`,
+      password: `killerpassword123`,
       email: `killeraliens@outlook.com`,
     }
   },
@@ -49,10 +49,34 @@ const makeUser = {
   postBody2() {
     return {
       username: 'aliens',
-      password: `alienspassword`,
+      password: `alienspassword123`,
       email: `alexandrabrinncampbell@gmail.com`,
     }
   },
+
+  // postBodyPasswordNoNumbers() {
+  //   return {
+  //     username: 'killer',
+  //     password: `killerpassword`,
+  //     email: `killeraliens@outlook.com`,
+  //   }
+  // },
+
+  // postBodyPasswordTooShort() {
+  //   return {
+  //     username: 'killer',
+  //     password: `kill`,
+  //     email: `killeraliens@outlook.com`,
+  //   }
+  // },
+
+  // postBodyBadEmail() {
+  //   return {
+  //     username: 'killer',
+  //     password: `killerpassword123`,
+  //     email: `https://notanemail.com`,
+  //   }
+  // },
 
   patchBody() {
     return {
@@ -84,7 +108,7 @@ const makeUser = {
   signinGood() {
     return {
       username: 'killer',
-      password: 'killerpassword'
+      password: 'killerpassword123'
     }
   },
 

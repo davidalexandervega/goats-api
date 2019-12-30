@@ -12,14 +12,14 @@ describe('User endpoints', () => {
     app.set('db', db)
   })
 
-  before('clears app_user and related tables', () => {
+  before('clears all tables', () => {
     return db.raw(`
       TRUNCATE city, country, app_user, venue, event, band, band_event
       RESTART IDENTITY CASCADE
     `)
   })
 
-  before('insert country_city city_id FK', () => {
+  before('insert country city table data', () => {
     return db.raw(`
       COPY country(country_name, country_code)
       FROM '/Users/user/code/killeraliens/goats-api/seeds/countries.csv' DELIMITER ',' CSV HEADER;
@@ -45,6 +45,13 @@ describe('User endpoints', () => {
   afterEach('clears app_user and child tables', () => {
     return db.raw(`
       TRUNCATE app_user, venue, event, band, band_event RESTART IDENTITY CASCADE
+    `)
+  })
+
+  after('clears all tables', () => {
+    return db.raw(`
+      TRUNCATE city, country, app_user, venue, event, band, band_event
+      RESTART IDENTITY CASCADE
     `)
   })
 
@@ -153,7 +160,8 @@ describe('User endpoints', () => {
 
         })
 
-        it('responds with 200 and requested user (with additional auth fields)', () => {
+        it('responds with 200 and requested user (with additional auth fields)', function() {
+          this.retries(3)
           return supertest(app)
             .get(`/api/user/${authedUser.id}`)
             .set({
@@ -168,6 +176,9 @@ describe('User endpoints', () => {
               expect(res.body).to.have.property('email')
               expect(res.body).to.have.property('created')
               expect(res.body).to.have.property('last_login')
+              const expectedDate = new Date(Date.now()).toLocaleString()
+              const actualDate = new Date(res.body.last_login).toLocaleString()
+              expect(actualDate).to.eql(expectedDate)
               expect(res.body).to.have.property('modified')
               expect(res.body).to.have.property('fullname')
               expect(res.body).to.have.property('image_url')

@@ -66,6 +66,9 @@ function signup(req, res, next) {
     .then(() => UserUtils.createToken())
     .then(token => {
       newUser.token = token
+      let now = Date.now()
+      let last_login = new Date(now)
+      newUser.last_login = last_login
     })
     .then(() => {
 
@@ -110,8 +113,8 @@ function signin(req, res, next) {
     })
     .then(result => UserUtils.createToken())
     .then(token => {
-      let last_login =  Date.now()
-      last_login = new Date(last_login)
+      let now = Date.now()
+      let last_login = new Date(now)
       user.token = token
       user.last_login = last_login
       const patchBody = { token, last_login }
