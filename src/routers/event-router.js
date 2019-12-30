@@ -1,11 +1,11 @@
 const express = require('express')
-//const request = require('request-promise')
+const path = require('path')
 const eventRouter = express.Router()
 const EventService = require('../services/event-service')
-const bodyParser = express.json()
 const logger = require('../utils/logger.utils')
-const xss = require('xss')
+const bodyParser = express.json()
 const EventUtils = require('../utils/event.utils')
+const authenticateCreator = require('../mws/authenticate-creator')
 const { facebookAuth } = require('../config/auth-config')
 const { Facebook } = require('fb')
 const fb = new Facebook({
@@ -18,6 +18,7 @@ const fb = new Facebook({
 eventRouter
   .route('/')
   .get(getAllEvents)
+  .post(bodyParser, authenticateCreator, postEvent)
 
 eventRouter
   .route('/facebook')
@@ -45,7 +46,7 @@ function postEventFromFacebook(req) {
 function getAllEvents(req, res, next) {
   const knexI = req.app.get('db')
   EventService
-    .getAllEvents(knexI)
+    .selectAllEvents(knexI)
     .then(events => {
       logger.info(`Successful GET /event`)
       const sanitized = events.map(event => EventUtils.sanitize(event))
@@ -53,6 +54,38 @@ function getAllEvents(req, res, next) {
     })
     .catch(next)
 }
+
+function postEvent(req, res, next) {
+  const knexI = req.app.get('db')
+  const {
+    creator_id,
+    venue_id,
+    image_url,
+    event_times,
+    title,
+    description,
+    start_date,
+    end_date,
+    created,
+    modified,
+    listing_state
+  } = req.body
+  const requiredFields = { title, image_url, creator_id }
+  const listingStateTypes = ['Draft', 'Private', 'Public', 'Flagged', 'Banned', 'Archived']
+
+  const postBody = req.body
+
+  EventService
+    .insertEvent(knexI, postBody)
+    .then(newEvent => {
+      res
+        .status(201)
+        .location(path.posix.join(req.originalUrl, `/${newEvent.id}`))
+        .json(EventUtils.sanitize(newEvent))
+    })
+
+}
+
 
 
 

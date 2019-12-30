@@ -1,10 +1,10 @@
 TRUNCATE app_user, band, venue, event, band_event RESTART IDENTITY CASCADE;
 
 INSERT INTO app_user
-  (username, email, password_digest)
+  (username, email, password_digest, last_login, created, modified)
 VALUES
-  ('killer', 'killeraliens@outlook.com', '$2a$10$woR.meJcG0nFVI/kmuSgiurGz.LnwJx0VrCYVtLWaPF1rs5lRJF66'),
-  ('aliens', 'alexandrabrinncampbell@gmail.com', '$2a$10$HgAo1uMvj3GpfuTAPgXQ1evGCKOkYRTnn1WgfPkhgF0qCUiNw2E4G')
+  ('killer', 'killeraliens@outlook.com', '$2a$10$woR.meJcG0nFVI/kmuSgiurGz.LnwJx0VrCYVtLWaPF1rs5lRJF66', '2019-11-30T19:14:17.915Z', '2019-10-30T19:14:17.915Z', '2019-10-30T19:14:17.915Z'),
+  ('aliens', 'alexandrabrinncampbell@gmail.com', '$2a$10$HgAo1uMvj3GpfuTAPgXQ1evGCKOkYRTnn1WgfPkhgF0qCUiNw2E4G', '2019-08-30T19:14:17.915Z', '2019-07-30T19:14:17.915Z', '2019-07-30T19:14:17.915Z')
   ;
 
 INSERT INTO band

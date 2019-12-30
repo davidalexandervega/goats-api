@@ -14,7 +14,7 @@ userRouter
   .route('/:id')
   .all(checkExists)
   .get(getById)
-  .patch(bodyParser, authenticate, patchUser)
+  .patch(bodyParser, authenticatePatch, patchUser)
 
 
 function checkExists(req, res, next) {
@@ -36,7 +36,7 @@ function checkExists(req, res, next) {
     .catch(next)
 }
 
-function authenticate(req, res, next) {
+function authenticatePatch(req, res, next) {
   const knexI = req.app.get('db')
   const { id } = req.params
   const { token } = req.user

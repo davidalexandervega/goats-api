@@ -1,6 +1,7 @@
 const app = require('../src/app')
 const knex = require('knex')
 const { makeUsers, makeUser } = require('./user-fixtures')
+const { seed, truncate } = require('./seed-fixtures')
 
 describe('User endpoints', () => {
   let db;
@@ -13,46 +14,23 @@ describe('User endpoints', () => {
   })
 
   before('clears all tables', () => {
-    return db.raw(`
-      TRUNCATE city, country, app_user, venue, event, band, band_event
-      RESTART IDENTITY CASCADE
-    `)
+    return db.raw(truncate.allTables())
   })
 
   before('insert country city table data', () => {
-    return db.raw(`
-      COPY country(country_name, country_code)
-      FROM '/Users/user/code/killeraliens/goats-api/seeds/countries.csv' DELIMITER ',' CSV HEADER;
-
-      INSERT INTO country
-        (country_name, country_code)
-      VALUES
-        ('West Bank', 'XW'),
-        ('Kosovo', 'XK');
-
-      COPY city(city_name,city_ascii,lat,lng,country,country_code,iso3,admin_name,capital,population,id)
-      FROM '/Users/user/code/killeraliens/goats-api/seeds/worldcities.csv'
-      DELIMITER ',' CSV HEADER;
-    `)
+    return db.raw(seed.countryCity())
   })
 
   beforeEach('clears app_user and child tables', () => {
-    return db.raw(`
-      TRUNCATE app_user, venue, event, band, band_event RESTART IDENTITY CASCADE
-    `)
+    return db.raw(truncate.userChildren())
   })
 
   afterEach('clears app_user and child tables', () => {
-    return db.raw(`
-      TRUNCATE app_user, venue, event, band, band_event RESTART IDENTITY CASCADE
-    `)
+    return db.raw(truncate.userChildren())
   })
 
   after('clears all tables', () => {
-    return db.raw(`
-      TRUNCATE city, country, app_user, venue, event, band, band_event
-      RESTART IDENTITY CASCADE
-    `)
+    return db.raw(truncate.allTables())
   })
 
   after('kill knex db', () => {
