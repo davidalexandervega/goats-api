@@ -24,16 +24,6 @@ function makeUsers() {
 }
 
 const makeUser = {
-  good() {
-    return {
-      id: 1,
-      username: 'killer',
-      email: `killeraliens@outlook.com`,
-      fullname: 'Orlando Garcia',
-      city_id: 1392685764,
-      admin: false
-    }
-  },
 
   signedInRes() {
     return {
@@ -44,6 +34,7 @@ const makeUser = {
       city_id: 1392685764,
       token: 'notNull',
       admin: false,
+      listing_state: "Public"
     }
   },
 

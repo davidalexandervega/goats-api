@@ -1,7 +1,7 @@
 const app = require('../src/app')
 const knex = require('knex')
 const { makeUsers, makeUser } = require('./user-fixtures')
-makeUser.good()
+
 describe('User endpoints', () => {
   let db;
   before('create knex db instance', () => {
@@ -162,14 +162,19 @@ describe('User endpoints', () => {
             .expect(200)
             .expect(res => {
               expect(res.body).to.have.property('id')
+              expect(res.body.id).to.eql(authedUser.id)
+              expect(res.body).to.have.property('username')
+              expect(res.body.username).to.eql(authedUser.username)
               expect(res.body).to.have.property('email')
               expect(res.body).to.have.property('created')
               expect(res.body).to.have.property('last_login')
               expect(res.body).to.have.property('modified')
               expect(res.body).to.have.property('fullname')
+              expect(res.body).to.have.property('image_url')
               expect(res.body).to.have.property('token')
-              //expect(res.body).to.have.property('facebook_auth_token')
+              //expect(res.body).to.have.property('facebook_provider_token')
               expect(res.body.password_digest).to.eql(undefined)
+              expect(res.body.listing_state).to.eql(undefined)
               expect(res.body).to.eql(authedUser)
             })
         })
@@ -177,19 +182,36 @@ describe('User endpoints', () => {
 
       context('given the user is not signed in', () => {
         it('responds with 200 and requested user', () => {
-          const expected = makeUser.good()
+          const expected = authedUser
           delete expected['email']
           delete expected['fullname']
           delete expected['modified']
           delete expected['last_login']
+          delete expected['token']
+          delete expected['facebook_provider_token']
+          delete expected['password_digest']
+          delete expected['listing_state']
 
           return supertest(app)
             .get(`/api/user/${expected.id}`)
             .expect(200)
             .expect(res => {
+              expect(res.body).to.have.property('id')
+              expect(res.body.id).to.eql(expected.id)
+              expect(res.body).to.have.property('username')
+              expect(res.body.username).to.eql(expected.username)
+              expect(res.body.email).to.eql(undefined)
               expect(res.body).to.have.property('created')
-              delete res.body['created']
-              delete expected['created']
+              expect(res.body.last_login).to.eql(undefined)
+              expect(res.body.modified).to.eql(undefined)
+              expect(res.body.fullname).to.eql(undefined)
+              expect(res.body).to.have.property('image_url')
+              expect(res.body.token).to.eql(undefined)
+              expect(res.body.facebook_provider_token).to.eql(undefined)
+              expect(res.body.password_digest).to.eql(undefined)
+              expect(res.body.listing_state).to.eql(undefined)
+              expect(res.body).to.eql(expected)
+
               expect(res.body).to.eql(expected)
             })
         })
