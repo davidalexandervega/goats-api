@@ -18,7 +18,7 @@ const fb = new Facebook({
 eventRouter
   .route('/')
   .get(getAllEvents)
-  .post(bodyParser, authenticateCreator, postEvent)
+  .post(bodyParser, authenticateCreator.post, postEvent)
 
 eventRouter
   .route('/facebook')

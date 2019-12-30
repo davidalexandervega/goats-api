@@ -1,6 +1,6 @@
 const UserService = require('../services/user-service')
 
-function authenticateCreator(req, res, next) {
+function post(req, res, next) {
   const knexI = req.app.get('db')
   const { creator_id } = req.body
   const { token } = req.user
@@ -21,5 +21,5 @@ function authenticateCreator(req, res, next) {
     .catch(next)
 }
 
-module.exports = authenticateCreator
+module.exports = { post }
 
