@@ -15,12 +15,19 @@
 // ALTER TABLE event
 // ADD COLUMN listing_state listing_state DEFAULT 'Public';
 
-function Event({title, image_url, creator_id}) {
+// base template
+function Event({ title, image_url }) {
+  this.title = title;
+  this.image_url = image_url;
+}
+
+// standard use
+function EventCustom({title, image_url, creator_id}) {
   this.creator_id = creator_id;
   this.title = title;
   this.image_url = image_url;
 }
 
 module.exports = {
-  Event
+  Event, EventCustom
 };
