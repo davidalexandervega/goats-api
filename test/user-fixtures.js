@@ -24,6 +24,31 @@ function makeUsers() {
 }
 
 const makeUser = {
+  seeded1() {
+    return {
+      id: 1, //not part of seed
+      password: 'killerpassword123', //not part of seed
+      username: 'killer',
+      email: 'killeraliens@outlook.com',
+      password_digest: '$2a$10$woR.meJcG0nFVI/kmuSgiurGz.LnwJx0VrCYVtLWaPF1rs5lRJF66',
+      last_login: '2019-11-30T19:14:17.915Z',
+      created: '2019-10-30T19:14:17.915Z',
+      modified: '2019-10-30T19:14:17.915Z'
+    }
+  },
+
+  seeded2() {
+    return {
+      id: 2, //not part of seed
+      password: 'alienspassword123', //not part of seed
+      username: 'aliens',
+      email: 'alexandrabrinncampbell@gmail.com',
+      password_digest: '$2a$10$HgAo1uMvj3GpfuTAPgXQ1evGCKOkYRTnn1WgfPkhgF0qCUiNw2E4G',
+      last_login: '2019-08-30T19:14:17.915Z',
+      created: '2019-07-30T19:14:17.915Z',
+      modified: '2019-07-30T19:14:17.915Z'
+    }
+  },
 
   signedInRes() {
     return {
