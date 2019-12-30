@@ -5,7 +5,7 @@ const EventService = require('../services/event-service')
 const logger = require('../utils/logger.utils')
 const bodyParser = express.json()
 const EventUtils = require('../utils/event.utils')
-const authenticateCreator = require('../mws/authenticate-creator')
+const authCreator = require('../mws/authenticate-creator')
 const { facebookAuth } = require('../config/auth-config')
 const { Facebook } = require('fb')
 const fb = new Facebook({
@@ -18,7 +18,7 @@ const fb = new Facebook({
 eventRouter
   .route('/')
   .get(getAllEvents)
-  .post(bodyParser, authenticateCreator.post, postEvent)
+  .post(bodyParser, authCreator.post, postEvent)
 
 eventRouter
   .route('/facebook')

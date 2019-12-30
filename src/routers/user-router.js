@@ -14,7 +14,7 @@ userRouter
   .route('/:id')
   .all(checkExists)
   .get(getById)
-  .patch(bodyParser, authenticatePatchUser, patchUser)
+  .patch(bodyParser, authPatchUser, patchUser)
 
 
 function checkExists(req, res, next) {
@@ -36,7 +36,7 @@ function checkExists(req, res, next) {
     .catch(next)
 }
 
-function authenticatePatchUser(req, res, next) {
+function authPatchUser(req, res, next) {
   const knexI = req.app.get('db')
   const { id } = req.params
   const { token } = req.user
@@ -58,25 +58,10 @@ function authenticatePatchUser(req, res, next) {
     .catch(next)
 }
 
-function isAuthenticated(knexI, id, reqUser) {
-  const { token } = reqUser
-  if (!token) {
-    return false
-  }
-  return UserService
-    .getByToken(knexI, token)
-    .then(user => {
-      if (user.id == id) {
-        return true
-      }
-      return false
-    })
-}
-
 function getById(req, res, next) {
   const knexI = req.app.get('db')
 
-  if(isAuthenticated(knexI, res.user.id, req.user)) {
+  if(UserUtils.isAuthenticated(knexI, res.user.id, req.user)) {
     logger.info(`Successful GET /user/:id by authed user ${res.user.id}`)
     return res.json(UserUtils.sanitizeAuthed(res.user))
   }

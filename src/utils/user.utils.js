@@ -93,6 +93,21 @@ const checkPassword = (password, foundUser) => {
   })
 }
 
+const isAuthenticated = (knexI, id, reqUser) => {
+  const { token } = reqUser
+  if (!token) {
+    return false
+  }
+  return UserService
+    .getByToken(knexI, token)
+    .then(user => {
+      if (user.id == id) {
+        return true
+      }
+      return false
+    })
+}
+
 
 module.exports = {
   sanitize,
@@ -100,5 +115,6 @@ module.exports = {
   sanitizeAdmin,
   hashPassword,
   createToken,
-  checkPassword
+  checkPassword,
+  isAuthenticated
  }
