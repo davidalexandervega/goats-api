@@ -10,5 +10,5 @@ CREATE TABLE band (
 );
 
 ALTER TABLE band
-ADD CONSTRAINT name_city UNIQUE
+ADD CONSTRAINT band_name_city_id UNIQUE
     (band_name, city_id);

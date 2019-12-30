@@ -10,3 +10,7 @@ CREATE TABLE venue (
    created TIMESTAMP DEFAULT now(),
    modified TIMESTAMP DEFAULT now()
 );
+
+ALTER TABLE venue
+ADD CONSTRAINT venue_name_city_id UNIQUE
+    (venue_name, city_id);
