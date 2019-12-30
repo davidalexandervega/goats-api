@@ -34,7 +34,6 @@ function UserFB({ fullname, email, facebook_provider_id, facebook_provider_token
   this.username = null;
 }
 
-
 module.exports = {
   UserCustom, UserFB
 };
