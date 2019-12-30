@@ -1,19 +1,22 @@
+// CREATE TABLE app_user(
+//   id SERIAL PRIMARY KEY,
+//   token TEXT,
+//   image_url TEXT,
+//   facebook_provider_id TEXT UNIQUE,
+//   facebook_provider_token TEXT,
+//   email TEXT,
+//   fullname TEXT,
+//   username TEXT UNIQUE,
+//   password_digest TEXT,
+//   admin BOOL DEFAULT false,
+//   city_id INT REFERENCES city(id) ON DELETE NO ACTION,
+//   created TIMESTAMP DEFAULT now(),
+//   modified TIMESTAMP DEFAULT now(),
+//   last_login TIMESTAMP
+// );
 
-// function User() {
-//   this.id;
-//   this.created = new Date(Date.now());
-//   this.modified = new Date(Date.now());
-//   this.admin = false;
-//   this.last_login = null;
-//   this.username = null;
-//   this.email = null;
-//   this.password_digest = null;
-//   this.token = null;
-//   this.city_id = null;
-//   this.fullname = null;
-//   this.facebook_provider_id = null;
-//   this.facebook_provider_token = null;
-// }
+// ALTER TABLE app_user
+// ADD COLUMN listing_state listing_state DEFAULT 'Public';
 
 function UserCustom({ username, email, password_digest, token }) {
   this.username = username;
