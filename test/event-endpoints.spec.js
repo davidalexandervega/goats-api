@@ -122,7 +122,7 @@ describe('Event endpoints', () => {
     })
   })
 
-  describe.only('POST /api/event endpoint', () => {
+  describe('POST /api/event endpoint', () => {
     context('given a user is signed in', () => {
       let creator;
 
@@ -145,14 +145,24 @@ describe('Event endpoints', () => {
           })
           .send(postBody)
           .expect(201)
-          // .then(res => {
-          //    return supertest(app)
-          //      .get(`/api/event/${res.id}`)
-          //      .expect(200)
-          //      .expect(res => {
-          //        expect(res.body.creator_id).to.eql(creator.id)
-          //      })
-          // })
+          .expect(res => {
+            expect(res.body).to.have.property('id')
+            expect(res.body.id).to.not.eql(null)
+            expect(res.body).to.have.property('creator_id')
+            expect(res.body.creator_id).to.eql(creator.id)
+            expect(res.body).to.have.property('title')
+            expect(res.body.title).to.eql(postBody.title)
+            return res
+          })
+          .then(res => {
+            return supertest(app)
+              .get(`/api/event/${res.body.id}`)
+              .expect(200)
+              .expect(res => {
+                expect(res.body.creator_id).to.eql(creator.id)
+                expect(res.body.title).to.eql(postBody.title)
+              })
+          })
       })
     })
   })

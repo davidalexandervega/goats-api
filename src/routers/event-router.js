@@ -5,7 +5,7 @@ const EventService = require('../services/event-service')
 const logger = require('../utils/logger.utils')
 const bodyParser = express.json()
 const EventUtils = require('../utils/event.utils')
-const authCreator = require('../mws/authenticate-creator')
+const authCreator = require('../mws/auth-creator')
 const { facebookAuth } = require('../config/auth-config')
 const { Facebook } = require('fb')
 const fb = new Facebook({
@@ -20,28 +20,38 @@ eventRouter
   .get(getAllEvents)
   .post(bodyParser, authCreator.post, postEvent)
 
+
+eventRouter
+  .route('/:id')
+  .all(checkExists)
+  .get(getEvent)
+
 eventRouter
   .route('/facebook')
   .post( postEventFromFacebook )
 
 
-function postEventFromFacebook(req) {
-  const { eventId, facebookProviderToken, facebookProviderId } = req.body
+function checkExists(req, res, next) {
+  const knexI = req.app.get('db')
+  const { id } = req.params
 
-  fb.options({ accessToken: facebookProviderToken })
-  fb.api(`/v3.2/${facebookProviderId}/events`, function (res) {
-  //fb.api(`/${facebookProviderId}/permissions`, function (res) {
-    if (!res || res.error) {
-      //console.log(!res ? 'error occurred' : res.error);
-      logger.error(`Error within fb api cb ${!res ? 'error occurred' : res.error}`)
-      return;
-    }
+  //let idNum = parseInt(id)
+  EventService
+    .getById(knexI, id)
+    .then(event => {
+      if (!event) {
+        return res.status(404).json({message: `Event does not exist`})
+      }
+      res.event = event
+      next()
+    })
+    .catch(next)
 
-    logger.error(`Fb api cb res ${JSON.stringify(res)}`)
-    return
-  });
 }
 
+function getEvent(req, res, next) {
+  res.json(EventUtils.sanitize(res.event))
+}
 
 function getAllEvents(req, res, next) {
   const knexI = req.app.get('db')
@@ -83,9 +93,27 @@ function postEvent(req, res, next) {
         .location(path.posix.join(req.originalUrl, `/${newEvent.id}`))
         .json(EventUtils.sanitize(newEvent))
     })
+    .catch(next)
 
 }
 
+
+function postEventFromFacebook(req) {
+  const { eventId, facebookProviderToken, facebookProviderId } = req.body
+
+  fb.options({ accessToken: facebookProviderToken })
+  fb.api(`/v3.2/${facebookProviderId}/events`, function (res) {
+    //fb.api(`/${facebookProviderId}/permissions`, function (res) {
+    if (!res || res.error) {
+      //console.log(!res ? 'error occurred' : res.error);
+      logger.error(`Error within fb api cb ${!res ? 'error occurred' : res.error}`)
+      return;
+    }
+
+    logger.error(`Fb api cb res ${JSON.stringify(res)}`)
+    return
+  });
+}
 
 
 

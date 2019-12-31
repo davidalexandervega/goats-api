@@ -13,6 +13,14 @@ const EventService = {
       .then(rows => rows[0])
   },
 
+  getById(knex, id) {
+    return knex
+      .select('*')
+      .from('event')
+      .where('id', id)
+      .first()
+  }
+
 }
 
 module.exports = EventService;
