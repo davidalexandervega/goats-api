@@ -1,4 +1,5 @@
 const UserService = require('../services/user-service')
+const logger = require('../utils/logger.utils')
 
 function post(req, res, next) {
   const knexI = req.app.get('db')
@@ -6,7 +7,7 @@ function post(req, res, next) {
   const { token } = req.user
   if (!token) {
     logger.error(`Not authorized!`)
-    return res.status(401).json({ error: { message: 'Not authorized!' } })
+    return res.status(401).json({ message: `Must be signed in to post`})
   }
 
   UserService.getByToken(knexI, token)
@@ -16,7 +17,7 @@ function post(req, res, next) {
         return next()
       }
       logger.error(`Not authorized!`)
-      return res.status(401).json({ error: { message: 'Not authorized!' } })
+      return res.status(401).json({ message: `Must be signed in to post`})
     })
     .catch(next)
 }

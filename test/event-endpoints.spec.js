@@ -165,5 +165,15 @@ describe('Event endpoints', () => {
           })
       })
     })
+
+    context('given a user is not signed in', () => {
+      it('responds with 401', () => {
+        const postBody = makeEvent.postBodyMin()
+        return supertest(app)
+          .post(`/api/event`)
+          .send(postBody)
+          .expect(401, {message: `Must be signed in to post`})
+      })
+    })
   })
 })

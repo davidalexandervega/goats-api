@@ -1,3 +1,4 @@
+const UserService = require('../services/user-service')
 const xss = require('xss')
 const bcrypt = require('bcrypt')                         // bcrypt will encrypt passwords to be saved in db
 const crypto = require('crypto')
