@@ -38,7 +38,7 @@ describe('Auth endpoints', () => {
     return db.destroy()
   })
 
-  describe('POST /api/auth/signup endpoint', () => {
+  describe.only('POST /api/auth/signup endpoint', () => {
     context('given the post body is accurate', () => {
       const postBody = makeUser.postBody()
       it('responds with 201 and new user with id (with additional auth fields)', function() {
@@ -83,6 +83,26 @@ describe('Auth endpoints', () => {
     })
 
     context('given there are errors in post body', () => {
+      context('given a user with the requested username already exists', () => {
+        let existingUser;
+        beforeEach('signup test user', () => {
+          const postBody = makeUser.postBody()
+          return supertest(app)
+            .post('/api/auth/signup')
+            .send(postBody)
+            .then(res => {
+              existingUser = res.body
+            })
+        })
+
+        it(`responds with 400 if requested username is already in use`, () => {
+          const postBody = makeUser.postBody()
+          return supertest(app)
+            .post('/api/auth/signup')
+            .send(postBody)
+            .expect(400, { message: `Username ${postBody.username} is already in use.`})
+        })
+      })
 
     })
   })

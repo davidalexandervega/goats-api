@@ -5,6 +5,7 @@ const UserService = require('../services/user-service')
 const UserUtils = require('../utils/user.utils')
 const bodyParser = express.json()
 const logger = require('../utils/logger.utils')
+const { check, validationResult, body, sanitizedBody } = require('express-validator');
 
 const authRouter = express.Router()
 
@@ -14,7 +15,20 @@ authRouter
 
 authRouter
   .route('/signup')
-  .post(bodyParser, signup)
+  .post(
+    bodyParser,
+    [
+      check('username').custom((value, { req }) => {
+        const knexI = req.app.get('db')
+        return UserService.getByUsername(knexI, value).then(user => {
+            if (user) {
+              return Promise.reject(`Username ${value} is already in use.`);
+            }
+        })
+      })
+    ],
+    signup
+  )
 
 authRouter
   .route('/signout')
@@ -33,6 +47,11 @@ function signout(req, res) {
 }
 
 function signup(req, res, next) {
+  const validErrors = validationResult(req)
+  if (!validErrors.isEmpty()) {
+    logger.error(`POST /signup 400 error ${validErrors.errors[0].msg}`)
+    return res.status(400).json({ message: validErrors.errors[0].msg })
+  }
 
   const knexI = req.app.get('db')
   const { username, password, email } = req.body

@@ -1,9 +1,10 @@
 const express = require('express')
 const path = require('path')
-const logger = require('../utils/logger.utils')
 const eventRouter = express.Router()
 const EventService = require('../services/event-service')
 const bodyParser = express.json()
+const { check, validationResult, body, sanitizedBody } = require('express-validator');
+const logger = require('../utils/logger.utils')
 const EventUtils = require('../utils/event.utils')
 const authCreator = require('../mws/auth-creator')
 const { facebookAuth } = require('../config/auth-config')
@@ -21,6 +22,34 @@ eventRouter
   .post(
     bodyParser,
     authCreator.post,
+    [
+      check('creator_id')
+        .not().isEmpty().withMessage('creator is required.'),
+      // venue_id,
+      // check('venue_id').custom(value => {
+      //   return VenueService.findById(value).then(venue => {
+      //     if (!venue) {
+
+      //       return Promise.reject('Could not find requested venue id.');
+      //     }
+      //   });
+      check('title')
+        .not().isEmpty().withMessage('title is required.')
+        .isLength({ min: 0, max: 66 }).withMessage(`title character limit is 66`),
+      check('image_url')
+        .not().isEmpty().withMessage('image_url is required.')
+        .isURL().withMessage('Must be valid source url.'),
+      check('description')
+        .isLength({ min: 0, max: 666 }).withMessage(`description character limit is 666`),
+      check('event_times')
+        .isLength({ min: 0, max: 66 }).withMessage(`event_times character limit is 66`)
+      // start_date,
+      // end_date,
+      // created,
+      // modified,
+      // check('listing_state')
+
+    ],
     postEvent
   )
 
@@ -72,29 +101,32 @@ function getAllEvents(req, res, next) {
 }
 
 function postEvent(req, res, next) {
+  const validErrors = validationResult(req)
+  if (!validErrors.isEmpty()) {
+    return res.status(400).json({ message: validErrors.errors[0].msg })
+  }
   const knexI = req.app.get('db')
-  const {
-    creator_id,
-    venue_id,
-    image_url,
-    event_times,
-    title,
-    description,
-    start_date,
-    end_date,
-    created,
-    modified,
-    listing_state
-  } = req.body
-  const requiredFields = { title, image_url, creator_id }
+  // const {
+  //   creator_id,
+  //   venue_id,
+  //   image_url,
+  //   event_times,
+  //   title,
+  //   description,
+  //   start_date,
+  //   end_date,
+  //   created,
+  //   modified,
+  //   listing_state
+  // } = req.body
   const listingStateTypes = ['Draft', 'Private', 'Public', 'Flagged', 'Banned', 'Archived']
 
-  for (const [key, value] of Object.entries(requiredFields)) {
-    if(value == null || !value) {
-      logger.error(`POST /event missing ${key}`)
-      return res.status(400).json({ message: `${key} is required.`})
-    }
-  }
+  // for (const [key, value] of Object.entries(requiredFields)) {
+  //   if(value == null || !value) {
+  //     logger.error(`POST /event missing ${key}`)
+  //     return res.status(400).json({ message: `${key} is required.`})
+  //   }
+  // }
   const postBody = req.body
 
   EventService

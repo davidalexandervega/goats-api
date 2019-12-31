@@ -122,7 +122,7 @@ describe('Event endpoints', () => {
     })
   })
 
-  describe.only('POST /api/event endpoint', () => {
+  describe('POST /api/event endpoint', () => {
     context('given a user is signed in', () => {
       let creator;
 
@@ -196,16 +196,18 @@ describe('Event endpoints', () => {
       delete keysWithLengthLimits['creator_id']
       delete keysWithLengthLimits['image_url']
       Object.entries(keysWithLengthLimits).forEach(([key, value]) => {
-        const postBodyLongText = makeEvent.postBodyLongText()
         const valueLengthLimit = value.length - 1
         it(`responds with 400 if lengths of ${key} text is longer than.. ${valueLengthLimit}`, () => {
-          // try and implement validations with express-validator
+          const postBody = {
+            ...makeEvent.postBodyMin(),
+            [key]: value
+          }
           return supertest(app)
             .post(`/api/event`)
             .set({
               "Authorization": `Bearer ${creator.token}`
             })
-            .send(postBodyLongText)
+            .send(postBody)
             .expect(400, { message: `${key} character limit is ${valueLengthLimit}`})
         })
 
