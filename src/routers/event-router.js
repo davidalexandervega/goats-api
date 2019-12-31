@@ -1,8 +1,8 @@
 const express = require('express')
 const path = require('path')
+const logger = require('../utils/logger.utils')
 const eventRouter = express.Router()
 const EventService = require('../services/event-service')
-const logger = require('../utils/logger.utils')
 const bodyParser = express.json()
 const EventUtils = require('../utils/event.utils')
 const authCreator = require('../mws/auth-creator')
@@ -18,7 +18,11 @@ const fb = new Facebook({
 eventRouter
   .route('/')
   .get(getAllEvents)
-  .post(bodyParser, authCreator.post, postEvent)
+  .post(
+    bodyParser,
+    authCreator.post,
+    postEvent
+  )
 
 
 eventRouter
@@ -40,6 +44,7 @@ function checkExists(req, res, next) {
     .getById(knexI, id)
     .then(event => {
       if (!event) {
+        logger.error(`Event does not exist`)
         return res.status(404).json({message: `Event does not exist`})
       }
       res.event = event
@@ -50,6 +55,7 @@ function checkExists(req, res, next) {
 }
 
 function getEvent(req, res, next) {
+  logger.info(`Successful GET /event/${res.event.id}`)
   res.json(EventUtils.sanitize(res.event))
 }
 
@@ -83,6 +89,12 @@ function postEvent(req, res, next) {
   const requiredFields = { title, image_url, creator_id }
   const listingStateTypes = ['Draft', 'Private', 'Public', 'Flagged', 'Banned', 'Archived']
 
+  for (const [key, value] of Object.entries(requiredFields)) {
+    if(value == null || !value) {
+      logger.error(`POST /event missing ${key}`)
+      return res.status(400).json({ message: `${key} is required.`})
+    }
+  }
   const postBody = req.body
 
   EventService

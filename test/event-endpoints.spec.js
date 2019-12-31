@@ -122,7 +122,7 @@ describe('Event endpoints', () => {
     })
   })
 
-  describe('POST /api/event endpoint', () => {
+  describe.only('POST /api/event endpoint', () => {
     context('given a user is signed in', () => {
       let creator;
 
@@ -152,6 +152,7 @@ describe('Event endpoints', () => {
             expect(res.body.creator_id).to.eql(creator.id)
             expect(res.body).to.have.property('title')
             expect(res.body.title).to.eql(postBody.title)
+            expect(res.headers.location).to.eql(`/api/event/${res.body.id}`)
             return res
           })
           .then(res => {
@@ -164,6 +165,66 @@ describe('Event endpoints', () => {
               })
           })
       })
+
+      const requiredKeys = makeEvent.postBodyMin()
+      Object.keys(requiredKeys).forEach(key => {
+        it(`responds with 400 if missing required ${key}`, () => {
+          const postBodyMin = makeEvent.postBodyMin()
+          delete postBodyMin[key]
+
+          if (key == 'creator_id') {
+            return supertest(app)
+              .post(`/api/event`)
+              .set({
+                "Authorization": `Bearer ${creator.token}`
+              })
+              .send(postBodyMin)
+              .expect(401, { message: `Must be authorized to post.` })
+          }
+
+          return supertest(app)
+            .post(`/api/event`)
+            .set({
+              "Authorization": `Bearer ${creator.token}`
+            })
+            .send(postBodyMin)
+            .expect(400, { message: `${key} is required.`})
+          })
+      })
+
+      const keysWithLengthLimits = makeEvent.postBodyLongText()
+      delete keysWithLengthLimits['creator_id']
+      delete keysWithLengthLimits['image_url']
+      Object.entries(keysWithLengthLimits).forEach(([key, value]) => {
+        const postBodyLongText = makeEvent.postBodyLongText()
+        const valueLengthLimit = value.length - 1
+        it(`responds with 400 if lengths of ${key} text is longer than.. ${valueLengthLimit}`, () => {
+          // try and implement validations with express-validator
+          return supertest(app)
+            .post(`/api/event`)
+            .set({
+              "Authorization": `Bearer ${creator.token}`
+            })
+            .send(postBodyLongText)
+            .expect(400, { message: `${key} character limit is ${valueLengthLimit}`})
+        })
+
+      })
+
+      // it('responds with 400 if child ids (venue, creator_id, band) are invalid', () => {
+      //   // build getById controller/services for venue and band
+      // })
+
+      it('responds with 401 if user attempts to user anothers creator_id', () => {
+        const postBodyNotMyId = makeEvent.postBodyNotMyId()
+        return supertest(app)
+          .post(`/api/event`)
+          .set({
+            "Authorization": `Bearer ${creator.token}`
+          })
+          .send(postBodyNotMyId)
+          .expect(401, { message: `Must be authorized to post.`})
+      })
     })
 
     context('given a user is not signed in', () => {
@@ -172,7 +233,7 @@ describe('Event endpoints', () => {
         return supertest(app)
           .post(`/api/event`)
           .send(postBody)
-          .expect(401, {message: `Must be signed in to post`})
+          .expect(401, { message: `Must be authorized to post.`})
       })
     })
   })

@@ -7,7 +7,7 @@ function post(req, res, next) {
   const { token } = req.user
   if (!token) {
     logger.error(`Not authorized!`)
-    return res.status(401).json({ message: `Must be signed in to post`})
+    return res.status(401).json({ message: `Must be authorized to post.`})
   }
 
   UserService.getByToken(knexI, token)
@@ -17,7 +17,7 @@ function post(req, res, next) {
         return next()
       }
       logger.error(`Not authorized!`)
-      return res.status(401).json({ message: `Must be signed in to post`})
+      return res.status(401).json({ message: `Must be authorized to post.`})
     })
     .catch(next)
 }
