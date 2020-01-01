@@ -3,7 +3,7 @@ const path = require('path')
 const eventRouter = express.Router()
 const EventService = require('../services/event-service')
 const bodyParser = express.json()
-const { check, validationResult, body, sanitizedBody } = require('express-validator');
+const { check, validationResult, body, sanitizeBody, sanitizeParam } = require('express-validator');
 const logger = require('../utils/logger.utils')
 const EventUtils = require('../utils/event.utils')
 const authCreator = require('../mws/auth-creator')
@@ -25,14 +25,6 @@ eventRouter
     [
       check('creator_id')
         .not().isEmpty().withMessage('creator is required.'),
-      // venue_id,
-      // check('venue_id').custom(value => {
-      //   return VenueService.findById(value).then(venue => {
-      //     if (!venue) {
-
-      //       return Promise.reject('Could not find requested venue id.');
-      //     }
-      //   });
       check('title')
         .not().isEmpty().withMessage('title is required.')
         .isLength({ min: 0, max: 66 }).withMessage(`title character limit is 66`),
@@ -40,15 +32,52 @@ eventRouter
         .not().isEmpty().withMessage('image_url is required.')
         .isURL().withMessage('Must be valid source url.'),
       check('description')
-        .isLength({ min: 0, max: 666 }).withMessage(`description character limit is 666`),
+        .isLength({ min: 0, max: 666 })
+        .withMessage(`description character limit is 666`),
       check('event_times')
-        .isLength({ min: 0, max: 66 }).withMessage(`event_times character limit is 66`)
-      // start_date,
-      // end_date,
-      // created,
-      // modified,
-      // check('listing_state')
+        .isLength({ min: 0, max: 66 })
+        .withMessage(`event_times character limit is 66`),
+      sanitizeBody('created')
+        .toDate(),
+      sanitizeBody('modified')
+        .toDate(),
+      sanitizeBody('listing_state').customSanitizer(value => {
+        if (value && value.length > 0) {
+          let val = value.charAt(0).toUpperCase() + value.slice(1)
+          return val.trim()
+        }
+        return 'Public'; //default on post only
+      }),
+      check('listing_state')
+        .isIn(['Draft', 'Private', 'Public', 'Archived'])
+        .withMessage('Unauthorized listing control.'),
+      sanitizeBody('start_date')
+        .toDate(),
+      check('start_date')
+        .custom(value => {
+          if (value && check(value).isAfter()) {
+            return Promise.reject('Date cannot be past.')
+          }
+          return true
+        }),
+      sanitizeBody('end_date')
+        .toDate(),
+      check('end_date')
+        .custom(value => {
+          if (value && check(value).isAfter()) {
+            return Promise.reject('Date cannot be past.')
+          }
+          return true
+        })
+      // venue_id,
+      // check('venue_id').isInt.withMessage('Referenced Venue must be integer')
+      // check('venue_id').custom(value => {
+      //   return VenueService.findById(value).then(venue => {
+      //     if (!venue) {
 
+      //       return Promise.reject('Could not find requested venue id.');
+      //     }
+      //   });
     ],
     postEvent
   )
@@ -68,7 +97,6 @@ function checkExists(req, res, next) {
   const knexI = req.app.get('db')
   const { id } = req.params
 
-  //let idNum = parseInt(id)
   EventService
     .getById(knexI, id)
     .then(event => {
@@ -106,20 +134,7 @@ function postEvent(req, res, next) {
     return res.status(400).json({ message: validErrors.errors[0].msg })
   }
   const knexI = req.app.get('db')
-  // const {
-  //   creator_id,
-  //   venue_id,
-  //   image_url,
-  //   event_times,
-  //   title,
-  //   description,
-  //   start_date,
-  //   end_date,
-  //   created,
-  //   modified,
-  //   listing_state
-  // } = req.body
-  const listingStateTypes = ['Draft', 'Private', 'Public', 'Flagged', 'Banned', 'Archived']
+
 
   // for (const [key, value] of Object.entries(requiredFields)) {
   //   if(value == null || !value) {

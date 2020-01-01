@@ -18,7 +18,7 @@ describe('Auth endpoints', () => {
     return db.raw(truncate.allTables())
   })
 
-  before('insert country_city city_id FK', () => {
+  before('insert country_city city_id parent data', () => {
     return db.raw(seed.countryCity())
   })
 
@@ -38,7 +38,7 @@ describe('Auth endpoints', () => {
     return db.destroy()
   })
 
-  describe.only('POST /api/auth/signup endpoint', () => {
+  describe('POST /api/auth/signup endpoint', () => {
     context('given the post body is accurate', () => {
       const postBody = makeUser.postBody()
       it('responds with 201 and new user with id (with additional auth fields)', function() {

@@ -122,7 +122,7 @@ describe('Event endpoints', () => {
     })
   })
 
-  describe('POST /api/event endpoint', () => {
+  describe.only('POST /api/event endpoint', () => {
     context('given a user is signed in', () => {
       let creator;
 
@@ -189,7 +189,7 @@ describe('Event endpoints', () => {
             })
             .send(postBodyMin)
             .expect(400, { message: `${key} is required.`})
-          })
+        })
       })
 
       const keysWithLengthLimits = makeEvent.postBodyLongText()
@@ -226,6 +226,58 @@ describe('Event endpoints', () => {
           })
           .send(postBodyNotMyId)
           .expect(401, { message: `Must be authorized to post.`})
+      })
+
+      it('responds with 400 if listing_state is not authed enum type', () => {
+        const postBodyUnauthedListingState = {
+          ...makeEvent.postBodyMin(),
+          listing_state: 'Banned'
+        }
+        return supertest(app)
+          .post(`/api/event`)
+          .set({
+            "Authorization": `Bearer ${creator.token}`
+          })
+          .send(postBodyUnauthedListingState)
+          .expect(400, { message: `Unauthorized listing control.` })
+      })
+
+      it('responds with 201 if listing_state is authed but mis-typed', () => {
+        const postBodyMisTypedListingState = {
+          ...makeEvent.postBodyMin(),
+          listing_state: 'private'
+        }
+        return supertest(app)
+          .post(`/api/event`)
+          .set({
+            "Authorization": `Bearer ${creator.token}`
+          })
+          .send(postBodyMisTypedListingState)
+          .expect(201)
+      })
+
+
+
+      context('given it is a date related error', () => {
+        let pastDate = new Date()
+        pastDate = pastDate.setDate(pastDate.getDate() - 1)
+        pastDate = new Date(pastDate)
+        const dateFields = ["start_date", "end_date"]
+        dateFields.forEach(field => {
+          it(`responds with 400 if ${field} is before current date`, () => {
+            const postBody = {
+              ...makeEvent.postBodyMin(),
+              [field]: pastDate
+            }
+              return supertest(app)
+                .post('/api/event')
+                .set({
+                  "Authorization": `Bearer ${creator.token}`
+                })
+                .send(postBody)
+                .expect(400, { message: 'Date cannot be past.' })
+          })
+        })
       })
     })
 
