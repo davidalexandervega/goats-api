@@ -62,7 +62,7 @@ module.exports = function () {
           // return done(error, existingUser)
         })
         .catch(err => {
-          console.log('ERR ON PASSPORT', err)
+          // console.log('ERR ON PASSPORT', err)
           error = err;
           return done(error, user)
         })
