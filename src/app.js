@@ -33,7 +33,7 @@ const UserService = require('./services/user-service')
 
 app.use(morgan(morganOption))
 app.use(helmet())
-//app.use(cors(corsOption))
+app.use(cors(corsOption))
 //app.use(cors())
 // app.use(function (req, res, next) {
 //   res.header("Access-Control-Allow-Origin", '*');
@@ -42,7 +42,7 @@ app.use(helmet())
 //   res.header("Access-Control-Allow-Headers", 'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json');
 //   next();
 // });
-app.use(cors())
+//app.use(cors())
 app.use(bodyParser.urlencoded({
   extended: false
 }))
