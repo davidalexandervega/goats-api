@@ -33,7 +33,8 @@ const UserService = require('./services/user-service')
 
 app.use(morgan(morganOption))
 app.use(helmet())
-app.use(cors(corsOption))
+// app.use(cors(corsOption))
+app.use(cors())
 app.use(bodyParser.urlencoded({
   extended: false
 }))
