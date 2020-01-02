@@ -125,7 +125,7 @@ function signin(req, res, next) {
     .then(foundUser => {
       if (!foundUser) {
         logger.error(`POST /signin username ${username} does not exist`)
-        return res.status(404).json({ error: { message: `Check your username or password` } })
+        return res.status(401).json({ message: `No account with username ${username} exists` })
       }
       user = foundUser
       return UserUtils.checkPassword(password, foundUser)

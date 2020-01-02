@@ -122,7 +122,7 @@ describe('Event endpoints', () => {
     })
   })
 
-  describe.only('POST /api/event endpoint', () => {
+  describe('POST /api/event endpoint', () => {
     context('given a user is signed in', () => {
       let creator;
 

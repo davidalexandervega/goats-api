@@ -102,6 +102,7 @@ describe('Auth endpoints', () => {
             .send(postBody)
             .expect(400, { message: `Username ${postBody.username} is already in use.`})
         })
+
       })
 
     })
@@ -147,6 +148,16 @@ describe('Auth endpoints', () => {
             expect(actualCreatedDate).to.eql(expectedDate)
           })
 
+      })
+    })
+
+    context('given the user does not exist', () => {
+      it('responds with 401', () => {
+        const signInBody = makeUser.signinGood()
+        return supertest(app)
+          .post('/api/auth/signin')
+          .send(signInBody)
+          .expect(401, { message: `No account with username ${signInBody.username} exists`})
       })
     })
   })
