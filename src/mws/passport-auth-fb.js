@@ -3,7 +3,7 @@ const passport = require('passport');
 const { UserFB } = require('../models/user');
 const UserService = require('../services/user-service');
 const FacebookTokenStrategy = require('passport-facebook-token');
-const {facebookAuth} = require('../config/auth-config');
+const { facebookAuth } = require('../config/auth-config');
 
 
 module.exports = function () {
