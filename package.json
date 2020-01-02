@@ -13,7 +13,7 @@
     "seed-country-city": "psql -U goats_api -f ./seeds/001.seed.country_city.sql",
     "seed-models": "psql -U goats_api -f ./seeds/003.seed.models.sql",
     "seed-events": "psql -U goats_api -f ./seeds/004.seed.events.sql",
-    "predeploy": "npm audit",
+    "predeploy": "npm audit && npm run migrate:production",
     "deploy": "git push heroku master"
   },
   "keywords": [],
