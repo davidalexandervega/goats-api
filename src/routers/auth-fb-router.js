@@ -4,7 +4,7 @@ const authFbRouter = express.Router();
 const bodyParser = express.json();
 const logger = require('../utils/logger.utils')
 
-//require('../mws/passport-auth-fb')();
+require('../mws/passport-auth-fb')();
 
 authFbRouter.route('/auth/facebook')
   .post(
