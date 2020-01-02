@@ -9,10 +9,9 @@
     "dev": "nodemon src/server.js",
     "migrate": "postgrator --config postgrator-config.js",
     "migrate:test": "env NODE_ENV=test npm run migrate",
+    "migrate:production": "env SSL=true DATABASE_URL=$(heroku config:get DATABASE_URL) npm run migrate",
     "seed-country-city": "psql -U goats_api -f ./seeds/001.seed.country_city.sql",
-    "seed-country-city:test": "psql -U goats_api goats_api_test -f ./seeds/seed.country_city.sql",
     "seed-models": "psql -U goats_api -f ./seeds/003.seed.models.sql",
-    "seed-models:test": "psql -U goats_api goats_api_test -f ./seeds/seed.models.sql",
     "seed-events": "psql -U goats_api -f ./seeds/004.seed.events.sql",
     "predeploy": "npm audit",
     "deploy": "git push heroku master"

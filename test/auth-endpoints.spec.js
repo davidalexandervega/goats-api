@@ -9,7 +9,7 @@ describe('Auth endpoints', () => {
   before('create knex db instance', () => {
     db = knex({
       client: 'pg',
-      connection: process.env.TEST_DB_URL
+      connection: process.env.TEST_DATABASE_URL
     })
     app.set('db', db)
   })
