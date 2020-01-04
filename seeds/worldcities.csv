@@ -1,4 +1,4 @@
-"city","city_ascii","lat","lng","country","iso2","iso3","admin_name","capital","population","id"
+"name","city_ascii","lat","lng","country","iso2","iso3","admin_name","capital","population","id"
 "Tokyo","Tokyo","35.6850","139.7514","Japan","JP","JPN","Tōkyō","primary","35676000","1392685764"
 "New York","New York","40.6943","-73.9249","United States","US","USA","New York","","19354922.0","1840034016"
 "Mexico City","Mexico City","19.4424","-99.1310","Mexico","MX","MEX","Ciudad de México","primary","19028000","1484247881"
