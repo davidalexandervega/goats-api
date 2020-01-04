@@ -157,7 +157,7 @@ describe('Auth endpoints', () => {
         return supertest(app)
           .post('/api/auth/signin')
           .send(signInBody)
-          .expect(401, { message: `No account with username ${signInBody.username} exists`})
+          .expect(401, { message: `No account with username ${signInBody.username} exists.`})
       })
     })
   })
