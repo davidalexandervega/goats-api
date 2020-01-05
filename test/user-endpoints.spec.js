@@ -146,7 +146,7 @@ describe('User endpoints', () => {
           })
       })
 
-      context('given the user is signed in', () => {
+      context.only('given the user is signed in', () => {
         beforeEach('signin test user', () => {
           const signInBody = makeUser.signinGood()
           return supertest(app)
@@ -188,8 +188,7 @@ describe('User endpoints', () => {
             })
         })
 
-        it.only('responds with 200 and public fields when logged in user requests anothers profile', function () {
-          this.retries(3)
+        it('responds with 200 and public fields when logged in user requests anothers profile', function () {
           return supertest(app)
             .get(`/api/user/${otherUser.id}`)
             .set({
@@ -208,6 +207,8 @@ describe('User endpoints', () => {
               delete expected['facebook_provider_token']
               delete expected['password_digest']
               delete expected['listing_state']
+              console.log(expected)
+              console.log(res.body)
               expect(res.body).to.have.property('id')
               expect(res.body.id).to.eql(expected.id)
               expect(res.body).to.have.property('username')

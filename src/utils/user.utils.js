@@ -94,19 +94,22 @@ const checkPassword = (password, foundUser) => {
   })
 }
 
-const isAuthenticated = (knexI, id, reqUser) => {
+const isAuthenticated = (knexI, resUserId, reqUser) => {
   const { token } = reqUser
+
   if (!token) {
     return false
   }
+
   return UserService
-    .getByToken(knexI, token)
-    .then(user => {
-      if (user.id == id) {
-        return true
-      }
-      return false
-    })
+      .getByToken(knexI, token)
+      .then(validReqUser => {
+          if (validReqUser.id == resUserId) {
+            return true
+          }
+          return false
+      })
+
 }
 
 
