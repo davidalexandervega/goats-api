@@ -231,7 +231,7 @@ describe('User endpoints', () => {
       })
 
       context('given the user is not signed in', () => {
-        it('responds with 200 and requested user', () => {
+        it('responds with 200 and public fields of requested user', () => {
           const expected = authedUser
           delete expected['email']
           delete expected['fullname']
