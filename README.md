@@ -1,26 +1,30 @@
-# Express Boilerplate!
+# Goat's API
 
-This is a boilerplate project used for starting new projects!
+Goats (RESTFUL) API hopes to provide a relevant datasource of heavy metal events, as well as related band and venue information. If you wish to contribute to the development of this project, see the pull request instruction below.
 
-## Set up
+## Getting Started
 
-Complete the following steps to start a new project (NEW-PROJECT-NAME):
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes:
 
-1. Clone this repository to your local machine `git clone git@github.com:killeraliens/express-boilerplate.git NEW-PROJECTS-NAME`
+1. Clone this repository to your local machine `git clone git@github.com:killeraliens/goats-api.git`
 2. `cd` into the cloned repository
-3. Make a fresh start of the git history for this project with `rm -rf .git && git init`
 4. Install the node dependencies `npm install`
-5. Move the example Environment file to `.env` that will be ignored by git and read by the express server `mv example.env .env`
-6. Edit the contents of the `package.json` to use NEW-PROJECT-NAME instead of `"name": "express-boilerplate",`
+5. [start PostrgreSQL](https://www.robinwieruch.de/postgres-sql-macos-setup)
+6. Make sure migrations are current with `npm run migrate`
+8. And `npm run migrate:test` if you wish to run and create tests
+7. Start the local server with nodemon `npm run dev`
+8. Add an .env file to store keys and passwords locally.
 
-## Scripts
+## Make A Pull Request
 
-Start the application `npm start`
+1. View issues list.
+2. Choose an issue with a `help wanted` tag.
+3. Write a test for what you are working on.
+4. [Make a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request)
 
-Start nodemon for the application `npm run dev`
-
-Run the tests `npm test`
-
-## Deploying
-
-When your new project is ready for deployment, add a new Heroku application with `heroku create`. This will make a new git remote called "heroku" and you can then `npm run deploy` which will push to this remote's master branch.
+## Technologies
+- Node v10.15.3
+- Express
+- REST API
+- PostgreSQL
+- Testing with Mocha, Chai, Supertest
