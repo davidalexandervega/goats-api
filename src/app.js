@@ -2,17 +2,15 @@ require('dotenv').config()
 const { NODE_ENV, API_KEY } = require('./config/config')
 const express = require('express')
 const logger = require('./utils/logger.utils')
-const path = require('path')
+
 const morgan = require('morgan')
 const helmet = require('helmet')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
+const cloudinary = require('cloudinary')
+const formData = require('express-form-data')
 
-//const flash = require('connect-flash')
-//const passport = require('passport')
-//const session = require('express-session')
-// const request = require('request')
 const app = express()
 const morganOption = NODE_ENV === 'production' ? 'tiny' : 'dev'
 const corsOption = {
@@ -21,7 +19,6 @@ const corsOption = {
   credentials: true,
   exposedHeaders: ['x-auth-token']
 }
-
 const {
   eventRouter,
   userRouter,
@@ -31,6 +28,12 @@ const {
 } = require('./routers')
 const UserService = require('./services/user-service')
 
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET
+})
+
 app.use(morgan(morganOption))
 app.use(helmet())
 app.use(cors(corsOption))
@@ -39,23 +42,21 @@ app.use(bodyParser.urlencoded({
   extended: false
 }))
 app.use(cookieParser())
-//// implemented for custom login
-// app.use(session({
-//   secret: 'my-secret',
-//   resave: true,
-//   saveUninitialized: true
-// }))
-//app.use(passport.initialize());
-// app.use(passport.session());
-// app.use(flash());
-// app.use(express.static(path.join(__dirname, '..', '..', 'client')));
-//////
 app.use(setReqUserBearerToken)
 app.use('/api/v1', authFbRouter)
-app.use('/api/auth',  authRouter)
+app.use('/api/auth', authRouter)
 app.use('/api/event', eventRouter)
 app.use('/api/user', userRouter)
 app.use('/api/country', countryRouter)
+app.use(formData.parse())
+app.post('/api/image-upload', (req, res) => {
+  const values = Object.values(req.files)
+  const promises = values.map(image => cloudinary.uploader.upload(image.path))
+
+  Promise
+    .all(promises)
+    .then(results => res.json(results))
+})
 
 app.use(errorHandler)
 
@@ -82,14 +83,6 @@ function setReqUserBearerToken(req, res, next) {
       return next()
     })
     .catch(next)
-  //const apiToken = API_TOKEN
-  // if (!bearerToken || bearerToken !== apiToken) {
-  //   //logger.error(`Unauthorized request to ${req.path}`)
-  //   return res
-  //     .status(403)
-  //     .json({ error: 'Unauthorized request' })
-  // }
-  // next()
 
 }
 
