@@ -50,12 +50,17 @@ app.use('/api/user', userRouter)
 app.use('/api/country', countryRouter)
 app.use(formData.parse())
 app.post('/api/image-upload', (req, res) => {
+  console.log('inside img upload')
   const values = Object.values(req.files)
   const promises = values.map(image => cloudinary.uploader.upload(image.path))
 
   Promise
     .all(promises)
     .then(results => res.json(results))
+    .catch(error => {
+      console.log('error inside img upload')
+      logger.error(`500 Error message: ${error.message}`)
+    })
 })
 
 app.use(errorHandler)
