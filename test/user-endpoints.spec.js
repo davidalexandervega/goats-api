@@ -146,7 +146,7 @@ describe('User endpoints', () => {
           })
       })
 
-      context.only('given the user is signed in', () => {
+      context('given the user is signed in', () => {
         beforeEach('signin test user', () => {
           const signInBody = makeUser.signinGood()
           return supertest(app)
