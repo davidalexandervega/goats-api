@@ -50,18 +50,7 @@ const makeUser = {
   //   }
   // },
 
-  // signedInRes() {
-  //   return {
-  //     id: 1,
-  //     username: 'killer',
-  //     email: `killeraliens@outlook.com`,
-  //     fullname: 'Orlando Garcia',
-  //     city_id: 1392685764,
-  //     token: 'notNull',
-  //     admin: false,
-  //     listing_state: "Public"
-  //   }
-  // },
+
 
   // postBody() {
   //   return {
@@ -154,15 +143,28 @@ const makeUser = {
       // created: 'createddefault',
       // last_login:  'lastlogindefault'
     }
-
   },
 
   signinGood() {
     return {
-      username: 'killer',
-      password: 'killerpassword123'
+      username: 'testuser',
+      password: 'testuserpassword123'
     }
   },
+
+  // signedInRes() {
+  //   return {
+  //     id: 1,
+  //     username: 'killer',
+  //     email: `killeraliens@outlook.com`,
+  //     fullname: 'Orlando Garcia',
+  //     city_id: 1392685764,
+  //     token: 'notNull',
+  //     admin: false,
+  //     listing_state: "Public"
+  //   }
+  // },
+
 
   withXss() {
     return {

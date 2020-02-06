@@ -41,7 +41,7 @@ describe.only('Auth endpoints', () => {
   describe('POST /api/auth/signup endpoint', () => {
     context('given the post body is accurate', () => {
       const postBody = makeUser.postBody()
-      it.only('responds with 201 and new user with id (with additional auth fields)', function() {
+      it('responds with 201 and new user with id (and additional auth fields), creates record in db', function() {
         this.retries(3)
         const authedNewUser = makeUser.postResp()
 
@@ -52,6 +52,7 @@ describe.only('Auth endpoints', () => {
           .then(res => {
             expect(res.body).to.have.property('id')
             expect(res.body.id).to.be.a.uuid()
+            expect(res.body).to.have.property('username')
             expect(res.body.username).to.eql(authedNewUser.username)
             expect(res.body).to.have.property('email')
             expect(res.body.email).to.eql(authedNewUser.email)
@@ -69,8 +70,9 @@ describe.only('Auth endpoints', () => {
             expect(res.body.country_name).to.eql(authedNewUser.country_name)
             expect(res.body).to.have.property('city_id')
             expect(res.body.city_id).to.eql(null)
-            expect(res.body).to.have.property('created')
+            expect(res.body).to.have.property('user_state')
             expect(res.body.user_state).to.eql(authedNewUser.user_state)
+            expect(res.body).to.have.property('created')
             const expectedCreated = new Date(Date.now()).toLocaleString()
             const actualCreated = new Date(res.body.created).toLocaleString()
             expect(actualCreated).to.eql(expectedCreated)
@@ -80,12 +82,13 @@ describe.only('Auth endpoints', () => {
             expect(actualLastLogin).to.eql(expectedLastLogin)
             expect(res.body).to.have.property('token')
             expect(res.body.token).to.not.eql(null)
+            expect(res.body).to.not.have.property('password_digest')
             expect(res.body.password_digest).to.eql(undefined)
             expect(res.headers.location).to.eql(`/api/user/${res.body.id}`)
             return res
           })
           .then(res => {
-            // confirming user exists in db only
+            // confirming user exists in db, nothing more
             return supertest(app)
               .get(`/api/user/${res.body.id}`)
               .expect(200)
@@ -95,15 +98,11 @@ describe.only('Auth endpoints', () => {
 
     context('given there are errors in post body', () => {
       context('given a user with the requested username already exists', () => {
-        let existingUser;
         beforeEach('signup test user', () => {
           const postBody = makeUser.postBody()
           return supertest(app)
             .post('/api/auth/signup')
             .send(postBody)
-            .then(res => {
-              existingUser = res.body
-            })
         })
 
         it(`responds with 400 if requested username is already in use`, () => {
@@ -119,44 +118,59 @@ describe.only('Auth endpoints', () => {
     })
   })
 
-  describe('POST /api/auth/signin endpoint', () => {
-    context('given the username and password are correct', () => {
+  describe.only('POST /api/auth/signin endpoint', () => {
+    context.only('given the username and password are correct', () => {
+      let authedSignedInUser;
       beforeEach('post a new user to match signedInRes', () => {
         const postBody = makeUser.postBody()
         return supertest(app)
           .post('/api/auth/signup')
           .send(postBody)
           .then(res => {
-            return db('app_user')
-              .where({id: res.body.id})
-              .update({
-                fullname: 'Orlando Garcia',
-                city_id: 1392685764,
-                email: "killeraliens@outlook.com"
-              })
+            return authedSignedInUser = res.body
           })
       })
 
       it('responds with 200 and signed in user (with additional auth fields)', () => {
         const signinBody = makeUser.signinGood()
-        const expected = makeUser.signedInRes()
+        const expected = authedSignedInUser
 
         return supertest(app)
           .post('/api/auth/signin')
           .send(signinBody)
           .expect(200)
           .expect(res => {
+            expect(res.body).to.have.property('id')
             expect(res.body.id).to.eql(expected.id)
+            expect(res.body).to.have.property('username')
             expect(res.body.username).to.eql(expected.username)
-            expect(res.body.city_id).to.eql(expected.city_id)
-            expect(res.body.admin).to.eql(expected.admin)
+            expect(res.body).to.have.property('email')
             expect(res.body.email).to.eql(expected.email)
-            expect(res.body.token).to.not.eql(null)
+            expect(res.body).to.have.property('admin')
+            expect(res.body.admin).to.eql(expected.admin)
+            expect(res.body).to.have.property('image_url')
+            expect(res.body.image_url).to.eql(expected.image_url)
+            expect(res.body).to.have.property('fullname')
+            expect(res.body.fullname).to.eql(expected.fullname)
+            expect(res.body).to.have.property('city_name')
+            expect(res.body.city_name).to.eql(expected.city_name)
+            expect(res.body).to.have.property('region_name')
+            expect(res.body.region_name).to.eql(expected.region_name)
+            expect(res.body).to.have.property('country_name')
+            expect(res.body.country_name).to.eql(expected.country_name)
+            expect(res.body).to.have.property('city_id')
+            expect(res.body.city_id).to.eql(expected.city_id)
+            expect(res.body).to.have.property('created')
+            expect(res.body).to.have.property('last_login')
             const expectedDate = new Date().toLocaleString()
             const actualLastLoginDate = new Date(res.body.last_login).toLocaleString()
             const actualCreatedDate = new Date(res.body.last_login).toLocaleString()
             expect(actualLastLoginDate).to.eql(expectedDate)
             expect(actualCreatedDate).to.eql(expectedDate)
+            expect(res.body).to.have.property('token')
+            expect(res.body.token).to.not.eql(null)
+            expect(res.body).to.not.have.property('password_digest')
+            expect(res.body.password_digest).to.eql(undefined)
           })
 
       })

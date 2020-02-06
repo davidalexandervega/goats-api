@@ -9,6 +9,12 @@ const seed = {
       VALUES
         ('West Bank', 'XW'),
         ('Kosovo', 'XK');
+
+      INSERT INTO city
+        (id, city_name, city_ascii, country, country_code, iso3, lat, lng, admin_name, capital, population)
+      VALUES
+        (1528992666, 'Tilburg', 'Tilburg', 'Netherlands', 'NL', 'NLD', 51.5606, 5.0919, 'Noord-Brabant', 'admin', '217,595')
+     ;
     `
   },
 

@@ -58,10 +58,12 @@ function authPatchUser(req, res, next) {
     .catch(next)
 }
 
-function getById(req, res, next) {
+async function getById(req, res, next) {
   const knexI = req.app.get('db')
-  console.log(UserUtils.isAuthenticated(knexI, res.user.id, req.user))
-  if (UserUtils.isAuthenticated(knexI, res.user.id, req.user) === true) {
+  //console.log(UserUtils.isAuthenticated(knexI, res.user.id, req.user))
+  const isAuthed = await UserUtils.isAuthenticated(knexI, res.user.id, req.user)
+  console.log(isAuthed)
+  if (isAuthed === true) {
     logger.info(`Successful GET /user/${req.user.id} by authed user ${res.user.id}`)
     return res.json(UserUtils.sanitizeAuthed(res.user))
   }
