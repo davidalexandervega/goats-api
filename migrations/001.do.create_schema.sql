@@ -71,7 +71,7 @@ CREATE TABLE app_user (
   city_id INT REFERENCES city(id) ON DELETE SET NULL,
   user_state listing_state DEFAULT 'Public',
   created TIMESTAMPTZ DEFAULT now(),
-  last_login TIMESTAMPTZ
+  last_login TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE TYPE flyer_type AS ENUM (
