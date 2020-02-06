@@ -2,9 +2,9 @@ const app = require('../src/app')
 const knex = require('knex')
 const { makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
+chai.use(require('chai-uuid'));
 
-
-describe('Auth endpoints', () => {
+describe.only('Auth endpoints', () => {
   let db
   before('create knex db instance', () => {
     db = knex({
@@ -18,8 +18,8 @@ describe('Auth endpoints', () => {
     return db.raw(truncate.allTables())
   })
 
-  before('insert country_city city_id parent data', () => {
-    return db.raw(seed.countryCity())
+  before('insert country, region, city parent data ', () => {
+    return db.raw(seed.countryRegionCity())
   })
 
   beforeEach('clears app_user and child tables', () => {
@@ -41,9 +41,9 @@ describe('Auth endpoints', () => {
   describe('POST /api/auth/signup endpoint', () => {
     context('given the post body is accurate', () => {
       const postBody = makeUser.postBody()
-      it('responds with 201 and new user with id (with additional auth fields)', function() {
+      it.only('responds with 201 and new user with id (with additional auth fields)', function() {
         this.retries(3)
-        const authedUser = makeUser.postResp()
+        const authedNewUser = makeUser.postResp()
 
         return supertest(app)
           .post('/api/auth/signup')
@@ -51,11 +51,26 @@ describe('Auth endpoints', () => {
           .expect(201)
           .then(res => {
             expect(res.body).to.have.property('id')
-            expect(res.body.id).to.eql(authedUser.id)
-            expect(res.body.username).to.eql(authedUser.username)
+            expect(res.body.id).to.be.a.uuid()
+            expect(res.body.username).to.eql(authedNewUser.username)
             expect(res.body).to.have.property('email')
-            expect(res.body.email).to.eql(authedUser.email)
+            expect(res.body.email).to.eql(authedNewUser.email)
+            expect(res.body).to.have.property('admin')
+            expect(res.body.admin).to.eql(authedNewUser.admin)
+            expect(res.body).to.have.property('image_url')
+            expect(res.body.image_url).to.eql(authedNewUser.image_url)
+            expect(res.body).to.have.property('fullname')
+            expect(res.body.fullname).to.eql(authedNewUser.fullname)
+            expect(res.body).to.have.property('city_name')
+            expect(res.body.city_name).to.eql(authedNewUser.city_name)
+            expect(res.body).to.have.property('region_name')
+            expect(res.body.region_name).to.eql(authedNewUser.region_name)
+            expect(res.body).to.have.property('country_name')
+            expect(res.body.country_name).to.eql(authedNewUser.country_name)
+            expect(res.body).to.have.property('city_id')
+            expect(res.body.city_id).to.eql(null)
             expect(res.body).to.have.property('created')
+            expect(res.body.user_state).to.eql(authedNewUser.user_state)
             const expectedCreated = new Date(Date.now()).toLocaleString()
             const actualCreated = new Date(res.body.created).toLocaleString()
             expect(actualCreated).to.eql(expectedCreated)
@@ -63,18 +78,14 @@ describe('Auth endpoints', () => {
             const expectedLastLogin = new Date(Date.now()).toLocaleString()
             const actualLastLogin = new Date(res.body.last_login).toLocaleString()
             expect(actualLastLogin).to.eql(expectedLastLogin)
-            expect(res.body).to.have.property('city_id')
-            expect(res.body.city_id).to.eql(null)
-            expect(res.body).to.have.property('admin')
-            expect(res.body.admin).to.eql(false)
             expect(res.body).to.have.property('token')
             expect(res.body.token).to.not.eql(null)
             expect(res.body.password_digest).to.eql(undefined)
-            expect(res.body.listing_state).to.eql(undefined)
             expect(res.headers.location).to.eql(`/api/user/${res.body.id}`)
             return res
           })
           .then(res => {
+            // confirming user exists in db only
             return supertest(app)
               .get(`/api/user/${res.body.id}`)
               .expect(200)

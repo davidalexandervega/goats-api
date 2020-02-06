@@ -60,18 +60,13 @@ function authPatchUser(req, res, next) {
 
 function getById(req, res, next) {
   const knexI = req.app.get('db')
-
-  UserUtils.isAuthenticated(knexI, res.user.id, req.user)
-    .then(bool => {
-      if(bool) {
-        logger.info(`Successful GET /user/:id by authed user ${res.user.id}`)
-        return res.json(UserUtils.sanitizeAuthed(res.user))
-      }
-      logger.info(`Successful GET /user/:id by public user`)
-      res.json(UserUtils.sanitize(res.user))
-    })
-    .catch(next)
-
+  console.log(UserUtils.isAuthenticated(knexI, res.user.id, req.user))
+  if (UserUtils.isAuthenticated(knexI, res.user.id, req.user) === true) {
+    logger.info(`Successful GET /user/${req.user.id} by authed user ${res.user.id}`)
+    return res.json(UserUtils.sanitizeAuthed(res.user))
+  }
+  logger.info(`Successful GET /user/${req.user} by public user`)
+  res.json(UserUtils.sanitize(res.user))
 }
 
 function getAllUsers(req, res, next) {

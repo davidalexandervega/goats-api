@@ -26,20 +26,20 @@ const sanitize = user => {
 const sanitizeAuthed = (user) => {
   return {
     id: user.id,
-    token: user.token,
-    image_url: xss(user.image_url),
-    //facebook_provider_id: user.facebook_provider_id,
-    //facebook_provider_token: user.facebook_provider_token,
-    email: xss(user.email),
-    fullname: xss(user.fullname),
     username: xss(user.username),
-    //password_digest: user.password_digest,
+    email: xss(user.email),
     admin: user.admin,
+    image_url: xss(user.image_url),
+    fullname: xss(user.fullname),
+    city_name: xss(user.city_name),
+    region_name: xss(user.region_name),
+    country_name: xss(user.country_name),
     city_id: user.city_id,
+    user_state: user.user_state,
     created: user.created,
-    modified: user.modified,
     last_login: user.last_login,
-    //listing_state: user.listing_state
+    token: user.token
+    //password_digest: user.password_digest,
   }
 }
 
@@ -104,7 +104,7 @@ const isAuthenticated = (knexI, resUserId, reqUser) => {
   return UserService
       .getByToken(knexI, token)
       .then(validReqUser => {
-          if (validReqUser.id == resUserId) {
+          if (validReqUser.id === resUserId) {
             return true
           }
           return false

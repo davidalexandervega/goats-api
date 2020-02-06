@@ -1,9 +1,10 @@
 const app = require('../src/app')
 const knex = require('knex')
-const { makeUsers, makeUser } = require('./user-fixtures')
+// const { makeUsers, makeUser } = require('./user-fixtures')
+const {  makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
 
-describe('User endpoints', () => {
+describe.skip('User endpoints', () => {
   let db;
   before('create knex db instance', () => {
     db = knex({
@@ -46,33 +47,33 @@ describe('User endpoints', () => {
       })
     })
 
-    context('given there are users', () => {
-      const testUsers = makeUsers();
-      beforeEach('insert users into app_user', () => {
-        return db
-          .insert(testUsers)
-          .into('app_user')
-      })
+    // context('given there are users', () => {
+    //   const testUsers = makeUsers();
+    //   beforeEach('insert users into app_user', () => {
+    //     return db
+    //       .insert(testUsers)
+    //       .into('app_user')
+    //   })
 
-      it('responds with 200 and array of users without private fields', () => {
-        const expectedUser = testUsers[0]
-        delete expectedUser['email']
-        delete expectedUser['password_digest']
-        delete expectedUser['token']
-        delete expectedUser['fullname']
-        delete expectedUser['modified']
-        delete expectedUser['last_login']
+    //   it('responds with 200 and array of users without private fields', () => {
+    //     const expectedUser = testUsers[0]
+    //     delete expectedUser['email']
+    //     delete expectedUser['password_digest']
+    //     delete expectedUser['token']
+    //     delete expectedUser['fullname']
+    //     delete expectedUser['modified']
+    //     delete expectedUser['last_login']
 
-        return supertest(app)
-          .get('/api/user')
-          .expect(200)
-          .expect(res => {
-            expect(res.body.length).to.equal(2)
-            expect(res.body[0]).to.have.property('created')
-            expect(delete res.body[0].created).to.eql(delete expectedUser.created)
-          })
-      })
-    })
+    //     return supertest(app)
+    //       .get('/api/user')
+    //       .expect(200)
+    //       .expect(res => {
+    //         expect(res.body.length).to.equal(2)
+    //         expect(res.body[0]).to.have.property('created')
+    //         expect(delete res.body[0].created).to.eql(delete expectedUser.created)
+    //       })
+    //   })
+    // })
 
     context('given there is xss in a username', () => {
       beforeEach('insert user with xss into db', () => {
