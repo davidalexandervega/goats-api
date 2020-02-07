@@ -119,7 +119,7 @@ describe.only('Auth endpoints', () => {
   })
 
   describe.only('POST /api/auth/signin endpoint', () => {
-    context.only('given the username and password are correct', () => {
+    context('given the user exists', () => {
       let authedSignedInUser;
       beforeEach('post a new user to match signedInRes', () => {
         const postBody = makeUser.postBody()
@@ -131,14 +131,15 @@ describe.only('Auth endpoints', () => {
           })
       })
 
-      it('responds with 200 and signed in user (with additional auth fields)', () => {
+      it('responds with 201 and signed in user (with additional auth fields)', function() {
+        this.retries(3)
         const signinBody = makeUser.signinGood()
         const expected = authedSignedInUser
 
         return supertest(app)
           .post('/api/auth/signin')
           .send(signinBody)
-          .expect(200)
+          .expect(201)
           .expect(res => {
             expect(res.body).to.have.property('id')
             expect(res.body.id).to.eql(expected.id)
@@ -162,11 +163,10 @@ describe.only('Auth endpoints', () => {
             expect(res.body.city_id).to.eql(expected.city_id)
             expect(res.body).to.have.property('created')
             expect(res.body).to.have.property('last_login')
-            const expectedDate = new Date().toLocaleString()
             const actualLastLoginDate = new Date(res.body.last_login).toLocaleString()
-            const actualCreatedDate = new Date(res.body.last_login).toLocaleString()
+            const expectedDate = new Date().toLocaleString()
             expect(actualLastLoginDate).to.eql(expectedDate)
-            expect(actualCreatedDate).to.eql(expectedDate)
+            expect(res.body.created).to.eql(expected.created)
             expect(res.body).to.have.property('token')
             expect(res.body.token).to.not.eql(null)
             expect(res.body).to.not.have.property('password_digest')
@@ -174,7 +174,17 @@ describe.only('Auth endpoints', () => {
           })
 
       })
+
+      it('responds with 401', () => {
+        const signInBody = makeUser.signinBad()
+
+        return supertest(app)
+          .post('/api/auth/signin')
+          .send(signInBody)
+          .expect(401, { message: `Passwords don't match` })
+      })
     })
+
 
     context('given the user does not exist', () => {
       it('responds with 401', () => {
@@ -182,7 +192,7 @@ describe.only('Auth endpoints', () => {
         return supertest(app)
           .post('/api/auth/signin')
           .send(signInBody)
-          .expect(401, { message: `No account with username ${signInBody.username} exists.`})
+          .expect(401, { message: `Bad login credentials`})
       })
     })
   })

@@ -88,7 +88,7 @@ const checkPassword = (password, foundUser) => {
       } else if (response) {
         resolve(response)
       } else {
-        reject({ message: 'Passwords do not match.' })
+        reject({ message: `Passwords don't match` })
       }
     })
   })

@@ -125,10 +125,13 @@ function signin(req, res, next) {
     .then(foundUser => {
       if (!foundUser) {
         logger.error(`POST /signin username ${username} does not exist`)
-        return res.status(401).json({ message: `No account with username ${username} exists.` })
+        return res.status(401).json({ message: `Bad login credentials` })
       }
       user = foundUser
+
       return UserUtils.checkPassword(password, foundUser)
+        .then(res => res)
+        .catch(err => res.status(401).json(err))
     })
     .then(result => UserUtils.createToken())
     .then(token => {
@@ -144,7 +147,7 @@ function signin(req, res, next) {
     .then(() => {
       delete user.password_digest
       logger.info(`Successful POST /signin by username ${user.username}`)
-      res.json(UserUtils.sanitizeAuthed(user))
+      res.status(201).json(UserUtils.sanitizeAuthed(user))
     })
     .catch(next)
 

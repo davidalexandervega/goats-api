@@ -152,6 +152,12 @@ const makeUser = {
     }
   },
 
+  signinBad() {
+    return {
+      username: 'testuser',
+      password: 'badtestuserpassword123'
+    }
+  },
   // signedInRes() {
   //   return {
   //     id: 1,
