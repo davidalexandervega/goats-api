@@ -131,6 +131,7 @@ describe('User endpoints', () => {
               })
           })
       })
+
       beforeEach('signup second test user, insert additional fields', () => {
         const postBody = makeUser.postBody2()
         return supertest(app)
@@ -259,7 +260,6 @@ describe('User endpoints', () => {
       })
 
       context.skip('given the user is not signed in', () => {
-
       })
     })
 
