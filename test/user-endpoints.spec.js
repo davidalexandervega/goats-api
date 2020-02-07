@@ -281,7 +281,7 @@ describe('User endpoints', () => {
     })
   })
 
-  describe.only('PATCH /api/user/:id endpoint', () => {
+  describe('PATCH /api/user/:id endpoint', () => {
     context('given the user exists', () => {
       let authedUser;
       let anotherUser;
@@ -319,6 +319,7 @@ describe('User endpoints', () => {
         it.only('responds with 204 and user is updated in db', function() {
           this.retries(3)
           const patchBody = makeUser.patchBody()
+          let expectedModified;
           return supertest(app)
             .patch(`/api/user/${authedUser.id}`)
             .send(patchBody)
@@ -327,6 +328,7 @@ describe('User endpoints', () => {
             })
             .expect(204)
             .then(() => {
+              expectedModified = new Date().toLocaleString()
               return supertest(app)
                 .get(`/api/user/${authedUser.id}`)
                 .set({
@@ -336,14 +338,13 @@ describe('User endpoints', () => {
                 .then(res => {
                   const expected = {
                     ...authedUser,
-                    ...patchBody
+                    ...patchBody,
+                    modified: res.body.modified
                   }
                   delete expected['password']
                   expected['admin'] = false
-
-                  const expectedDate = new Date().toLocaleString()
-                  const actualDate = new Date(res.body.modified).toLocaleString()
-                  expect(actualDate).to.eql(expectedDate)
+                  const actualModified = new Date(res.body.modified).toLocaleString()
+                  expect(actualModified).to.eql(expectedModified)
                   expect(res.body).to.eql(expected)
                 })
             })

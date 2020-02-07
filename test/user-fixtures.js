@@ -81,6 +81,7 @@ const makeUser = {
       user_state: 'Public'
       // token: 'cryptotokencustom',
       // created: 'createddefault',
+      // modified: 'modifieddefault',
       // last_login:  'lastlogindefault'
     }
   },

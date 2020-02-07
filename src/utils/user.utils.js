@@ -17,6 +17,7 @@ const sanitize = user => {
     city_id: user.city_id,
     //user_state: user.user_state
     created: user.created
+    //modified: user.modified,
     //last_login: user.last_login,
     //token: user.token,
     //password_digest: user.password_digest,
@@ -37,6 +38,7 @@ const sanitizeAuthed = (user) => {
     city_id: user.city_id,
     user_state: user.user_state,
     created: user.created,
+    modified: user.modified,
     last_login: user.last_login,
     token: user.token
     //password_digest: user.password_digest,
