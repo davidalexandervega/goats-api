@@ -1,9 +1,12 @@
 DROP TABLE IF EXISTS event;
+DROP TRIGGER IF EXISTS update_flyer_modtime ON flyer;
 DROP TABLE IF EXISTS flyer;
 DROP TYPE IF EXISTS flyer_type;
+DROP TRIGGER IF EXISTS update_app_user_modtime ON app_user;
 DROP TABLE IF EXISTS app_user;
 DROP TYPE IF EXISTS listing_state;
 DROP TABLE IF EXISTS city;
 DROP TABLE IF EXISTS region;
 DROP TABLE IF EXISTS country;
+DROP FUNCTION IF EXISTS update_modified_column();
 DROP EXTENSION IF EXISTS "uuid-ossp";

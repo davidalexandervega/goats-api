@@ -13,6 +13,7 @@ INSERT INTO app_user
     city_name,
     user_state,
     created,
+    modified,
     last_login
   )
   VALUES (
@@ -27,6 +28,7 @@ INSERT INTO app_user
       'Phoenix',
       'Public',
       '2019-11-30T19:14:17.915Z',
+      '2020-01-03T19:14:17.915Z',
       '2020-01-03T19:14:17.915Z'
     ),
     (
@@ -40,6 +42,7 @@ INSERT INTO app_user
       null,
       'Ghent',
       'Public',
+      '2019-01-05T20:42:00.000Z',
       '2019-01-05T20:42:00.000Z',
       '2019-01-05T20:42:00.000Z'
     ),
@@ -55,6 +58,7 @@ INSERT INTO app_user
       'Copenhagen',
       'Public',
       '2019-01-03T00:00:00.000Z',
+      '2019-01-03T18:00:00.000Z',
       '2019-01-03T18:00:00.000Z'
     ),
     (
@@ -68,6 +72,7 @@ INSERT INTO app_user
       null,
       null,
       'Public',
+      '2020-02-02T14:08:00.000Z',
       '2020-02-02T14:08:00.000Z',
       '2020-02-02T14:08:00.000Z'
     )

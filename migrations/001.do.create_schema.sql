@@ -1,5 +1,13 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.modified = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
 CREATE TABLE country (
   country_code TEXT PRIMARY KEY,
   country_name TEXT NOT NULL,
@@ -71,8 +79,12 @@ CREATE TABLE app_user (
   city_id INT REFERENCES city(id) ON DELETE SET NULL,
   user_state listing_state DEFAULT 'Public',
   created TIMESTAMPTZ DEFAULT now(),
+  modified TIMESTAMPTZ DEFAULT now(),
   last_login TIMESTAMPTZ DEFAULT now()
 );
+
+CREATE TRIGGER update_app_user_modtime
+  BEFORE UPDATE ON app_user FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 CREATE TYPE flyer_type AS ENUM (
   'Show',
@@ -93,6 +105,9 @@ CREATE TABLE flyer (
   created TIMESTAMPTZ DEFAULT now(),
   modified TIMESTAMPTZ DEFAULT now()
 );
+
+CREATE TRIGGER update_flyer_modtime
+  BEFORE UPDATE ON flyer FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 CREATE TABLE event (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
