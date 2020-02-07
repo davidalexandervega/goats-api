@@ -104,7 +104,7 @@ describe('User endpoints', () => {
     })
   })
 
-  describe.only('GET /api/user/:id', () => {
+  describe('GET /api/user/:id', () => {
 
     context('given user exists', () => {
       let authedUser;

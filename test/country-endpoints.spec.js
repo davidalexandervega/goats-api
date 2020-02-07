@@ -1,5 +1,6 @@
 const app = require('../src/app')
 const knex = require('knex')
+const { seed, truncate } = require('./seed-fixtures')
 
 describe('Country endpoints', () => {
   let db;
@@ -12,15 +13,15 @@ describe('Country endpoints', () => {
   })
 
   before('clears country and all child tables', () => {
-    return db.raw('TRUNCATE city, country, app_user, venue, event, band, band_event')
+    return db.raw(truncate.allTables())
   })
 
   beforeEach('clears country and all child tables', () => {
-    return db.raw('TRUNCATE city, country, app_user, venue, event, band,  band_event')
+    return db.raw(truncate.allTables())
   })
 
   afterEach('clears country and all child tables', () => {
-    return db.raw('TRUNCATE city, country, app_user, venue, event, band,  band_event')
+    return db.raw(truncate.allTables())
   })
 
   after('kill knex db', () => {
