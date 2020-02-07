@@ -104,7 +104,7 @@ describe('User endpoints', () => {
     })
   })
 
-  describe('GET /api/user/:id', () => {
+  describe.only('GET /api/user/:id', () => {
 
     context('given user exists', () => {
       let authedUser;
@@ -115,19 +115,19 @@ describe('User endpoints', () => {
           .post('/api/auth/signup')
           .send(postBody)
           .then(res => {
+            let additionalFields = makeUser.patchBody()
+            delete additionalFields['username']
+            delete additionalFields['password']
+            delete additionalFields['email']
             authedUser = res.body
             authedUser = {
               ...authedUser,
-              fullname: 'Orlando Garcia',
-              city_id: 1392685764,
-              email: "killeraliens@outlook.com"
+              ...additionalFields
             }
             return db('app_user')
               .where({ id: authedUser.id })
               .update({
-                fullname: 'Orlando Garcia',
-                city_id: 1392685764,
-                email: "killeraliens@outlook.com"
+                ...additionalFields
               })
           })
       })
@@ -137,28 +137,30 @@ describe('User endpoints', () => {
           .post('/api/auth/signup')
           .send(postBody)
           .then(res => {
+            let additionalFields = makeUser.patchBody()
+            delete additionalFields['username']
+            delete additionalFields['password']
+            delete additionalFields['email']
             otherUser = res.body
             otherUser = {
               ...otherUser,
-              fullname: 'alexandra brinn',
-              city_id: 1392685764
+              ...additionalFields
             }
             return db('app_user')
               .where({ id: otherUser.id })
               .update({
-                fullname: 'alexandra brinn',
-                city_id: 1392685764
+                ...additionalFields
               })
           })
       })
 
       context('given the user is signed in', () => {
-        beforeEach('signin test user', () => {
+        beforeEach('signin first test user', () => {
           const signInBody = makeUser.signinGood()
           return supertest(app)
             .post('/api/auth/signin')
             .send(signInBody)
-            .expect(res => {
+            .then(res => {
               authedUser = res.body
             })
 
@@ -166,6 +168,7 @@ describe('User endpoints', () => {
 
         it('responds with 200 and additional auth fields when user requests their own profile', function() {
           this.retries(3)
+          let expected = authedUser
           return supertest(app)
             .get(`/api/user/${authedUser.id}`)
             .set({
@@ -174,27 +177,52 @@ describe('User endpoints', () => {
             .expect(200)
             .expect(res => {
               expect(res.body).to.have.property('id')
-              expect(res.body.id).to.eql(authedUser.id)
+              expect(res.body.id).to.eql(expected.id)
               expect(res.body).to.have.property('username')
-              expect(res.body.username).to.eql(authedUser.username)
+              expect(res.body.username).to.eql(expected.username)
               expect(res.body).to.have.property('email')
-              expect(res.body).to.have.property('created')
-              expect(res.body).to.have.property('last_login')
-              const expectedDate = new Date(Date.now()).toLocaleString()
-              const actualDate = new Date(res.body.last_login).toLocaleString()
-              expect(actualDate).to.eql(expectedDate)
-              expect(res.body).to.have.property('modified')
-              expect(res.body).to.have.property('fullname')
+              expect(res.body.email).to.eql(expected.email)
+              expect(res.body).to.have.property('admin')
+              expect(res.body.admin).to.eql(expected.admin)
               expect(res.body).to.have.property('image_url')
+              expect(res.body.image_url).to.eql(expected.image_url)
+              expect(res.body).to.have.property('fullname')
+              expect(res.body.fullname).to.eql(expected.fullname)
+              expect(res.body).to.have.property('city_name')
+              expect(res.body.city_name).to.eql(expected.city_name)
+              expect(res.body).to.have.property('region_name')
+              expect(res.body.region_name).to.eql(expected.region_name)
+              expect(res.body).to.have.property('country_name')
+              expect(res.body.country_name).to.eql(expected.country_name)
+              expect(res.body).to.have.property('city_id')
+              expect(res.body.city_id).to.eql(expected.city_id)
+              expect(res.body).to.have.property('user_state')
+              expect(res.body.user_state).to.eql(expected.user_state)
+              expect(res.body).to.have.property('created')
+              expect(res.body).to.have.property('modified')
+              expect(res.body).to.have.property('last_login')
+              const actualModifiedDate = new Date(res.body.modified).toLocaleString()
+              const actualLastLoginDate = new Date(res.body.last_login).toLocaleString()
+              const expectedDate = new Date().toLocaleString()
+              expect(res.body.created).to.eql(expected.created)
+              expect(actualModifiedDate).to.eql(expectedDate)
+              expect(actualLastLoginDate).to.eql(expectedDate)
               expect(res.body).to.have.property('token')
-              //expect(res.body).to.have.property('facebook_provider_token')
+              expect(res.body.token).to.not.eql(null)
+              expect(res.body).to.not.have.property('password_digest')
               expect(res.body.password_digest).to.eql(undefined)
-              expect(res.body.listing_state).to.eql(undefined)
-              expect(res.body).to.eql(authedUser)
             })
         })
 
         it('responds with 200 and public fields when logged in user requests anothers profile', function () {
+          const expected = otherUser
+          delete expected['email']
+          delete expected['fullname']
+          delete expected['user_state']
+          delete expected['modified']
+          delete expected['last_login']
+          delete expected['token']
+
           return supertest(app)
             .get(`/api/user/${otherUser.id}`)
             .set({
@@ -202,75 +230,36 @@ describe('User endpoints', () => {
             })
             .expect(200)
             .expect(res => {
-              console.log(`Authed User ${authedUser.id} ${authedUser.username} with token ${authedUser.token}`)
-              console.log(`Requested User ${otherUser.id} ${otherUser.username} with token ${otherUser.token}`)
-              const expected = otherUser
-              delete expected['email']
-              delete expected['fullname']
-              delete expected['modified']
-              delete expected['last_login']
-              delete expected['token']
-              delete expected['facebook_provider_token']
-              delete expected['password_digest']
-              delete expected['listing_state']
-              console.log(expected)
-              console.log(res.body)
               expect(res.body).to.have.property('id')
               expect(res.body.id).to.eql(expected.id)
               expect(res.body).to.have.property('username')
               expect(res.body.username).to.eql(expected.username)
-              expect(res.body.email).to.eql(undefined)
-              expect(res.body).to.have.property('created')
-              expect(res.body.last_login).to.eql(undefined)
-              expect(res.body.modified).to.eql(undefined)
-              expect(res.body.fullname).to.eql(undefined)
               expect(res.body).to.have.property('image_url')
+              expect(res.body.image_url).to.eql(expected.image_url)
+              expect(res.body).to.not.have.property('email')
+              expect(res.body.email).to.eql(undefined)
+              expect(res.body).to.not.have.property('fullname')
+              expect(res.body.fullname).to.eql(undefined)
+              expect(res.body).to.not.have.property('user_state')
+              expect(res.body.user_state).to.eql(undefined)
+              expect(res.body).to.have.property('created')
+              expect(res.body.created).to.eql(expected.created)
+              expect(res.body).to.not.have.property('modified')
+              expect(res.body.modified).to.eql(undefined)
+              expect(res.body).to.not.have.property('last_login')
+              expect(res.body.last_login).to.eql(undefined)
+              expect(res.body).to.not.have.property('token')
               expect(res.body.token).to.eql(undefined)
-              expect(res.body.facebook_provider_token).to.eql(undefined)
+              expect(res.body).to.not.have.property('password_digest')
               expect(res.body.password_digest).to.eql(undefined)
-              expect(res.body.listing_state).to.eql(undefined)
-              expect(res.body).to.eql(expected)
 
               expect(res.body).to.eql(expected)
             })
         })
       })
 
-      context('given the user is not signed in', () => {
-        it('responds with 200 and public fields of requested user', () => {
-          const expected = authedUser
-          delete expected['email']
-          delete expected['fullname']
-          delete expected['modified']
-          delete expected['last_login']
-          delete expected['token']
-          delete expected['facebook_provider_token']
-          delete expected['password_digest']
-          delete expected['listing_state']
+      context.skip('given the user is not signed in', () => {
 
-          return supertest(app)
-            .get(`/api/user/${expected.id}`)
-            .expect(200)
-            .expect(res => {
-              expect(res.body).to.have.property('id')
-              expect(res.body.id).to.eql(expected.id)
-              expect(res.body).to.have.property('username')
-              expect(res.body.username).to.eql(expected.username)
-              expect(res.body.email).to.eql(undefined)
-              expect(res.body).to.have.property('created')
-              expect(res.body.last_login).to.eql(undefined)
-              expect(res.body.modified).to.eql(undefined)
-              expect(res.body.fullname).to.eql(undefined)
-              expect(res.body).to.have.property('image_url')
-              expect(res.body.token).to.eql(undefined)
-              expect(res.body.facebook_provider_token).to.eql(undefined)
-              expect(res.body.password_digest).to.eql(undefined)
-              expect(res.body.listing_state).to.eql(undefined)
-              expect(res.body).to.eql(expected)
-
-              expect(res.body).to.eql(expected)
-            })
-        })
       })
     })
 
@@ -281,7 +270,7 @@ describe('User endpoints', () => {
     })
   })
 
-  describe.only('PATCH /api/user/:id endpoint', () => {
+  describe('PATCH /api/user/:id endpoint', () => {
     context('given the user exists', () => {
       let authedUser;
       // let authedUserNotModified;

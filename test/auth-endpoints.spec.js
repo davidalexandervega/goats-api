@@ -166,6 +166,8 @@ describe('Auth endpoints', () => {
             expect(res.body.country_name).to.eql(expected.country_name)
             expect(res.body).to.have.property('city_id')
             expect(res.body.city_id).to.eql(expected.city_id)
+            expect(res.body).to.have.property('user_state')
+            expect(res.body.user_state).to.eql(expected.user_state)
             expect(res.body).to.have.property('created')
             expect(res.body).to.have.property('modified')
             expect(res.body).to.have.property('last_login')
