@@ -281,9 +281,10 @@ describe('User endpoints', () => {
     })
   })
 
-  describe('PATCH /api/user/:id endpoint', () => {
+  describe.only('PATCH /api/user/:id endpoint', () => {
     context('given the user exists', () => {
       let authedUser;
+      // let authedUserNotModified;
       let anotherUser;
       beforeEach('signup test user', () => {
         const postBody = makeUser.postBody()
@@ -316,7 +317,7 @@ describe('User endpoints', () => {
             })
         })
 
-        it.only('responds with 204 and user is updated in db', function() {
+        it('responds with 204 and user is updated in db (not admin level fields)', function() {
           this.retries(3)
           const patchBody = makeUser.patchBody()
           let expectedModified;
@@ -328,7 +329,7 @@ describe('User endpoints', () => {
             })
             .expect(204)
             .then(() => {
-              expectedModified = new Date().toLocaleString()
+              expectedModified = Date.now()
               return supertest(app)
                 .get(`/api/user/${authedUser.id}`)
                 .set({
@@ -343,14 +344,17 @@ describe('User endpoints', () => {
                   }
                   delete expected['password']
                   expected['admin'] = false
+                  expected['user_state'] = 'Public'
                   const actualModified = new Date(res.body.modified).toLocaleString()
+                  expectedModified = new Date(authedUser.modified).toLocaleString()
                   expect(actualModified).to.eql(expectedModified)
                   expect(res.body).to.eql(expected)
                 })
             })
         })
 
-        it('responds with 400 when no relevant fields are supplied, does not update', () => {
+        it('responds with 400 when no relevant fields are supplied, does not update', function() {
+          this.retries(3)
           const patchBody = makeUser.patchBodyMissingField()
 
           return supertest(app)
@@ -370,10 +374,15 @@ describe('User endpoints', () => {
                 .then(res => {
                   const expected = {
                     ...authedUser,
+                    modified: res.body.modified
                     // ...patchBody
                   }
                   delete expected['password']
                   expected['admin'] = false
+                  expected['user_state'] = 'Public'
+                  const actualModified = new Date(res.body.modified).toLocaleString()
+                  const expectedModified = new Date(authedUser.modified).toLocaleString()
+                  expect(actualModified).to.eql(expectedModified)
                   expect(res.body).to.eql(expected)
                 })
             })
@@ -399,11 +408,7 @@ describe('User endpoints', () => {
             .send(patchBody)
             .expect(401, { error: { message: 'Not authorized!'}})
         })
-
       })
-
-
     })
   })
-
 })

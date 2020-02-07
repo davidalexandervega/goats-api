@@ -86,8 +86,20 @@ function getAllUsers(req, res, next) {
 function patchUser(req, res, next) {
   const knexI = req.app.get('db')
   const { id } = req.params
-  const { username, password, fullname, city_id, email } = req.body
-  const userReq = { username, password, fullname, city_id, email }
+  // const { username, password, fullname, city_id, email } = req.body
+  // const userReq = { username, password, fullname, city_id, email }
+  const { username, password, email, image_url, fullname, city_name, region_name, country_name, city_id } = req.body
+  const userReq = {
+    username,
+    password,
+    email,
+    image_url,
+    fullname,
+    city_name,
+    region_name,
+    country_name,
+    city_id
+  }
 
 
   const arrWithVals = Object.values(userReq).filter(val => val)
@@ -96,14 +108,14 @@ function patchUser(req, res, next) {
     return res.status(400).json({ message: 'Request body must contain at least one required field'})
   }
 
+  //validate all in userReq as in signup
   let patchBody
 
   if(password) {
     const password_digest = UserUtils.hashPassword(password) //validate and encrypt
-    patchBody = { username, fullname, password_digest, city_id, email }
+    patchBody = { username, password_digest, email, image_url, fullname, city_name, region_name, country_name, city_id }
   } else {
-    //validate all as in signup
-    patchBody = { username, fullname, city_id, email }
+    patchBody = { username, email, image_url, fullname, city_name, region_name, country_name, city_id }
   }
 
   UserService

@@ -129,7 +129,13 @@ const makeUser = {
       username: 'nowtestuser',
       password: 'nowtestuserpassword123',
       email: 'nowemail@outlook.com',
+      image_url: 'https://res.cloudinary.com/killeraliens/image/upload/v1579765539/bc3tfkvu9yyhc1kfhnfv.jpg',
+      fullname: 'New Full Name',
+      city_name: 'Ankara',
+      region_name: 'Anatolia',
+      country_name: 'Turkey',
       city_id: 1528992666,
+      user_state: 'Banned', //should not be patchable
       admin: true //should not be patchable
     }
   },
