@@ -4,7 +4,7 @@ const { makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
 chai.use(require('chai-uuid'));
 
-describe.only('Auth endpoints', () => {
+describe('Auth endpoints', () => {
   let db
   before('create knex db instance', () => {
     db = knex({
@@ -69,7 +69,7 @@ describe.only('Auth endpoints', () => {
             expect(res.body).to.have.property('country_name')
             expect(res.body.country_name).to.eql(authedNewUser.country_name)
             expect(res.body).to.have.property('city_id')
-            expect(res.body.city_id).to.eql(null)
+            expect(res.body.city_id).to.deep.eql(authedNewUser.city_id)
             expect(res.body).to.have.property('user_state')
             expect(res.body.user_state).to.eql(authedNewUser.user_state)
             expect(res.body).to.have.property('created')
@@ -82,6 +82,7 @@ describe.only('Auth endpoints', () => {
             expect(actualLastLogin).to.eql(expectedLastLogin)
             expect(res.body).to.have.property('token')
             expect(res.body.token).to.not.eql(null)
+            expect(res.body.token).to.have.length(16 + 8)
             expect(res.body).to.not.have.property('password_digest')
             expect(res.body.password_digest).to.eql(undefined)
             expect(res.headers.location).to.eql(`/api/user/${res.body.id}`)
@@ -118,7 +119,7 @@ describe.only('Auth endpoints', () => {
     })
   })
 
-  describe.only('POST /api/auth/signin endpoint', () => {
+  describe('POST /api/auth/signin endpoint', () => {
     context('given the user exists', () => {
       let authedSignedInUser;
       beforeEach('post a new user to match signedInRes', () => {

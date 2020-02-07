@@ -50,21 +50,11 @@ const makeUser = {
   //   }
   // },
 
-
-
-  // postBody() {
-  //   return {
-  //     username: 'killer',
-  //     password: `killerpassword123`,
-  //     email: `killeraliens@outlook.com`,
-  //   }
-  // },
-
   postBody() {
     return {
       username: 'testuser',
-      password: `testuserpassword123`,
-      email: `testuseraliens@outlook.com`,
+      password: 'testuserpassword123',
+      email: 'testuseraliens@outlook.com',
     }
   },
 
@@ -73,6 +63,39 @@ const makeUser = {
       username: 'aliens',
       password: `alienspassword123`,
       email: `alexandrabrinncampbell@gmail.com`,
+    }
+  },
+
+  postResp() {
+    return {
+      // id: 'uuiddefault',
+      username: 'testuser',
+      email: `testuseraliens@outlook.com`,
+      admin: false,
+      image_url: '',
+      fullname: '',
+      city_name: '',
+      region_name: '',
+      country_name: '',
+      city_id: null,
+      user_state: 'Public'
+      // token: 'cryptotokencustom',
+      // created: 'createddefault',
+      // last_login:  'lastlogindefault'
+    }
+  },
+
+  signinGood() {
+    return {
+      username: 'testuser',
+      password: 'testuserpassword123'
+    }
+  },
+
+  signinBad() {
+    return {
+      username: 'testuser',
+      password: 'badtestuserpassword123'
     }
   },
 
@@ -102,10 +125,10 @@ const makeUser = {
 
   patchBody() {
     return {
-      username: 'nowkiller',
-      password: 'newkillerpassword',
-      email: 'newemail',
-      city_id: 1792756324,
+      username: 'nowtestuser',
+      password: 'nowtestuserpassword123',
+      email: 'nowemail@outlook.com',
+      city_id: 1528992666,
       admin: true //should not be patchable
     }
   },
@@ -116,83 +139,24 @@ const makeUser = {
     }
   },
 
-  // postResp() {
-  //   return {
-  //     id: 1,
-  //     username: 'killer',
-  //     email: `killeraliens@outlook.com`,
-  //     admin: false,
-  //     city_id: null,
-  //     token: 'notnull'
-  //   }
-  // },
-  postResp() {
-    return {
-      // id: 'uuiddefault',
-      username: 'testuser',
-      email: `testuseraliens@outlook.com`,
-      admin: false,
-      image_url: '',
-      fullname: '',
-      city_name: '',
-      region_name: '',
-      country_name: '',
-      //city_id: null,
-      user_state: 'Public'
-      // token: 'cryptotokencustom',
-      // created: 'createddefault',
-      // last_login:  'lastlogindefault'
-    }
-  },
-
-  signinGood() {
-    return {
-      username: 'testuser',
-      password: 'testuserpassword123'
-    }
-  },
-
-  signinBad() {
-    return {
-      username: 'testuser',
-      password: 'badtestuserpassword123'
-    }
-  },
-  // signedInRes() {
-  //   return {
-  //     id: 1,
-  //     username: 'killer',
-  //     email: `killeraliens@outlook.com`,
-  //     fullname: 'Orlando Garcia',
-  //     city_id: 1392685764,
-  //     token: 'notNull',
-  //     admin: false,
-  //     listing_state: "Public"
-  //   }
-  // },
-
 
   withXss() {
     return {
-      id: 1,
-      username: 'killer naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
-      password_digest: `killerpassword`,
-      email: `killeraliens@outlook.com`,
-      fullname: 'Orlando Garcia',
-      city_id: 1392685764,
-      admin: false
+      username: 'testuser naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
+      image_url: 'testuseraliens@outlook.com naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
+      city_name: 'Ghent naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
+      region_name: 'East Flanders naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
+      country_name: 'Belgium naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.'
     }
   },
 
   withSanitizedXss() {
     return {
-      id: 1,
-      username: 'killer naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt; Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
-      password_digest: `killerpassword`,
-      email: `killeraliens@outlook.com`,
-      fullname: 'Orlando Garcia',
-      city_id: 1392685764,
-      admin: false
+      username: 'testuser naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt; Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
+      image_url: 'testuseraliens@outlook.com naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt; Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
+      city_name: 'Ghent naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt; Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
+      region_name: 'East Flanders naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt; Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
+      country_name: 'Belgium naughty &lt;script&gt;alert(\"xss\");&lt;/script&gt; Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
     }
   }
 

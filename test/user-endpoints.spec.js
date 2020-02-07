@@ -4,7 +4,7 @@ const knex = require('knex')
 const {  makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
 
-describe.skip('User endpoints', () => {
+describe('User endpoints', () => {
   let db;
   before('create knex db instance', () => {
     db = knex({
@@ -18,8 +18,8 @@ describe.skip('User endpoints', () => {
     return db.raw(truncate.allTables())
   })
 
-  before('insert country city table data', () => {
-    return db.raw(seed.countryCity())
+  before('insert country, region, city parent data ', () => {
+    return db.raw(seed.countryRegionCity())
   })
 
   beforeEach('clears app_user and child tables', () => {
@@ -39,6 +39,7 @@ describe.skip('User endpoints', () => {
   })
 
   describe('GET /api/user endpoint', () => {
+
     context('given there are no users in db', () => {
       it('responds with 200 and empty array', () => {
         return supertest(app)
@@ -47,35 +48,38 @@ describe.skip('User endpoints', () => {
       })
     })
 
-    // context('given there are users', () => {
-    //   const testUsers = makeUsers();
-    //   beforeEach('insert users into app_user', () => {
-    //     return db
-    //       .insert(testUsers)
-    //       .into('app_user')
-    //   })
+    context('given there are users', () => {
+      beforeEach('insert users into app_user', () => {
+        return db.raw(seed.models())
+      })
 
-    //   it('responds with 200 and array of users without private fields', () => {
-    //     const expectedUser = testUsers[0]
-    //     delete expectedUser['email']
-    //     delete expectedUser['password_digest']
-    //     delete expectedUser['token']
-    //     delete expectedUser['fullname']
-    //     delete expectedUser['modified']
-    //     delete expectedUser['last_login']
+      it('responds with 200 and array of users without private fields', () => {
 
-    //     return supertest(app)
-    //       .get('/api/user')
-    //       .expect(200)
-    //       .expect(res => {
-    //         expect(res.body.length).to.equal(2)
-    //         expect(res.body[0]).to.have.property('created')
-    //         expect(delete res.body[0].created).to.eql(delete expectedUser.created)
-    //       })
-    //   })
-    // })
+        return supertest(app)
+          .get('/api/user')
+          .expect(200)
+          .expect(res => {
+            expect(res.body.length).to.equal(4)
+            expect(res.body[0]).to.have.property('id')
+            expect(res.body[0]).to.have.property('username')
+            expect(res.body[0]).to.not.have.property('email')
+            expect(res.body[0]).to.have.property('admin')
+            expect(res.body[0]).to.have.property('image_url')
+            expect(res.body[0]).to.not.have.property('fullname')
+            expect(res.body[0]).to.have.property('city_name')
+            expect(res.body[0]).to.have.property('region_name')
+            expect(res.body[0]).to.have.property('country_name')
+            expect(res.body[0]).to.have.property('city_id')
+            expect(res.body[0]).to.not.have.property('user_state')
+            expect(res.body[0]).to.have.property('created')
+            expect(res.body[0]).to.not.have.property('last_login')
+            expect(res.body[0]).to.not.have.property('token')
+            expect(res.body[0]).to.not.have.property('password_digest')
+          })
+      })
+    })
 
-    context('given there is xss in a username', () => {
+    context('given there is xss in a users text fields', () => {
       beforeEach('insert user with xss into db', () => {
         const userWithXss = makeUser.withXss()
         return db
@@ -84,16 +88,17 @@ describe.skip('User endpoints', () => {
       })
       it('responds with 200 and sanitized users', () => {
         const expected = makeUser.withSanitizedXss()
-        delete expected['email']
-        delete expected['password_digest']
-        delete expected['fullname']
+
         return supertest(app)
           .get(`/api/user`)
           .expect(200)
           .expect(res => {
             expect(res.body.length).to.equal(1)
-            expect(res.body[0]).to.have.property('created')
-            expect(delete res.body[0].created).to.eql(delete expected.created)
+            expect(res.body[0].username).to.eql(expected.username)
+            expect(res.body[0].image_url).to.eql(expected.image_url)
+            expect(res.body[0].city_name).to.eql(expected.city_name)
+            expect(res.body[0].region_name).to.eql(expected.region_name)
+            expect(res.body[0].country_name).to.eql(expected.country_name)
           })
       })
     })
@@ -276,7 +281,7 @@ describe.skip('User endpoints', () => {
     })
   })
 
-  describe('PATCH /api/user/:id endpoint', () => {
+  describe.only('PATCH /api/user/:id endpoint', () => {
     context('given the user exists', () => {
       let authedUser;
       let anotherUser;
@@ -311,7 +316,7 @@ describe.skip('User endpoints', () => {
             })
         })
 
-        it('responds with 204 and user is updated in db', function() {
+        it.only('responds with 204 and user is updated in db', function() {
           this.retries(3)
           const patchBody = makeUser.patchBody()
           return supertest(app)
