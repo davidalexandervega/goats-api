@@ -111,7 +111,7 @@ CREATE TRIGGER update_flyer_modtime
 
 CREATE TABLE event (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-  flyer_id uuid REFERENCES flyer(id) ON DELETE SET NULL,
+  flyer_id uuid REFERENCES flyer(id) ON DELETE CASCADE,
   event_date DATE,
   venue_name TEXT,
   country_name TEXT,
