@@ -1,6 +1,6 @@
 const app = require('../src/app')
 const knex = require('knex')
-const {  makeFlyer } = require('./flyer-fixtures')
+const {  makeFlyer, makeFlyers } = require('./flyer-fixtures')
 const { makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
 // const chaiJsonPattern = require('chai-json-pattern');
@@ -8,8 +8,7 @@ const { seed, truncate } = require('./seed-fixtures')
 
 describe('Flyer endpoints', () => {
   let db;
-  let authedCreator;
-  let authedUser;
+
   before('create knex db instance', () => {
     db = knex({
       client: 'pg',
@@ -28,26 +27,6 @@ describe('Flyer endpoints', () => {
 
   before('insert app_user parent data ', () => {
     return db.raw(seed.app_user())
-  })
-
-  before('sign up app_user, set as authed creator', () => {
-    const postBody = makeUser.postBody()
-    return supertest(app)
-      .post('/api/auth/signup')
-      .send(postBody)
-      .then(res => {
-        return authedCreator = res.body
-      })
-  })
-
-  before('sign up second app_user, set as authed user', () => {
-    const postBody = makeUser.postBody2()
-    return supertest(app)
-      .post('/api/auth/signup')
-      .send(postBody)
-      .then(res => {
-        return authedUser = res.body
-      })
   })
 
   beforeEach('clears flyer and child tables', () => {
@@ -76,7 +55,7 @@ describe('Flyer endpoints', () => {
       })
     })
 
-    context.only('given there are flyers', () => {
+    context('given there are flyers', () => {
       beforeEach('insert flyers into flyer', () => {
         return db.raw(seed.flyers())
       })
@@ -86,7 +65,7 @@ describe('Flyer endpoints', () => {
           return db.raw(seed.flyersWithBannedOrArchivedState())
         })
         it('responds with 200 and array of flyers without those listing states', () => {
-
+          const expected = makeFlyers()
           return supertest(app)
             .get('/api/flyer')
             .expect(200)
@@ -105,13 +84,14 @@ describe('Flyer endpoints', () => {
               expect(res.body[0]).to.have.property('listing_state')
               expect(res.body[0]).to.have.property('created')
               expect(res.body[0]).to.have.property('modified')
+              expect(res.body).to.deep.equal(expected)
             })
         })
 
       })
 
       context('given the a flyers creator (app_user) has a hidden user_state of "Archived", "Banned", or "Private"', () => {
-        beforeEach('insert users with banned or archived state', () => {
+        beforeEach('insert users with "Banned" or "Archived" state', () => {
           return db.raw(seed.usersWithBannedOrArchivedState())
         })
         beforeEach('insert public flyer into flyer with Archived app_user id as creator_id', () => {
@@ -119,36 +99,39 @@ describe('Flyer endpoints', () => {
         })
 
         it('responds with 200 and array of flyers without those of the Archived user', () => {
+          const expected = makeFlyers()
           return supertest(app)
             .get('/api/flyer')
             .expect(200)
             .expect(res => {
               expect(res.body.length).to.equal(4)
+              expect(res.body).to.deep.equal(expected)
             })
         })
       })
     })
 
-    context.skip('given there is xss in a users text fields', () => {
-      beforeEach('insert user with xss into db', () => {
-        const userWithXss = makeUser.withXss()
+    context('given there is xss in a flyers text fields', () => {
+      beforeEach('insert flyer with xss into db', () => {
+        const flyerWithXss = makeFlyer.withXss()
         return db
-          .insert([userWithXss])
-          .into('app_user')
+          .insert([flyerWithXss])
+          .into('flyer')
+        //return db.raw(flyerWithXss)
       })
-      it('responds with 200 and sanitized users', () => {
-        const expected = makeUser.withSanitizedXss()
+      it('responds with 200 and sanitized flyers', () => {
+        const expected = makeFlyer.withSanitizedXss()
 
         return supertest(app)
-          .get(`/api/user`)
+          .get(`/api/flyer`)
           .expect(200)
           .expect(res => {
             expect(res.body.length).to.equal(1)
-            expect(res.body[0].username).to.eql(expected.username)
+            expect(res.body[0].headline).to.eql(expected.headline)
             expect(res.body[0].image_url).to.eql(expected.image_url)
-            expect(res.body[0].city_name).to.eql(expected.city_name)
-            expect(res.body[0].region_name).to.eql(expected.region_name)
-            expect(res.body[0].country_name).to.eql(expected.country_name)
+            expect(res.body[0].bands).to.eql(expected.bands)
+            expect(res.body[0].details).to.eql(expected.details)
+            expect(res.body[0].publish_comment).to.eql(expected.publish_comment)
           })
       })
     })

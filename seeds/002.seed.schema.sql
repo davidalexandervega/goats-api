@@ -190,45 +190,72 @@ VALUES
     '2020-01-23T22:42:14.355Z',
     '2020-01-23T22:42:14.355Z'
   ),
+  --below entries are from test scenarios
+    (
+    'a8c64ea8-389f-4702-a1d5-a79336f201e0',
+    'ef6f4b60-48ed-11ea-b77f-2e728ce88125',
+    'Fest',
+    'https://res.cloudinary.com/killeraliens/image/upload/v1580946259/84928856_2664439773605869_7793911911774420992_n.jpg.jpg',
+    'Archived Headline',
+    'Archived bands',
+    'Archived details',
+    'Archived publish comment',
+    'Archived',
+    '2020-01-03T16:03:22.000Z',
+    '2020-01-05T16:03:22.000Z'
+  ),
   (
-  'a8c64ea8-389f-4702-a1d5-a79336f201e0',
-  'ef6f4b60-48ed-11ea-b77f-2e728ce88125',
-  'Fest',
-  'https://res.cloudinary.com/killeraliens/image/upload/v1580946259/84928856_2664439773605869_7793911911774420992_n.jpg.jpg',
-  'Archived Headline',
-  'Archived bands',
-  'Archived details',
-  'Archived publish comment',
-  'Archived',
-  '2020-01-03T16:03:22.000Z',
-  '2020-01-05T16:03:22.000Z'
-),
-(
-  '8764e84f-fb32-4822-a159-44cc30147dac',
-  'ef6f4b60-48ed-11ea-b77f-2e728ce88125',
-  'Fest',
-  'https://res.cloudinary.com/killeraliens/image/upload/v1580946259/84928856_2664439773605869_7793911911774420992_n.jpg.jpg',
-  'Banned Headline',
-  'Banned bands',
-  'Banned details',
-  'Banned publish comment',
-  'Banned',
-  '2020-02-03T16:03:22.000Z',
-  '2020-02-05T16:03:22.000Z'
-),
-(
-  'ee53a883-b8d6-4dbf-93b2-8dabfc53d7a5',
-  'ef6f4b60-48ed-11ea-b77f-2e728ce88125',
-  'Fest',
-  'https://res.cloudinary.com/killeraliens/image/upload/v1580946259/84928856_2664439773605869_7793911911774420992_n.jpg.jpg',
-  'Draft Headline',
-  'Draft bands',
-  'Draft details',
-  'Draft publish comment',
-  'Draft',
-  '2020-02-03T16:03:22.000Z',
-  '2020-02-03T16:03:22.000Z'
-)
+    '8764e84f-fb32-4822-a159-44cc30147dac',
+    'ef6f4b60-48ed-11ea-b77f-2e728ce88125',
+    'Fest',
+    'https://res.cloudinary.com/killeraliens/image/upload/v1580946259/84928856_2664439773605869_7793911911774420992_n.jpg.jpg',
+    'Banned Headline',
+    'Banned bands',
+    'Banned details',
+    'Banned publish comment',
+    'Banned',
+    '2020-02-03T16:03:22.000Z',
+    '2020-02-05T16:03:22.000Z'
+  ),
+  (
+    'ee53a883-b8d6-4dbf-93b2-8dabfc53d7a5',
+    'ef6f4b60-48ed-11ea-b77f-2e728ce88125',
+    'Fest',
+    'https://res.cloudinary.com/killeraliens/image/upload/v1580946259/84928856_2664439773605869_7793911911774420992_n.jpg.jpg',
+    'Draft Headline',
+    'Draft bands',
+    'Draft details',
+    'Draft publish comment',
+    'Draft',
+    '2020-02-03T16:03:22.000Z',
+    '2020-02-03T16:03:22.000Z'
+  ),
+    (
+      '25e97ea0-6d6e-4430-8023-72143661a4de',
+      '347ef3f3-2538-426b-9f9f-533b569dc2e3',
+      'Fest',
+      'https://res.cloudinary.com/killeraliens/image/upload/v1580946259/84928856_2664439773605869_7793911911774420992_n.jpg.jpg',
+      'ARCHIVED CREATOR Public Headline',
+      'Public bands',
+      'Public details',
+      'Public publish comment',
+      'Public',
+      '2020-01-03T16:03:22.000Z',
+      '2020-01-05T16:03:22.000Z'
+    ),
+    (
+      'ee528ee0-39c8-44bb-b2a2-540f9b05219f',
+      '1cbc998b-da7f-4700-ba45-efacecd26d94',
+      'Fest',
+      'https://res.cloudinary.com/killeraliens/image/upload/v1580946259/84928856_2664439773605869_7793911911774420992_n.jpg.jpg',
+      'BANNED CREATOR Public Headline',
+      'Public bands',
+      'Public details',
+      'Public publish comment',
+      'Public',
+      '2020-01-03T16:03:22.000Z',
+      '2020-01-05T16:03:22.000Z'
+    )
 ;
 
 

@@ -1,6 +1,7 @@
 const express = require('express')
 const flyerRouter = express.Router()
 const FlyerService = require('../services/flyer-service')
+const FlyerUtils = require('../utils/flyer.utils')
 
 flyerRouter
   .route('/')
@@ -12,7 +13,8 @@ function getAllFlyers(req, res, next) {
   FlyerService
     .selectAllFlyers(knexI)
     .then(flyers => {
-      res.json(flyers)
+      const sanitized = flyers.map(flyer => FlyerUtils.sanitize(flyer))
+      res.json(sanitized)
     })
     .catch(next)
 }
