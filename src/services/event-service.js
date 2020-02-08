@@ -5,6 +5,13 @@ const EventService = {
       .from('event')
   },
 
+  selectFlyerEvents(knex, flyerId) {
+    return knex
+      .select('*')
+      .from(event)
+      .where('flyer_id', flyerId)
+  },
+
   insertEvent(knex, postBody) {
     return knex
       .insert(postBody)

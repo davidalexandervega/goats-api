@@ -4,6 +4,7 @@ const { makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
 chai.use(require('chai-uuid'));
 
+
 describe('Auth endpoints', () => {
   let db
   before('create knex db instance', () => {

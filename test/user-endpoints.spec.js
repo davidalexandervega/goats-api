@@ -1,6 +1,5 @@
 const app = require('../src/app')
 const knex = require('knex')
-// const { makeUsers, makeUser } = require('./user-fixtures')
 const {  makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
 
@@ -50,32 +49,39 @@ describe('User endpoints', () => {
 
     context('given there are users', () => {
       beforeEach('insert users into app_user', () => {
-        return db.raw(seed.models())
+        return db.raw(seed.app_user())
       })
 
-      it('responds with 200 and array of users without private fields', () => {
+      context('given some users have user_state of "Banned", "Archived", or "Private"', () => {
+        beforeEach('insert banned and archived users into app_user', () => {
+          return db.raw(seed.usersWithBannedOrArchivedState())
+        })
 
-        return supertest(app)
-          .get('/api/user')
-          .expect(200)
-          .expect(res => {
-            expect(res.body.length).to.equal(4)
-            expect(res.body[0]).to.have.property('id')
-            expect(res.body[0]).to.have.property('username')
-            expect(res.body[0]).to.not.have.property('email')
-            expect(res.body[0]).to.have.property('admin')
-            expect(res.body[0]).to.have.property('image_url')
-            expect(res.body[0]).to.not.have.property('fullname')
-            expect(res.body[0]).to.have.property('city_name')
-            expect(res.body[0]).to.have.property('region_name')
-            expect(res.body[0]).to.have.property('country_name')
-            expect(res.body[0]).to.have.property('city_id')
-            expect(res.body[0]).to.not.have.property('user_state')
-            expect(res.body[0]).to.have.property('created')
-            expect(res.body[0]).to.not.have.property('last_login')
-            expect(res.body[0]).to.not.have.property('token')
-            expect(res.body[0]).to.not.have.property('password_digest')
-          })
+        it('responds with 200 and array of users without private fields', () => {
+
+          return supertest(app)
+            .get('/api/user')
+            .expect(200)
+            .expect(res => {
+              expect(res.body.length).to.equal(4)
+              expect(res.body[0]).to.have.property('id')
+              expect(res.body[0]).to.have.property('username')
+              expect(res.body[0]).to.not.have.property('email')
+              expect(res.body[0]).to.have.property('admin')
+              expect(res.body[0]).to.have.property('image_url')
+              expect(res.body[0]).to.not.have.property('fullname')
+              expect(res.body[0]).to.have.property('city_name')
+              expect(res.body[0]).to.have.property('region_name')
+              expect(res.body[0]).to.have.property('country_name')
+              expect(res.body[0]).to.have.property('city_id')
+              expect(res.body[0]).to.not.have.property('user_state')
+              expect(res.body[0]).to.have.property('created')
+              expect(res.body[0]).to.not.have.property('modified')
+              expect(res.body[0]).to.not.have.property('last_login')
+              expect(res.body[0]).to.not.have.property('token')
+              expect(res.body[0]).to.not.have.property('password_digest')
+            })
+        })
       })
     })
 

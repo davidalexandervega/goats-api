@@ -20,6 +20,7 @@ const corsOption = {
   exposedHeaders: ['x-auth-token']
 }
 const {
+  flyerRouter,
   eventRouter,
   userRouter,
   countryRouter,
@@ -48,6 +49,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/event', eventRouter)
 app.use('/api/user', userRouter)
 app.use('/api/country', countryRouter)
+app.use('/api/flyer', flyerRouter)
 app.use(formData.parse())
 app.post('/api/image-upload', (req, res) => {
   console.log('inside img upload')

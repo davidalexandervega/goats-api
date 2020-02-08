@@ -2,7 +2,7 @@ const app = require('../src/app')
 const knex = require('knex')
 const { seed, truncate } = require('./seed-fixtures')
 
-describe.only('Country endpoints', () => {
+describe('Country endpoints', () => {
   let db;
   before('create knex db instance', () => {
     db = knex({
@@ -12,7 +12,7 @@ describe.only('Country endpoints', () => {
     app.set('db', db)
   })
 
-  before('clears country and all child tables', () => {
+  before('clears all tables', () => {
     return db.raw(truncate.allTables())
   })
 
@@ -21,6 +21,10 @@ describe.only('Country endpoints', () => {
   })
 
   afterEach('clears country and all child tables', () => {
+    return db.raw(truncate.allTables())
+  })
+
+  after('clears all tables', () => {
     return db.raw(truncate.allTables())
   })
 
@@ -58,6 +62,4 @@ describe.only('Country endpoints', () => {
       })
     })
   })
-
-
 })

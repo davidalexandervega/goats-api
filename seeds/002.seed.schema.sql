@@ -75,6 +75,51 @@ INSERT INTO app_user
       '2020-02-02T14:08:00.000Z',
       '2020-02-02T14:08:00.000Z',
       '2020-02-02T14:08:00.000Z'
+    ),
+    (
+      '347ef3f3-2538-426b-9f9f-533b569dc2e3',
+      'archivedgreyalien',
+      'archivedgreyalien@sampleemail.com',
+      'https://res.cloudinary.com/killeraliens/image/upload/v1580946417/roswell-ufo-alien-CREDIT-GETTY-1120.jpg',
+      null,
+      false,
+      'Belgium',
+      null,
+      'Ghent',
+      'Archived',
+      '2019-01-05T20:42:00.000Z',
+      '2019-01-05T20:42:00.000Z',
+      '2019-01-05T20:42:00.000Z'
+    ),
+    (
+      '1cbc998b-da7f-4700-ba45-efacecd26d94',
+      'bannedusername',
+      'bannedkilleraliens@outlook.com',
+      'https://res.cloudinary.com/killeraliens/image/upload/v1580673041/lzasvcgmviuqa3fuo724.jpg',
+      'Banned Alexandra aka Ali',
+      false,
+      'United States',
+      'Arizona',
+      'Phoenix',
+      'Banned',
+      '2019-11-30T19:14:17.915Z',
+      '2020-01-03T19:14:17.915Z',
+      '2020-01-03T19:14:17.915Z'
+    ),
+    (
+      '031d4af6-0832-49d6-ad1c-0d0ed7541339',
+      'privatedevilmaster',
+      'privatedevilmaster@sampleemail.com',
+      'https://res.cloudinary.com/killeraliens/image/upload/v1580946398/devils_3_legend_production_company.jpg',
+      'Private Chris Cross',
+      false,
+      'Denmark',
+      null,
+      'Copenhagen',
+      'Private',
+      '2019-01-03T00:00:00.000Z',
+      '2019-01-03T18:00:00.000Z',
+      '2019-01-03T18:00:00.000Z'
     )
     ;
 
@@ -144,8 +189,47 @@ VALUES
     'Public',
     '2020-01-23T22:42:14.355Z',
     '2020-01-23T22:42:14.355Z'
-  )
-  ;
+  ),
+  (
+  'a8c64ea8-389f-4702-a1d5-a79336f201e0',
+  'ef6f4b60-48ed-11ea-b77f-2e728ce88125',
+  'Fest',
+  'https://res.cloudinary.com/killeraliens/image/upload/v1580946259/84928856_2664439773605869_7793911911774420992_n.jpg.jpg',
+  'Archived Headline',
+  'Archived bands',
+  'Archived details',
+  'Archived publish comment',
+  'Archived',
+  '2020-01-03T16:03:22.000Z',
+  '2020-01-05T16:03:22.000Z'
+),
+(
+  '8764e84f-fb32-4822-a159-44cc30147dac',
+  'ef6f4b60-48ed-11ea-b77f-2e728ce88125',
+  'Fest',
+  'https://res.cloudinary.com/killeraliens/image/upload/v1580946259/84928856_2664439773605869_7793911911774420992_n.jpg.jpg',
+  'Banned Headline',
+  'Banned bands',
+  'Banned details',
+  'Banned publish comment',
+  'Banned',
+  '2020-02-03T16:03:22.000Z',
+  '2020-02-05T16:03:22.000Z'
+),
+(
+  'ee53a883-b8d6-4dbf-93b2-8dabfc53d7a5',
+  'ef6f4b60-48ed-11ea-b77f-2e728ce88125',
+  'Fest',
+  'https://res.cloudinary.com/killeraliens/image/upload/v1580946259/84928856_2664439773605869_7793911911774420992_n.jpg.jpg',
+  'Draft Headline',
+  'Draft bands',
+  'Draft details',
+  'Draft publish comment',
+  'Draft',
+  '2020-02-03T16:03:22.000Z',
+  '2020-02-03T16:03:22.000Z'
+)
+;
 
 
 INSERT INTO event (

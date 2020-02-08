@@ -3,6 +3,7 @@ const UserService = {
     return knex
       .select('*')
       .from('app_user')
+      .whereNotIn('user_state', ['Archived', 'Banned', 'Private'])
   },
 
   insertUser(knex, postBody) {
