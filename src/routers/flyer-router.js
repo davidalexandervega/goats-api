@@ -7,7 +7,6 @@ flyerRouter
   .get(getAllFlyers)
 
 
-
 function getAllFlyers(req, res, next) {
   const knexI = req.app.get('db')
   FlyerService

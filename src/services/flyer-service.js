@@ -1,9 +1,13 @@
 const FlyerService = {
   selectAllFlyers(knex) {
     return knex
-      .select('*')
       .from('flyer')
       .whereNotIn('listing_state', ['Archived', 'Banned', 'Draft'])
+      .innerJoin('app_user', 'flyer.creator_id', 'app_user.id')
+      .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+      // .select('*')
+      // .from('flyer')
+      // .whereNotIn('listing_state', ['Archived', 'Banned', 'Draft'])
   },
 
   insertFlyer(knex, postBody) {

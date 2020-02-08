@@ -115,10 +115,10 @@ describe('Flyer endpoints', () => {
           return db.raw(seed.usersWithBannedOrArchivedState())
         })
         beforeEach('insert public flyer into flyer with Archived app_user id as creator_id', () => {
-          return db.raw(seed.flyerWithBannedOrArchivedCreatorState())
+          return db.raw(seed.flyersWithBannedOrArchivedCreatorState())
         })
 
-        it('responds with 200 and array of flyers without those of the archived user', () => {
+        it('responds with 200 and array of flyers without those of the Archived user', () => {
           return supertest(app)
             .get('/api/flyer')
             .expect(200)
