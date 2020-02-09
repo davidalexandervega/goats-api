@@ -93,6 +93,13 @@ const makeUser = {
     }
   },
 
+  signinGood2() {
+    return {
+      username: 'aliens',
+      password: 'alienspassword123'
+    }
+  },
+
   signinBad() {
     return {
       username: 'testuser',

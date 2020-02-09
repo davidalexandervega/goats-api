@@ -29,6 +29,28 @@ describe.only('Flyer endpoints', () => {
     return db.raw(seed.app_user())
   })
 
+  let authedUser;
+  before('signup test user', () => {
+    const postBody = makeUser.postBody()
+    return supertest(app)
+      .post('/api/auth/signup')
+      .send(postBody)
+      .then(res => {
+        return authedUser = res.body
+      })
+  })
+
+  let authedCreator;
+  before('signup second test user as authed creator', () => {
+    const postBody = makeUser.postBody2()
+    return supertest(app)
+      .post('/api/auth/signup')
+      .send(postBody)
+      .then(res => {
+        return authedCreator = res.body
+      })
+  })
+
   beforeEach('clears flyer and child tables', () => {
     return db.raw(truncate.flyerChildren())
   })
@@ -46,11 +68,23 @@ describe.only('Flyer endpoints', () => {
   })
 
   describe('GET /api/flyer endpoint', () => {
+    beforeEach('signin authed user', () => {
+      const signInBody = makeUser.signinGood()
+      return supertest(app)
+        .post('/api/auth/signin')
+        .send(signInBody)
+        .then(res => {
+          authedUser = res.body
+        })
+    })
 
     context('given there are no flyers in db', () => {
       it('responds with 200 and empty array', () => {
         return supertest(app)
           .get('/api/flyer')
+          .set({
+            "Authorization": `Bearer ${authedUser.token}`
+          })
           .expect(200, [])
       })
     })
@@ -68,6 +102,9 @@ describe.only('Flyer endpoints', () => {
           const expected = makeFlyers()
           return supertest(app)
             .get('/api/flyer')
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
             .expect(200)
             .expect(res => {
               assert.isArray(res.body)
@@ -101,6 +138,9 @@ describe.only('Flyer endpoints', () => {
           const expected = makeFlyers()
           return supertest(app)
             .get('/api/flyer')
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
             .expect(200)
             .expect(res => {
               assert.isArray(res.body)
@@ -117,13 +157,15 @@ describe.only('Flyer endpoints', () => {
         return db
           .insert([flyerWithXss])
           .into('flyer')
-        //return db.raw(flyerWithXss)
       })
       it('responds with 200 and array of sanitized flyers', () => {
         const expected = makeFlyer.withSanitizedXss()
 
         return supertest(app)
           .get(`/api/flyer`)
+          .set({
+            "Authorization": `Bearer ${authedUser.token}`
+          })
           .expect(200)
           .expect(res => {
             assert.isArray(res.body)
@@ -136,10 +178,28 @@ describe.only('Flyer endpoints', () => {
           })
       })
     })
+
+    context('given the request has no token', () => {
+      it('responds with 401', () => {
+        return supertest(app)
+          .get(`/api/flyer`)
+          .expect(401, { message: 'Unauthorized' })
+      })
+    })
+
   })
 
 
-  describe('GET /api/flyer/:id', () => {
+  describe('GET /api/flyer/:id endpoint', () => {
+    beforeEach('signin authed user', () => {
+      const signInBody = makeUser.signinGood()
+      return supertest(app)
+        .post('/api/auth/signin')
+        .send(signInBody)
+        .then(res => {
+          authedUser = res.body
+        })
+    })
 
     context('given flyer exists', () => {
         beforeEach('insert flyers into flyer', () => {
@@ -150,9 +210,9 @@ describe.only('Flyer endpoints', () => {
           const expectedFlyer = makeFlyers()[2]
           return supertest(app)
             .get(`/api/flyer/${expectedFlyer.id}`)
-            // .set({
-            //   "Authorization": `Bearer ${authedUser.token}`
-            // })
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
             .expect(200)
             .expect(res => {
               assert.isObject(res.body)
@@ -177,9 +237,9 @@ describe.only('Flyer endpoints', () => {
         const nonExistingFlyer = makeFlyers()[2]
         return supertest(app)
           .get(`/api/flyer/${nonExistingFlyer.id}`)
-          // .set({
-          //   "Authorization": `Bearer ${authedUser.token}`
-          // })
+          .set({
+            "Authorization": `Bearer ${authedUser.token}`
+          })
           .expect(404, { message: 'Flyer does not exist' })
       })
     })
@@ -191,11 +251,15 @@ describe.only('Flyer endpoints', () => {
           .insert([flyerWithXss])
           .into('flyer')
       })
+
       it('responds with 200 and sanitized flyer', () => {
         const expected = makeFlyer.withSanitizedXss()
 
         return supertest(app)
           .get(`/api/flyer/${expected.id}`)
+          .set({
+            "Authorization": `Bearer ${authedUser.token}`
+          })
           .expect(200)
           .expect(res => {
             assert.isObject(res.body)
@@ -209,41 +273,39 @@ describe.only('Flyer endpoints', () => {
     })
   })
 
-  // describe('PATCH /api/user/:id endpoint', () => {
-  //   context('given the user exists', () => {
-  //     let authedUser;
-  //     // let authedUserNotModified;
-  //     let anotherUser;
-  //     beforeEach('signup test user', () => {
-  //       const postBody = makeUser.postBody()
-  //       return supertest(app)
-  //         .post('/api/auth/signup')
-  //         .send(postBody)
-  //         .then(res => {
-  //           authedUser = res.body
-  //         })
-  //     })
 
-  //     beforeEach('signup second test user', () => {
-  //       const postBody = makeUser.postBody2()
-  //       return supertest(app)
-  //         .post('/api/auth/signup')
-  //         .send(postBody)
-  //         .then(res => {
-  //           anotherUser = res.body
-  //         })
-  //     })
+  describe('POST /api/flyer endpoint', () => {
+    beforeEach('signin authed creator', () => {
+      const signInBody = makeUser.signinGood2()
+      return supertest(app)
+        .post('/api/auth/signin')
+        .send(signInBody)
+        .then(res => {
+          authedCreator = res.body
+        })
+    })
 
-  //     context('given the user is signed in', () => {
-  //       beforeEach('signin test user', () => {
-  //         const signInBody = makeUser.signinGood()
-  //         return supertest(app)
-  //           .post('/api/auth/signin')
-  //           .send(signInBody)
-  //           .expect(res => {
-  //             authedUser = res.body
-  //           })
-  //       })
+    context('given the post body is accurate', () => {
+      const postBody = makeFlyer.postBody()
+      it('responds with 201 and new flyer, creates record in db, fills in default fields', function () {
+
+      })
+    })
+  })
+
+
+  describe.skip('PATCH /api/flyer/:id endpoint', () => {
+      // let authedCreator;
+
+      // beforeEach('signup second test user as authed creator', () => {
+      //   const postBody = makeUser.postBody2()
+      //   return supertest(app)
+      //     .post('/api/auth/signup')
+      //     .send(postBody)
+      //     .then(res => {
+      //       anotherUser = res.body
+      //     })
+      // })
 
   //       it('responds with 204 and user is updated in db (not admin level fields)', function() {
   //         this.retries(3)
@@ -338,5 +400,5 @@ describe.only('Flyer endpoints', () => {
   //       })
   //     })
   //   })
-  // })
+  })
 })

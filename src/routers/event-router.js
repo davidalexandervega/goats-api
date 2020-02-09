@@ -6,7 +6,7 @@ const bodyParser = express.json()
 const { check, validationResult, body, sanitizeBody, sanitizeParam } = require('express-validator');
 const logger = require('../utils/logger.utils')
 const EventUtils = require('../utils/event.utils')
-const authCreator = require('../mws/auth-creator')
+const authUser = require('../mws/auth-user')
 const { facebookAuth } = require('../config/auth-config')
 const { Facebook } = require('fb')
 const fb = new Facebook({
@@ -21,7 +21,7 @@ eventRouter
   .get(getAllEvents)
   .post(
     bodyParser,
-    authCreator.post,
+    authUser.post,
     [
       check('creator_id')
         .not().isEmpty().withMessage('creator is required.'),

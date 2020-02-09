@@ -3,10 +3,11 @@ const flyerRouter = express.Router()
 const FlyerService = require('../services/flyer-service')
 const FlyerUtils = require('../utils/flyer.utils')
 const logger = require('../utils/logger.utils')
+const authUser = require('../mws/auth-user')
 
 flyerRouter
   .route('/')
-  .get(getAllFlyers)
+  .get(authUser.get, getAllFlyers)
 
 flyerRouter
   .route('/:id')

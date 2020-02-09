@@ -22,5 +22,25 @@ function post(req, res, next) {
     .catch(next)
 }
 
-module.exports = { post }
+function get(req, res, next) {
+  const knexI = req.app.get('db')
+  const { token } = req.user
+  if (!token) {
+    logger.error(`Not authorized, no token`)
+    return res.status(401).json({ message: `Unauthorized` })
+  }
+
+  UserService.getByToken(knexI, token)
+    .then(user => {
+      if (Boolean(user.id)) {
+        // req.user = user
+        return next()
+      }
+      logger.error(`Not authorized!`)
+      return res.status(401).json({ message: `Unauthorized` })
+    })
+    .catch(next)
+}
+
+module.exports = { post, get }
 
