@@ -68,8 +68,6 @@ const makeFlyer = {
       details: 'Some details',
       publish_comment: 'More info soon',
       listing_state: 'Public',
-      //created: db default,
-      //modified: db default,
       events: [
         {
           // id: db default uuid,
@@ -98,22 +96,6 @@ const makeFlyer = {
       listing_state: 'Public'
     }
   },
-  // withXss() {
-  //   return `
-  //     INSERT INTO flyer ( creator_id, flyer_type, image_url, headline, bands, details, publish_comment)
-  //     VALUES
-  //       (
-  //         '524b0c0a-3ea5-4fe7-8bb6-3e20c57e4a53',
-  //         'ef6f4b60-48ed-11ea-b77f-2e728ce88125',
-  //         'Show',
-  //         'naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
-  //         'naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
-  //         'naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
-  //         'naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.',
-  //         'naughty <script>alert("xss");</script> Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.'
-  //       )
-  //   `
-  // },
 
   withSanitizedXss() {
     return {
@@ -128,20 +110,6 @@ const makeFlyer = {
       listing_state: 'Public'
     }
   }
-  // withBannedListingState() {
-  //   return {
-  //     id: 'a8c64ea8-389f-4702-a1d5-a79336f201e0',
-  //     creator_id: ,
-  //     flyer_type: 'Show',
-  //     image_url: 'https://res.cloudinary.com/killeraliens/image/upload/v1580946115/84749251_2670611672988679_3051998756900700160_n.jpg.jpg',
-  //     headline: 'Show Headline',
-  //     bands: 'Band1, Band2, Band3, etc..',
-  //     details: 'Some details',
-  //     publish_comment: 'More info soon',
-  //     listing_state: 'Public',
-  //     //created: db default,
-  //     //modified: db default,
-
 
 }
 

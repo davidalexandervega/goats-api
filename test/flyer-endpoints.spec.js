@@ -6,7 +6,7 @@ const { seed, truncate } = require('./seed-fixtures')
 // const chaiJsonPattern = require('chai-json-pattern');
 // chai.use(chaiJsonPattern);
 
-describe('Flyer endpoints', () => {
+describe.only('Flyer endpoints', () => {
   let db;
 
   before('create knex db instance', () => {
@@ -45,7 +45,7 @@ describe('Flyer endpoints', () => {
     return db.destroy()
   })
 
-  describe.only('GET /api/flyer endpoint', () => {
+  describe('GET /api/flyer endpoint', () => {
 
     context('given there are no flyers in db', () => {
       it('responds with 200 and empty array', () => {
@@ -70,11 +70,10 @@ describe('Flyer endpoints', () => {
             .get('/api/flyer')
             .expect(200)
             .expect(res => {
+              assert.isArray(res.body)
               expect(res.body.length).to.equal(4)
               expect(res.body[0]).to.have.property('id')
-              expect(res.body[0].id).to.be.a.uuid()
               expect(res.body[0]).to.have.property('creator_id')
-              expect(res.body[0].creator_id).to.be.a.uuid()
               expect(res.body[0]).to.have.property('flyer_type')
               expect(res.body[0]).to.have.property('image_url')
               expect(res.body[0]).to.have.property('headline')
@@ -90,7 +89,7 @@ describe('Flyer endpoints', () => {
 
       })
 
-      context('given the a flyers creator (app_user) has a hidden user_state of "Archived", "Banned", or "Private"', () => {
+      context('given the flyers creator (app_user) has a hidden user_state of "Archived", "Banned", or "Private"', () => {
         beforeEach('insert users with "Banned" or "Archived" state', () => {
           return db.raw(seed.usersWithBannedOrArchivedState())
         })
@@ -104,6 +103,7 @@ describe('Flyer endpoints', () => {
             .get('/api/flyer')
             .expect(200)
             .expect(res => {
+              assert.isArray(res.body)
               expect(res.body.length).to.equal(4)
               expect(res.body).to.deep.equal(expected)
             })
@@ -119,13 +119,14 @@ describe('Flyer endpoints', () => {
           .into('flyer')
         //return db.raw(flyerWithXss)
       })
-      it('responds with 200 and sanitized flyers', () => {
+      it('responds with 200 and array of sanitized flyers', () => {
         const expected = makeFlyer.withSanitizedXss()
 
         return supertest(app)
           .get(`/api/flyer`)
           .expect(200)
           .expect(res => {
+            assert.isArray(res.body)
             expect(res.body.length).to.equal(1)
             expect(res.body[0].headline).to.eql(expected.headline)
             expect(res.body[0].image_url).to.eql(expected.image_url)
@@ -137,171 +138,76 @@ describe('Flyer endpoints', () => {
     })
   })
 
-  // describe('GET /api/user/:id', () => {
 
-  //   context('given user exists', () => {
-  //     let authedUser;
-  //     let otherUser;
-  //     beforeEach('signup test user, insert additional fields', () => {
-  //       const postBody = makeUser.postBody()
-  //       return supertest(app)
-  //         .post('/api/auth/signup')
-  //         .send(postBody)
-  //         .then(res => {
-  //           let additionalFields = makeUser.patchBody()
-  //           delete additionalFields['username']
-  //           delete additionalFields['password']
-  //           delete additionalFields['email']
-  //           authedUser = res.body
-  //           authedUser = {
-  //             ...authedUser,
-  //             ...additionalFields
-  //           }
-  //           return db('app_user')
-  //             .where({ id: authedUser.id })
-  //             .update({
-  //               ...additionalFields
-  //             })
-  //         })
-  //     })
+  describe('GET /api/flyer/:id', () => {
 
-  //     beforeEach('signup second test user, insert additional fields', () => {
-  //       const postBody = makeUser.postBody2()
-  //       return supertest(app)
-  //         .post('/api/auth/signup')
-  //         .send(postBody)
-  //         .then(res => {
-  //           let additionalFields = makeUser.patchBody()
-  //           delete additionalFields['username']
-  //           delete additionalFields['password']
-  //           delete additionalFields['email']
-  //           otherUser = res.body
-  //           otherUser = {
-  //             ...otherUser,
-  //             ...additionalFields
-  //           }
-  //           return db('app_user')
-  //             .where({ id: otherUser.id })
-  //             .update({
-  //               ...additionalFields
-  //             })
-  //         })
-  //     })
+    context('given flyer exists', () => {
+        beforeEach('insert flyers into flyer', () => {
+          return db.raw(seed.flyers())
+        })
 
-  //     context('given the user is signed in', () => {
-  //       beforeEach('signin first test user', () => {
-  //         const signInBody = makeUser.signinGood()
-  //         return supertest(app)
-  //           .post('/api/auth/signin')
-  //           .send(signInBody)
-  //           .then(res => {
-  //             authedUser = res.body
-  //           })
+        it('responds with 200 and flyer', function() {
+          const expectedFlyer = makeFlyers()[2]
+          return supertest(app)
+            .get(`/api/flyer/${expectedFlyer.id}`)
+            // .set({
+            //   "Authorization": `Bearer ${authedUser.token}`
+            // })
+            .expect(200)
+            .expect(res => {
+              assert.isObject(res.body)
+              expect(res.body).to.have.property('id')
+              expect(res.body).to.have.property('creator_id')
+              expect(res.body).to.have.property('flyer_type')
+              expect(res.body).to.have.property('image_url')
+              expect(res.body).to.have.property('headline')
+              expect(res.body).to.have.property('bands')
+              expect(res.body).to.have.property('details')
+              expect(res.body).to.have.property('publish_comment')
+              expect(res.body).to.have.property('listing_state')
+              expect(res.body).to.have.property('created')
+              expect(res.body).to.have.property('modified')
+              expect(res.body).to.deep.eql(expectedFlyer)
+            })
+        })
+    })
 
-  //       })
+    context('given flyer does not exist', () => {
+      it('responds with 404', () => {
+        const nonExistingFlyer = makeFlyers()[2]
+        return supertest(app)
+          .get(`/api/flyer/${nonExistingFlyer.id}`)
+          // .set({
+          //   "Authorization": `Bearer ${authedUser.token}`
+          // })
+          .expect(404, { message: 'Flyer does not exist' })
+      })
+    })
 
-  //       it('responds with 200 and additional auth fields when user requests their own profile', function() {
-  //         this.retries(3)
-  //         let expected = authedUser
-  //         return supertest(app)
-  //           .get(`/api/user/${authedUser.id}`)
-  //           .set({
-  //             "Authorization": `Bearer ${authedUser.token}`
-  //           })
-  //           .expect(200)
-  //           .expect(res => {
-  //             expect(res.body).to.have.property('id')
-  //             expect(res.body.id).to.eql(expected.id)
-  //             expect(res.body).to.have.property('username')
-  //             expect(res.body.username).to.eql(expected.username)
-  //             expect(res.body).to.have.property('email')
-  //             expect(res.body.email).to.eql(expected.email)
-  //             expect(res.body).to.have.property('admin')
-  //             expect(res.body.admin).to.eql(expected.admin)
-  //             expect(res.body).to.have.property('image_url')
-  //             expect(res.body.image_url).to.eql(expected.image_url)
-  //             expect(res.body).to.have.property('fullname')
-  //             expect(res.body.fullname).to.eql(expected.fullname)
-  //             expect(res.body).to.have.property('city_name')
-  //             expect(res.body.city_name).to.eql(expected.city_name)
-  //             expect(res.body).to.have.property('region_name')
-  //             expect(res.body.region_name).to.eql(expected.region_name)
-  //             expect(res.body).to.have.property('country_name')
-  //             expect(res.body.country_name).to.eql(expected.country_name)
-  //             expect(res.body).to.have.property('city_id')
-  //             expect(res.body.city_id).to.eql(expected.city_id)
-  //             expect(res.body).to.have.property('user_state')
-  //             expect(res.body.user_state).to.eql(expected.user_state)
-  //             expect(res.body).to.have.property('created')
-  //             expect(res.body).to.have.property('modified')
-  //             expect(res.body).to.have.property('last_login')
-  //             const actualModifiedDate = new Date(res.body.modified).toLocaleString()
-  //             const actualLastLoginDate = new Date(res.body.last_login).toLocaleString()
-  //             const expectedDate = new Date().toLocaleString()
-  //             expect(res.body.created).to.eql(expected.created)
-  //             expect(actualModifiedDate).to.eql(expectedDate)
-  //             expect(actualLastLoginDate).to.eql(expectedDate)
-  //             expect(res.body).to.have.property('token')
-  //             expect(res.body.token).to.not.eql(null)
-  //             expect(res.body).to.not.have.property('password_digest')
-  //             expect(res.body.password_digest).to.eql(undefined)
-  //           })
-  //       })
+    context('given there is xss in the flyers text fields', () => {
+      beforeEach('insert flyer with xss into db', () => {
+        const flyerWithXss = makeFlyer.withXss()
+        return db
+          .insert([flyerWithXss])
+          .into('flyer')
+      })
+      it('responds with 200 and sanitized flyer', () => {
+        const expected = makeFlyer.withSanitizedXss()
 
-  //       it('responds with 200 and public fields when logged in user requests anothers profile', function () {
-  //         const expected = otherUser
-  //         delete expected['email']
-  //         delete expected['fullname']
-  //         delete expected['user_state']
-  //         delete expected['modified']
-  //         delete expected['last_login']
-  //         delete expected['token']
-
-  //         return supertest(app)
-  //           .get(`/api/user/${otherUser.id}`)
-  //           .set({
-  //             "Authorization": `Bearer ${authedUser.token}`
-  //           })
-  //           .expect(200)
-  //           .expect(res => {
-  //             expect(res.body).to.have.property('id')
-  //             expect(res.body.id).to.eql(expected.id)
-  //             expect(res.body).to.have.property('username')
-  //             expect(res.body.username).to.eql(expected.username)
-  //             expect(res.body).to.have.property('image_url')
-  //             expect(res.body.image_url).to.eql(expected.image_url)
-  //             expect(res.body).to.not.have.property('email')
-  //             expect(res.body.email).to.eql(undefined)
-  //             expect(res.body).to.not.have.property('fullname')
-  //             expect(res.body.fullname).to.eql(undefined)
-  //             expect(res.body).to.not.have.property('user_state')
-  //             expect(res.body.user_state).to.eql(undefined)
-  //             expect(res.body).to.have.property('created')
-  //             expect(res.body.created).to.eql(expected.created)
-  //             expect(res.body).to.not.have.property('modified')
-  //             expect(res.body.modified).to.eql(undefined)
-  //             expect(res.body).to.not.have.property('last_login')
-  //             expect(res.body.last_login).to.eql(undefined)
-  //             expect(res.body).to.not.have.property('token')
-  //             expect(res.body.token).to.eql(undefined)
-  //             expect(res.body).to.not.have.property('password_digest')
-  //             expect(res.body.password_digest).to.eql(undefined)
-
-  //             expect(res.body).to.eql(expected)
-  //           })
-  //       })
-  //     })
-
-  //     context.skip('given the user is not signed in', () => {
-  //     })
-  //   })
-
-  //   context('given user does not exist', () => {
-  //     return supertest(app)
-  //       .get(`/api/user/666`)
-  //       .expect(404, { error: { message: `User does not exist` } })
-  //   })
-  // })
+        return supertest(app)
+          .get(`/api/flyer/${expected.id}`)
+          .expect(200)
+          .expect(res => {
+            assert.isObject(res.body)
+            expect(res.body.headline).to.eql(expected.headline)
+            expect(res.body.image_url).to.eql(expected.image_url)
+            expect(res.body.bands).to.eql(expected.bands)
+            expect(res.body.details).to.eql(expected.details)
+            expect(res.body.publish_comment).to.eql(expected.publish_comment)
+          })
+      })
+    })
+  })
 
   // describe('PATCH /api/user/:id endpoint', () => {
   //   context('given the user exists', () => {
