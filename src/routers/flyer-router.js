@@ -3,6 +3,7 @@ const flyerRouter = express.Router()
 const FlyerService = require('../services/flyer-service')
 const EventService = require('../services/event-service')
 const FlyerUtils = require('../utils/flyer.utils')
+const EventUtils = require('../utils/event.utils')
 const logger = require('../utils/logger.utils')
 const authUser = require('../mws/auth-user')
 const bodyParser = express.json()
@@ -78,15 +79,14 @@ function postFlyer(req, res, next) {
         await EventService
           .insertEvent(knexI, event)
           .then(eventRes => {
-            console.log("EVNETS RES",eventRes)
             return eventsRes.push(eventRes)
           })
           .catch(next)
       })
 
       newFlyerWithEventsRes = {
-        ...flyerRes,
-        events: eventsRes
+        ...FlyerUtils.sanitize(flyerRes),
+        events: eventsRes.map(event => EventUtils.sanitize(event))
       }
 
       res

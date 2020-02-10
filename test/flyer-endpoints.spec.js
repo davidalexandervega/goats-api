@@ -3,6 +3,7 @@ const knex = require('knex')
 const {  makeFlyer, makeFlyers } = require('./flyer-fixtures')
 const { makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
+const dateString = require('chai-date-string')
 // const chaiJsonPattern = require('chai-json-pattern');
 // chai.use(chaiJsonPattern);
 
@@ -351,8 +352,8 @@ describe.only('Flyer endpoints', () => {
             })
       })
 
-      context.only('given the events (array) field has events in it', () => {
-        it('posts all from its events field to the event table, results are returned in post response', () => {
+      context('given the events (array) field has events in it', () => {
+        it('posts all from its events field to the event table, event results are returned in post response with default values updated', () => {
           const postBody = {
             ...makeFlyer.postBody(),
             creator_id: authedCreator.id
@@ -367,16 +368,72 @@ describe.only('Flyer endpoints', () => {
             .expect(res => {
               expect(res.body.events.length).to.eql(postBody.events.length)
               assert.isObject(res.body.events[0])
+              expect(res.body.events[0]).to.have.property('id')
+              expect(res.body.events[0].id).to.be.a.uuid()
+              expect(res.body.events[0]).to.have.property('flyer_id')
               expect(res.body.events[0].flyer_id).to.eql(res.body.id)
+              expect(res.body.events[0]).to.have.property('event_date')
+              expect(res.body.events[0].event_date).to.eql(postBody.events[0].event_date)
+              expect(res.body.events[0]).to.have.property('venue_name')
+              expect(res.body.events[0].venue_name).to.eql(postBody.events[0].venue_name)
+              expect(res.body.events[0]).to.have.property('city_name')
+              expect(res.body.events[0].city_name).to.eql(postBody.events[0].city_name)
+              expect(res.body.events[0]).to.have.property('region_name')
+              expect(res.body.events[0].region_name).to.eql(postBody.events[0].region_name)
+              expect(res.body.events[0]).to.have.property('country_name')
+              expect(res.body.events[0].country_name).to.eql(postBody.events[0].country_name)
+              expect(res.body.events[0]).to.have.property('city_id')
+              expect(res.body.events[0].city_id).to.eql(postBody.events[0].city_id)
             })
         })
 
-        context.skip('given there is xss in the flyers events text fields', () => {
+        context('given there is xss in the flyers events text fields', () => {
           it('responds with 200 and flyer with sanitized events field', () => {
-
+            const postBody = {
+              ...makeFlyer.postBodyWithXss(),
+              creator_id: authedCreator.id
+            }
+            const expected = makeFlyer.postBodyWithXssResponseSanitized()
+            return supertest(app)
+              .post('/api/flyer')
+              .set({
+                "Authorization": `Bearer ${authedCreator.token}`
+              })
+              .send(postBody)
+              .expect(201)
+              .expect(res => {
+                expect(res.body.events[0].venue_name).to.eql(expected.events[0].venue_name)
+                expect(res.body.events[0].city_name).to.eql(expected.events[0].city_name)
+                expect(res.body.events[0].region_name).to.eql(expected.events[0].region_name)
+                expect(res.body.events[0].country_name).to.eql(expected.events[0].country_name)
+              })
           })
         })
 
+      })
+
+      context('given there is xss in the flyers text fields', () => {
+        it('responds with 200 and flyer with sanitized text fields', () => {
+          const postBody = {
+            ...makeFlyer.postBodyWithXss(),
+            creator_id: authedCreator.id
+          }
+          const expected = makeFlyer.postBodyWithXssResponseSanitized()
+          return supertest(app)
+            .post('/api/flyer')
+            .set({
+              "Authorization": `Bearer ${authedCreator.token}`
+            })
+            .send(postBody)
+            .expect(201)
+            .expect(res => {
+              expect(res.body.image_url).to.eql(expected.image_url)
+              expect(res.body.headline).to.eql(expected.headline)
+              expect(res.body.bands).to.eql(expected.bands)
+              expect(res.body.details).to.eql(expected.details)
+              expect(res.body.publish_comment).to.eql(expected.publish_comment)
+            })
+        })
       })
 
     })

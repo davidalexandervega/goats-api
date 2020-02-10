@@ -3,37 +3,16 @@ const xss = require('xss')
 const sanitize = event => {
   return {
     id: event.id,
-    creator_id: event.creator_id,
-    venue_id: event.venue_id,
-    image_url: xss(event.image_url),
-    event_times: xss(event.event_times),
-    title: xss(event.title),
-    description: xss(event.description),
-    start_date: event.start_date,
-    end_date: event.end_date,
-    created: event.created,
-    modified: event.modified
-    // listing_state: event.listing_state
-  }
-}
-
-const sanitizeAdmin = event => {
-  return {
-    id: event.id,
-    creator_id: event.creator_id,
-    venue_id: event.venue_id,
-    image_url: xss(event.image_url),
-    event_times: xss(event.event_times),
-    title: xss(event.title),
-    description: xss(event.description),
-    start_date: event.start_date,
-    end_date: event.end_date,
-    created: event.created,
-    modified: event.modified,
-    listing_state: event.listing_state
+    flyer_id: event.flyer_id,
+    event_date: event.event_date,
+    venue_name: xss(event.venue_name),
+    city_name: xss(event.city_name),
+    region_name: xss(event.region_name),
+    country_name: xss(event.country_name),
+    city_id: event.city_id
   }
 }
 
 module.exports = {
-  sanitize, sanitizeAdmin
+  sanitize
 }
