@@ -309,7 +309,7 @@ describe.only('Flyer endpoints', () => {
     })
 
     context('given the post body is accurate', () => {
-      it('responds with 201 and new flyer with events field, creates flyer record in db, fills in default fields', function () {
+      it('responds with 201 and new flyer with additional events field, creates flyer record in db, fills in default fields', function () {
           const postBody = {
             ...makeFlyer.postBody(),
             creator_id: authedCreator.id
@@ -353,7 +353,7 @@ describe.only('Flyer endpoints', () => {
       })
 
       context('given the events (array) field has events in it', () => {
-        it('posts all from its events field to the event table, event results are returned in post response with default values updated', () => {
+        it('creates records for all from its events field to the event table, event results are returned in post response with default values updated', () => {
           const postBody = {
             ...makeFlyer.postBody(),
             creator_id: authedCreator.id
@@ -412,6 +412,26 @@ describe.only('Flyer endpoints', () => {
 
       })
 
+      context('given the events (array) field has no events in it', () => {
+        it('the flyer post response returns and empty array for its events field', () => {
+          const postBody = {
+            ...makeFlyer.postBody(),
+            creator_id: authedCreator.id
+          }
+          postBody["events"] = []
+          return supertest(app)
+            .post('/api/flyer')
+            .set({
+              "Authorization": `Bearer ${authedCreator.token}`
+            })
+            .send(postBody)
+            .expect(201)
+            .expect(res => {
+              expect(res.body.events).to.eql([])
+            })
+        })
+      })
+
       context('given there is xss in the flyers text fields', () => {
         it('responds with 200 and flyer with sanitized text fields', () => {
           const postBody = {
@@ -438,8 +458,51 @@ describe.only('Flyer endpoints', () => {
 
     })
 
+    context('given there are errors in the post body', () => {
 
+      const required = ["image_url", "headline", "flyer_type"] // missing "creator_id" throws auth error first
+      required.forEach(field => {
+        it(`responds with 400 and message if missing required field ${field}`, () => {
+          const postBody = {
+            ...makeFlyer.postBody(),
+            creator_id: authedCreator.id
+          }
+          delete postBody[field]
+          return supertest(app)
+            .post('/api/flyer')
+            .set({
+              "Authorization": `Bearer ${authedCreator.token}`
+            })
+            .send(postBody)
+            .expect(400, { message: `${field} is required.` })
+        })
+      })
 
+      it('responds with 400 if the events field contains something other than an array', () => {
+        const postBody = {
+          ...makeFlyer.postBody(),
+          creator_id: authedCreator.id
+        }
+        postBody["events"] = "A string!"
+
+        return supertest(app)
+          .post('/api/flyer')
+          .set({
+            "Authorization": `Bearer ${authedCreator.token}`
+          })
+          .send(postBody)
+          .expect(400, { message: `events must be an array.` })
+      })
+
+      context.skip('given the events field contains an event with errors', () => {
+        it('responds with 201 but does not post an event if it has no values', () => {
+        })
+
+        it('responds with 201 but does not post an event if its date field is not null and is not an actual date', () => {
+        })
+      })
+
+    })
   })
 
 
