@@ -1,13 +1,18 @@
 const express = require('express')
 const flyerRouter = express.Router()
 const FlyerService = require('../services/flyer-service')
+const EventService = require('../services/event-service')
 const FlyerUtils = require('../utils/flyer.utils')
 const logger = require('../utils/logger.utils')
 const authUser = require('../mws/auth-user')
+const bodyParser = express.json()
+const path = require('path')
+const { check, validationResult, body, sanitizeBody, sanitizeParam } = require('express-validator')
 
 flyerRouter
   .route('/')
   .get(authUser.get, getAllFlyers)
+  .post(bodyParser, authUser.post, postFlyer)
 
 flyerRouter
   .route('/:id')
@@ -44,6 +49,50 @@ function getAllFlyers(req, res, next) {
     .then(flyers => {
       const sanitized = flyers.map(flyer => FlyerUtils.sanitize(flyer))
       res.json(sanitized)
+    })
+    .catch(next)
+}
+
+function postFlyer(req, res, next) {
+  const knexI = req.app.get('db')
+  const { events, ...flyer } = req.body
+  // validate flyer body with library, validate events array
+
+  FlyerService
+    .insertFlyer(knexI, flyer)
+    .then(async flyerRes => {
+      let eventsRes = []
+
+      const eventsWithFlyerId = events.map(event => {
+        return { flyer_id: flyerRes.id, ...event }
+      })
+
+      // https://codeburst.io/javascript-async-await-with-foreach-b6ba62bbf404
+      async function asyncForEach(array, callback) {
+        for (let index = 0; index < array.length; index++) {
+          await callback(array[index], index, array);
+        }
+      }
+
+      let newFlyerWithEventsRes = await asyncForEach(eventsWithFlyerId, async (event) => {
+        await EventService
+          .insertEvent(knexI, event)
+          .then(eventRes => {
+            console.log("EVNETS RES",eventRes)
+            return eventsRes.push(eventRes)
+          })
+          .catch(next)
+      })
+
+      newFlyerWithEventsRes = {
+        ...flyerRes,
+        events: eventsRes
+      }
+
+      res
+        .status(201)
+        .location(path.posix.join(req.originalUrl, `/${newFlyerWithEventsRes.id}`))
+        .json(newFlyerWithEventsRes)
     })
     .catch(next)
 }

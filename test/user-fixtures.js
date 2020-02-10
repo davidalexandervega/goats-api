@@ -61,28 +61,8 @@ const makeUser = {
   postBody2() {
     return {
       username: 'aliens',
-      password: `alienspassword123`,
+      password: 'alienspassword123',
       email: `alexandrabrinncampbell@gmail.com`,
-    }
-  },
-
-  postResp() {
-    return {
-      // id: 'uuiddefault',
-      username: 'testuser',
-      email: `testuseraliens@outlook.com`,
-      admin: false,
-      image_url: '',
-      fullname: '',
-      city_name: '',
-      region_name: '',
-      country_name: '',
-      city_id: null,
-      user_state: 'Public'
-      // token: 'cryptotokencustom',
-      // created: 'createddefault',
-      // modified: 'modifieddefault',
-      // last_login:  'lastlogindefault'
     }
   },
 
@@ -104,6 +84,26 @@ const makeUser = {
     return {
       username: 'testuser',
       password: 'badtestuserpassword123'
+    }
+  },
+
+  postResp() {
+    return {
+      // id: 'uuiddefault',
+      username: 'testuser',
+      email: `testuseraliens@outlook.com`,
+      admin: false,
+      image_url: '',
+      fullname: '',
+      city_name: '',
+      region_name: '',
+      country_name: '',
+      city_id: null,
+      user_state: 'Public'
+      // token: 'cryptotokencustom',
+      // created: 'createddefault',
+      // modified: 'modifieddefault',
+      // last_login:  'lastlogindefault'
     }
   },
 

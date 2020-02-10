@@ -36,7 +36,7 @@ describe.only('Flyer endpoints', () => {
       .post('/api/auth/signup')
       .send(postBody)
       .then(res => {
-        return authedUser = res.body
+        authedUser = res.body
       })
   })
 
@@ -47,9 +47,30 @@ describe.only('Flyer endpoints', () => {
       .post('/api/auth/signup')
       .send(postBody)
       .then(res => {
-        return authedCreator = res.body
+        authedCreator = res.body
       })
   })
+
+  //   beforeEach('signin authed user', () => {
+  //     const signInBody = makeUser.signinGood()
+  //     return supertest(app)
+  //       .post('/api/auth/signin')
+  //       .send(signInBody)
+  //       .then(res => {
+  //         authedUser = res.body
+  //       })
+  //   })
+
+  // beforeEach('signin authed creator', () => {
+  //   const signInBody = makeUser.signinGood2()
+  //   return supertest(app)
+  //     .post('/api/auth/signin')
+  //     .send(signInBody)
+  //     .then(async res => {
+  //        authedCreator = await res.body
+  //        return authedCreator
+  //     })
+  // })
 
   beforeEach('clears flyer and child tables', () => {
     return db.raw(truncate.flyerChildren())
@@ -271,26 +292,97 @@ describe.only('Flyer endpoints', () => {
           })
       })
     })
+
   })
 
 
-  describe('POST /api/flyer endpoint', () => {
+  describe.only('POST /api/flyer endpoint', () => {
     beforeEach('signin authed creator', () => {
       const signInBody = makeUser.signinGood2()
       return supertest(app)
         .post('/api/auth/signin')
         .send(signInBody)
         .then(res => {
-          authedCreator = res.body
+           authedCreator = res.body
         })
     })
 
     context('given the post body is accurate', () => {
-      const postBody = makeFlyer.postBody()
-      it('responds with 201 and new flyer, creates record in db, fills in default fields', function () {
+      it('responds with 201 and new flyer with events field, creates flyer record in db, fills in default fields', function () {
+          const postBody = {
+            ...makeFlyer.postBody(),
+            creator_id: authedCreator.id
+          }
+          return supertest(app)
+            .post('/api/flyer')
+            .set({
+              "Authorization": `Bearer ${authedCreator.token}`
+            })
+            .send(postBody)
+            .expect(201)
+            .expect(res => {
+              assert.isObject(res.body)
+              expect(res.headers.location).to.eql(`/api/flyer/${res.body.id}`)
+              expect(res.body).to.have.property('id')
+              expect(res.body.id).to.be.a.uuid()
+              expect(res.body).to.have.property('creator_id')
+              expect(res.body.creator_id).to.eql(postBody.creator_id)
+              expect(res.body).to.have.property('flyer_type')
+              expect(res.body.flyer_type).to.eql(postBody.flyer_type)
+              expect(res.body).to.have.property('image_url')
+              expect(res.body.image_url).to.eql(postBody.image_url)
+              expect(res.body).to.have.property('headline')
+              expect(res.body.headline).to.eql(postBody.headline)
+              expect(res.body).to.have.property('bands')
+              expect(res.body.bands).to.eql(postBody.bands)
+              expect(res.body).to.have.property('details')
+              expect(res.body.details).to.eql(postBody.details)
+              expect(res.body).to.have.property('publish_comment')
+              expect(res.body.publish_comment).to.eql(postBody.publish_comment)
+              expect(res.body).to.have.property('listing_state')
+              expect(res.body.listing_state).to.eql('Public')
+              const expectedCreated = new Date(Date.now()).toLocaleString()
+              expect(res.body).to.have.property('created')
+              expect(new Date(res.body.created).toLocaleString()).to.eql(expectedCreated)
+              expect(res.body).to.have.property('modified')
+              expect(new Date(res.body.modified).toLocaleString()).to.eql(expectedCreated)
+              expect(res.body).to.have.property('events')
+              assert.isArray(res.body.events)
+            })
+      })
+
+      context.only('given the events (array) field has events in it', () => {
+        it('posts all from its events field to the event table, results are returned in post response', () => {
+          const postBody = {
+            ...makeFlyer.postBody(),
+            creator_id: authedCreator.id
+          }
+          return supertest(app)
+            .post('/api/flyer')
+            .set({
+              "Authorization": `Bearer ${authedCreator.token}`
+            })
+            .send(postBody)
+            .expect(201)
+            .expect(res => {
+              expect(res.body.events.length).to.eql(postBody.events.length)
+              assert.isObject(res.body.events[0])
+              expect(res.body.events[0].flyer_id).to.eql(res.body.id)
+            })
+        })
+
+        context.skip('given there is xss in the flyers events text fields', () => {
+          it('responds with 200 and flyer with sanitized events field', () => {
+
+          })
+        })
 
       })
+
     })
+
+
+
   })
 
 

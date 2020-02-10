@@ -60,20 +60,30 @@ const makeFlyer = {
 
   postBody() {
     return {
-      creator_id: 'ef6f4b60-48ed-11ea-b77f-2e728ce88125',
-      flyer_type: 'Show',
+      // creator_id: set in test logged in user,
+      flyer_type: 'Fest',
       image_url: 'https://res.cloudinary.com/killeraliens/image/upload/v1580946115/84749251_2670611672988679_3051998756900700160_n.jpg.jpg',
-      headline: 'Show Headline',
+      headline: 'Fest Headline',
       bands: 'Band1, Band2, Band3, etc..',
       details: 'Some details',
       publish_comment: 'More info soon',
-      listing_state: 'Public',
+      // listing_state: 'Public',
       events: [
         {
           // id: db default uuid,
           // flyer_id: db default uuid from flyer,
-          date: '2020-07-22T00:00:00.000Z',
+          event_date: '2020-07-22T00:00:00.000Z',
           venue_name: 'Test Tavern',
+          city_name: 'Phoenix',
+          region_name: 'AZ',
+          country_name: 'United States',
+          city_id: null
+        },
+        {
+          // id: db default uuid,
+          // flyer_id: db default uuid from flyer,
+          event_date: '2020-07-23T00:00:00.000Z',
+          venue_name: 'Test2 Tavern',
           city_name: 'Phoenix',
           region_name: 'AZ',
           country_name: 'United States',
