@@ -1,32 +1,16 @@
 const makeEvent = {
-  seeded1() {
+  sample() {
     return {
-      id: 1, // not in seed
-      creator_id: 1,
-      venue_id: 1,
-      image_url: 'https://1.bp.blogspot.com/-iF7sXspSmXk/W1oQAgNzJEI/AAAAAAAAAPA/FDnYOp28gwQcLqfHAlornSEpqEpKFwXwgCLcBGAs/s1600/Mortuous-Through_Wilderness-flyer%2528web%2529.jpg',
-      event_times: 'Doors at 7pm',
-      title: 'Mortuous, Fetid, Hyperdontia',
-      description: 'Catch west coast tour before they leave. Extremely Rotten Productions.',
-      start_date: '2019-12-30T00:00:00.000Z',
-      end_date: '2019-12-30T00:00:00.000Z'
+      id: '906d8774-48f4-11ea-b77f-2e728ce88125',
+      flyer_id: 'a28ebf8c-48ee-11ea-b77f-2e728ce88125',
+      event_date: '2020-03-13T00:00:00.000Z',
+      venue_name: 'Foro San Rafael',
+      city_name: 'Mexico City',
+      region_name: "",
+      country_name: 'Mexico',
+      city_id: null
     }
-  },
 
-  postBodyMin() {
-    return {
-      creator_id: 1,
-      image_url: 'https://thumbs.worthpoint.com/zoom/images1/1/0416/10/vintage-mercyful-fate-poster_1_f8b6fba67726fd6b35ee65aa8076e3eb.jpg',
-      title: 'Merciful Fate RETURNS'
-    }
-  },
-
-  postBodyNotMyId() {
-    return {
-      creator_id: 2,
-      image_url: 'https://thumbs.worthpoint.com/zoom/images1/1/0416/10/vintage-mercyful-fate-poster_1_f8b6fba67726fd6b35ee65aa8076e3eb.jpg',
-      title: 'Merciful Fate RETURNS'
-    }
   },
 
   postBodyLongText() {

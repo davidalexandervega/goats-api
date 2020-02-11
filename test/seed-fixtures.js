@@ -339,6 +339,162 @@ const seed = {
           '2020-01-05T16:03:22.000Z'
         )
     `
+  },
+
+  events() {
+    return `
+      INSERT INTO event (
+        id,
+        flyer_id,
+        event_date,
+        venue_name,
+        city_name,
+        region_name,
+        country_name,
+        city_id
+      )
+      VALUES
+        (
+          '906d8774-48f4-11ea-b77f-2e728ce88125',
+          'a28ebf8c-48ee-11ea-b77f-2e728ce88125',
+          '2020-03-13T00:00:00.000Z',
+          'Foro San Rafael',
+          'Mexico City',
+          null,
+          'Mexico',
+          null
+        ),
+        (
+          '9acbfa16-48f4-11ea-b77f-2e728ce88125',
+          'a28ebf8c-48ee-11ea-b77f-2e728ce88125',
+          '2020-03-14T00:00:00.000Z',
+          'Foro San Rafael',
+          'Mexico City',
+          null,
+          'Mexico',
+          null
+        ),
+        (
+          'a2fb5362-48f4-11ea-b77f-2e728ce88125',
+          'a28ebf8c-48ee-11ea-b77f-2e728ce88125',
+          '2020-03-15T00:00:00.000Z',
+          'Foro San Rafael',
+          'Mexico City',
+          null,
+          'Mexico',
+          null
+        ),
+        (
+          'ac671dc8-48f4-11ea-b77f-2e728ce88125',
+          'a28ebf8c-48ee-11ea-b77f-2e728ce88125',
+          '2020-03-16T00:00:00.000Z',
+          'Foro San Rafael',
+          'Mexico City',
+          null,
+          'Mexico',
+          null
+        ),
+        (
+          '5a7d4a0e-48f5-11ea-b77f-2e728ce88125',
+          '83e0779a-48f0-11ea-b77f-2e728ce88125',
+          '2020-04-03T00:00:00.000Z',
+          'Maple Grove Tavern',
+          'Clevland',
+          'OH',
+          'United States',
+          null
+        ),
+        (
+          '62b299fe-48f5-11ea-b77f-2e728ce88125',
+          '83e0779a-48f0-11ea-b77f-2e728ce88125',
+          '2020-04-04T00:00:00.000Z',
+          'TBD',
+          'Detroit',
+          'MI',
+          'United States',
+          null
+        ),
+        (
+          '6af351b2-48f5-11ea-b77f-2e728ce88125',
+          '83e0779a-48f0-11ea-b77f-2e728ce88125',
+          '2020-04-05T00:00:00.000Z',
+          'Cobra Lounge',
+          'Chicago',
+          'IL',
+          'United States',
+          null
+        ),
+        (
+          '74de12f2-48f5-11ea-b77f-2e728ce88125',
+          '83e0779a-48f0-11ea-b77f-2e728ce88125',
+          '2020-04-06T00:00:00.000Z',
+          'Black Circle Brewing',
+          'Indianapolis',
+          'IN',
+          'United States',
+          null
+        ),
+        (
+          '80bf6cec-48f5-11ea-b77f-2e728ce88125',
+          '83e0779a-48f0-11ea-b77f-2e728ce88125',
+          '2020-04-07T00:00:00.000Z',
+          'TBD',
+          'Columbus',
+          'OH',
+          'United States',
+          null
+        ),
+        (
+          '88c6a400-48f5-11ea-b77f-2e728ce88125',
+          '83e0779a-48f0-11ea-b77f-2e728ce88125',
+          '2020-04-08T00:00:00.000Z',
+          'Cativo''s',
+          'Pittsburgh',
+          'PA',
+          'United States',
+          null
+        ),
+        (
+          '90b0d6cc-48f5-11ea-b77f-2e728ce88125',
+          '83e0779a-48f0-11ea-b77f-2e728ce88125',
+          '2020-04-09T00:00:00.000Z',
+          'Metro Gallery',
+          'Baltimore',
+          'MD',
+          'United States',
+          null
+        ),
+        (
+          '973a5a04-48f5-11ea-b77f-2e728ce88125',
+          '83e0779a-48f0-11ea-b77f-2e728ce88125',
+          '2020-04-10T00:00:00.000Z',
+          'Kung Fu Necktie',
+          'Philadelphia',
+          'PA',
+          'United States',
+          null
+        ),
+        (
+          '9ed5309a-48f5-11ea-b77f-2e728ce88125',
+          '83e0779a-48f0-11ea-b77f-2e728ce88125',
+          '2020-04-11T00:00:00.000Z',
+          'Saint Vitus',
+          'New York',
+          'NY',
+          'United States',
+          null
+        ),
+        (
+          'a7afef3e-48f5-11ea-8456-2e728ce88125',
+          '83e0779a-48f0-11ea-b77f-2e728ce88125',
+          '2020-04-12T00:00:00.000Z',
+          'Piranha Bar',
+          'Montreal',
+          'QC',
+          'Canada',
+          null
+        )
+    `
   }
 
 }
@@ -363,13 +519,14 @@ const truncate = {
       TRUNCATE event, flyer
       RESTART IDENTITY CASCADE
     `
+  },
+
+  eventChildren() {
+    return(`
+      TRUNCATE event
+      RESTART IDENTITY CASCADE
+    `)
   }
-  // eventChildren() {
-  //   return(`
-  //     TRUNCATE event, band_event
-  //     RESTART IDENTITY CASCADE
-  //   `)
-  // }
 
 
 }
