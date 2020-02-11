@@ -65,7 +65,6 @@ flyerRouter
       check('publish_comment')
         .isLength({ min: 0, max: 666 })
         .withMessage(`publish comment character limit is 666`)
-
     ],
     postFlyer
   )

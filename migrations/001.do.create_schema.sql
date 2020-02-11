@@ -94,7 +94,7 @@ CREATE TYPE flyer_type AS ENUM (
 
 CREATE TABLE flyer (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
-  creator_id uuid REFERENCES app_user(id) ON DELETE SET NULL,
+  creator_id uuid REFERENCES app_user(id) ON DELETE CASCADE,
   image_url TEXT,
   flyer_type flyer_type NOT NULL,
   headline TEXT,
