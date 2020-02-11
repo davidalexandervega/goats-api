@@ -350,6 +350,17 @@ describe.only('Flyer endpoints', () => {
               expect(res.body).to.have.property('events')
               assert.isArray(res.body.events)
             })
+            .then(() => {
+              return supertest(app)
+                .get('/api/flyer')
+                .set({
+                  "Authorization": `Bearer ${authedCreator.token}`
+                })
+                .expect(200)
+                .expect(res => {
+                  expect(res.body.length).to.equal(1)
+                })
+            })
       })
 
       context('given the events (array) field has events in it', () => {
@@ -384,6 +395,17 @@ describe.only('Flyer endpoints', () => {
               expect(res.body.events[0].country_name).to.eql(postBody.events[0].country_name)
               expect(res.body.events[0]).to.have.property('city_id')
               expect(res.body.events[0].city_id).to.eql(postBody.events[0].city_id)
+            })
+            .then(() => {
+              return supertest(app)
+                .get('/api/event')
+                .set({
+                  "Authorization": `Bearer ${authedCreator.token}`
+                })
+                .expect(200)
+                .expect(res => {
+                  expect(res.body.length).to.equal(postBody.events.length)
+                })
             })
         })
 
