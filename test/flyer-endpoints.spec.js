@@ -7,7 +7,7 @@ const { seed, truncate } = require('./seed-fixtures')
 // const chaiJsonPattern = require('chai-json-pattern');
 // chai.use(chaiJsonPattern);
 
-describe.only('Flyer endpoints', () => {
+describe('Flyer endpoints', () => {
   let db;
 
   before('create knex db instance', () => {
@@ -458,8 +458,8 @@ describe.only('Flyer endpoints', () => {
     })
 
     context('given there are errors in the post body', () => {
-
       const required = ["image_url", "headline", "flyer_type"] // missing "creator_id" throws auth error first
+
       required.forEach(field => {
         it(`responds with 400 and message if missing required field ${field}`, () => {
           const postBody = {
@@ -493,11 +493,67 @@ describe.only('Flyer endpoints', () => {
           .expect(400, { message: `events must be an array.` })
       })
 
-      context.skip('given the events field contains an event with errors', () => {
+      it('responds with 400 if listing_state is not authed enum type', () => {
+        const postBody = {
+          ...makeFlyer.postBody(),
+          creator_id: authedCreator.id,
+          listing_state: 'Banned'
+        }
+        return supertest(app)
+          .post(`/api/flyer`)
+          .set({
+            "Authorization": `Bearer ${authedCreator.token}`
+          })
+          .send(postBody)
+          .expect(400, { message: `Unauthorized listing control.` })
+      })
+
+      context.only('given the events field contains an event with errors', () => {
         it('responds with 201 but does not post an event if it has no values', () => {
+          const postBody = {
+            ...makeFlyer.postBody(),
+            creator_id: authedCreator.id,
+            events: [{}]
+          }
+          return supertest(app)
+            .post('/api/flyer')
+            .set({
+              "Authorization": `Bearer ${authedCreator.token}`
+            })
+            .send(postBody)
+            .expect(201)
+            .expect(res => {
+              expect(res.body.events).to.eql([])
+            })
         })
 
-        it('responds with 201 but does not post an event if its date field is not null and is not an actual date', () => {
+        context.skip('given it is a date related error', () => {
+          let pastDate = new Date()
+          pastDate = pastDate.setDate(pastDate.getDate() - 1)
+          pastDate = new Date(pastDate)
+          const dateFields = ["event_date"]
+          dateFields.forEach(field => {
+            it(`responds with 400 if ${field} is before current date`, () => {
+              const postBody = {
+                ...makeFlyer.postBody(),
+                creator_id: authedCreator.id,
+                events: [{ event_date: pastDate }]
+              }
+              return supertest(app)
+                .post('/api/flyer')
+                .set({
+                  "Authorization": `Bearer ${authedCreator.token}`
+                })
+                .send(postBody)
+                .expect(201)
+                .expect(res => {
+                  expect(res.body.events).to.eql([])
+                })
+            })
+          })
+        })
+
+        it('responds with 201 but does not post an event if its date field is not null and is a past date', () => {
         })
       })
 

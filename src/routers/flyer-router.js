@@ -42,6 +42,16 @@ flyerRouter
       }),
       check('events')
         .isArray().withMessage('events must be an array.'),
+      sanitizeBody('listing_state').customSanitizer(value => {
+        if (value && value.length > 0) {
+          let val = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+          return val.trim()
+        }
+        return 'Public'; //default on post only
+      }),
+      check('listing_state')
+        .isIn(['Draft', 'Private', 'Public', 'Archived'])
+        .withMessage('Unauthorized listing control.'),
       //tests written up to here
       check('flyer_type')
         .isIn(['Show', 'Fest', 'Tour'])
@@ -54,17 +64,7 @@ flyerRouter
         .withMessage(`details character limit is 666`),
       check('publish_comment')
         .isLength({ min: 0, max: 666 })
-        .withMessage(`publish comment character limit is 666`),
-      sanitizeBody('listing_state').customSanitizer(value => {
-        if (value && value.length > 0) {
-          let val = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
-          return val.trim()
-        }
-        return 'Public'; //default on post only
-      }),
-      check('listing_state')
-        .isIn(['Draft', 'Private', 'Public', 'Archived'])
-        .withMessage('Unauthorized listing control.')
+        .withMessage(`publish comment character limit is 666`)
 
     ],
     postFlyer
