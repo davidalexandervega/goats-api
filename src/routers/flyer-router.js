@@ -10,6 +10,13 @@ const bodyParser = express.json()
 const path = require('path')
 const { check, validationResult, body, sanitizeBody, sanitizeParam } = require('express-validator')
 
+// https://codeburst.io/javascript-async-await-with-foreach-b6ba62bbf404
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
+
 flyerRouter
   .route('/')
   .get(authUser.get, getAllFlyers)
@@ -29,7 +36,7 @@ flyerRouter
         .not().isEmpty().withMessage('flyer_type is required.'),
       sanitizeBody('events').customSanitizer(value => {
         if (!value) {
-          return []; //default
+          return []
         }
         return value
       }),
@@ -38,7 +45,7 @@ flyerRouter
       //tests written up to here
       check('flyer_type')
         .isIn(['Show', 'Fest', 'Tour'])
-        .withMessage('Event_type must be one of Show, Fest, or Tour.'),
+        .withMessage('flyer_type must be one of Show, Fest, or Tour.'),
       check('bands')
         .isLength({ min: 0, max: 666 })
         .withMessage(`bands character limit is 666`),
@@ -58,15 +65,7 @@ flyerRouter
       check('listing_state')
         .isIn(['Draft', 'Private', 'Public', 'Archived'])
         .withMessage('Unauthorized listing control.')
-      // sanitizeBody('start_date')
-      //   .toDate(),
-      // check('start_date')
-      //   .custom(value => {
-      //     if (value && check(value).isAfter()) {
-      //       return Promise.reject('Date cannot be past.')
-      //     }
-      //     return true
-      //   }),
+
     ],
     postFlyer
   )
@@ -75,6 +74,10 @@ flyerRouter
   .route('/:id')
   .all(checkExists)
   .get(getFlyer)
+  .delete(
+    authUser.deleteFlyer,
+    deleteFlyer
+  )
 
 function checkExists(req, res, next) {
   const knexI = req.app.get('db')
@@ -95,7 +98,6 @@ function checkExists(req, res, next) {
 }
 
 function getFlyer(req, res, next) {
-  //logger.info(`Successful GET /flyer/${res.flyer.id}`)
   res.json(FlyerUtils.sanitize(res.flyer))
 }
 
@@ -113,6 +115,7 @@ function getAllFlyers(req, res, next) {
 function postFlyer(req, res, next) {
   const validErrors = validationResult(req)
   if (!validErrors.isEmpty()) {
+    logger.error(`1 of ${validErrors.errors.length} ${validErrors.errors[0].msg}`)
     return res.status(400).json({ message: validErrors.errors[0].msg })
   }
 
@@ -124,19 +127,10 @@ function postFlyer(req, res, next) {
     .insertFlyer(knexI, flyer)
     .then(async flyerRes => {
       let eventsRes = []
-      // let addFlyerIdEvents = events && typeof events == "Array"
-      //   ? events
-      //   : []
+
       const eventsWithFlyerId = events.map(event => {
         return { flyer_id: flyerRes.id, ...event }
       })
-
-      // https://codeburst.io/javascript-async-await-with-foreach-b6ba62bbf404
-      async function asyncForEach(array, callback) {
-        for (let index = 0; index < array.length; index++) {
-          await callback(array[index], index, array);
-        }
-      }
 
       let newFlyerWithEventsRes = await asyncForEach(eventsWithFlyerId, async (event) => {
         await EventService
@@ -160,5 +154,17 @@ function postFlyer(req, res, next) {
     .catch(next)
 }
 
+function deleteFlyer(req, res, next) {
+  const knexI = req.app.get('db')
+  const id = res.flyer.id
+
+  FlyerService
+    .deleteFlyer(knexI, id)
+    .then(numOfRowsAffected => {
+      res.status(204).end()
+    })
+    .catch(next)
+
+}
 
 module.exports = flyerRouter

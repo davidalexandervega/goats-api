@@ -22,6 +22,13 @@ const FlyerService = {
       .from('flyer')
       .where('id', id)
       .first()
+  },
+
+  deleteFlyer(knex, id) {
+    return knex
+      .where('id', id)
+      .from('flyer')
+      .delete()
   }
 
 }

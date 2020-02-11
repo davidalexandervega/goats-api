@@ -26,6 +26,13 @@ const EventService = {
       .from('event')
       .where('id', id)
       .first()
+  },
+
+  deleteEvent(knex, id) {
+    return knex
+      .where('id', id)
+      .from('event')
+      .delete()
   }
 
 }

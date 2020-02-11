@@ -205,7 +205,7 @@ describe.only('Flyer endpoints', () => {
       it('responds with 401', () => {
         return supertest(app)
           .get(`/api/flyer`)
-          .expect(401, { message: 'Unauthorized' })
+          .expect(401, { message: 'Unauthorized.' })
       })
     })
 
@@ -297,7 +297,7 @@ describe.only('Flyer endpoints', () => {
   })
 
 
-  describe.only('POST /api/flyer endpoint', () => {
+  describe('POST /api/flyer endpoint', () => {
     beforeEach('signin authed creator', () => {
       const signInBody = makeUser.signinGood2()
       return supertest(app)
@@ -505,6 +505,112 @@ describe.only('Flyer endpoints', () => {
     })
   })
 
+  describe('DELETE /api/flyer/:id endpoint', () => {
+    beforeEach('signin authed creator', () => {
+      const signInBody = makeUser.signinGood2()
+      return supertest(app)
+        .post('/api/auth/signin')
+        .send(signInBody)
+        .then(res => {
+          authedCreator = res.body
+        })
+    })
+
+    context('given the flyer exists', () => {
+      let deleteId
+
+      beforeEach('creator post flyer', () => {
+        const postBody = {
+          ...makeFlyer.postBody(),
+          creator_id: authedCreator.id
+        }
+        return supertest(app)
+          .post('/api/flyer')
+          .set({
+            "Authorization": `Bearer ${authedCreator.token}`
+          })
+          .send(postBody)
+          .expect(201)
+          .then(res => {
+            deleteId = res.body.id
+            return supertest(app)
+              .get(`/api/flyer`)
+              .set({
+                "Authorization": `Bearer ${authedCreator.token}`
+              })
+              .then(res => {
+                expect(res.body.length).to.eql(1)
+                return supertest(app)
+                  .get(`/api/event`)
+                  .set({
+                    "Authorization": `Bearer ${authedCreator.token}`
+                  })
+                  .expect(res => {
+                    expect(res.body.length).to.equal(2)
+                  })
+              })
+          })
+      })
+
+      context('given the token user id matches the creator_id', () => {
+        it('responds with 204 and removes records of both flyer and related events', () => {
+           return supertest(app)
+            .delete(`/api/flyer/${deleteId}`)
+            .set({
+              "Authorization": `Bearer ${authedCreator.token}`
+            })
+            .expect(204)
+            .then(() => {
+              return supertest(app)
+                .get(`/api/flyer`)
+                .set({
+                  "Authorization": `Bearer ${authedCreator.token}`
+                })
+                .then(res => {
+                  expect(res.body.length).to.eql(0)
+                  return supertest(app)
+                    .get(`/api/event`)
+                    .set({
+                      "Authorization": `Bearer ${authedCreator.token}`
+                    })
+                    .expect(res => {
+                      expect(res.body.length).to.equal(0)
+                    })
+                })
+            })
+        })
+      })
+
+      context('given the token user is not the creator', () => {
+        beforeEach('signin authed user', () => {
+          const signInBody = makeUser.signinGood()
+          return supertest(app)
+            .post('/api/auth/signin')
+            .send(signInBody)
+            .then(res => {
+              authedUser = res.body
+            })
+        })
+        it('responds with 401', () => {
+          return supertest(app)
+            .delete(`/api/flyer/${deleteId}`)
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(401, { message: 'Unauthorized.'})
+            .then(() => {
+              return supertest(app)
+                .get('/api/flyer')
+                .set({
+                  "Authorization": `Bearer ${authedUser.token}`
+                })
+                .expect(res => expect(res.body.length).to.equal(1))
+            })
+        })
+      })
+
+    })
+  })
 
   describe.skip('PATCH /api/flyer/:id endpoint', () => {
       // let authedCreator;

@@ -7,7 +7,7 @@ function post(req, res, next) {
   const { token } = req.user
   if (!token) {
     logger.error(`Not authorized!`)
-    return res.status(401).json({ message: `Must be authorized to post.`})
+    return res.status(401).json({ message: `Unauthorized.`})
   }
 
   UserService.getByToken(knexI, token)
@@ -17,7 +17,7 @@ function post(req, res, next) {
         return next()
       }
       logger.error(`Not authorized!`)
-      return res.status(401).json({ message: `Must be authorized to post.`})
+      return res.status(401).json({ message: `Unauthorized.`})
     })
     .catch(next)
 }
@@ -27,7 +27,7 @@ function get(req, res, next) {
   const { token } = req.user
   if (!token) {
     logger.error(`Not authorized, no token`)
-    return res.status(401).json({ message: `Unauthorized` })
+    return res.status(401).json({ message: `Unauthorized.` })
   }
 
   UserService.getByToken(knexI, token)
@@ -42,5 +42,26 @@ function get(req, res, next) {
     .catch(next)
 }
 
-module.exports = { post, get }
+function deleteFlyer(req, res, next) {
+  const knexI = req.app.get('db')
+  const creator_id = res.flyer.creator_id
+  const { token } = req.user
+  if (!token) {
+    logger.error(`Not authorized!`)
+    return res.status(401).json({ message: `Unauthorized.` })
+  }
+
+  UserService.getByToken(knexI, token)
+    .then(user => {
+      if (user.id === creator_id) {
+        req.user = user
+        return next()
+      }
+      logger.error(`Not authorized!`)
+      return res.status(401).json({ message: `Unauthorized.` })
+    })
+    .catch(next)
+}
+
+module.exports = { post, get, deleteFlyer }
 
