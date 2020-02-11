@@ -3,7 +3,7 @@ const knex = require('knex')
 const {  makeFlyer, makeFlyers } = require('./flyer-fixtures')
 const { makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
-const dateString = require('chai-date-string')
+// const dateString = require('chai-date-string')
 // const chaiJsonPattern = require('chai-json-pattern');
 // chai.use(chaiJsonPattern);
 
@@ -51,27 +51,6 @@ describe.only('Flyer endpoints', () => {
         authedCreator = res.body
       })
   })
-
-  //   beforeEach('signin authed user', () => {
-  //     const signInBody = makeUser.signinGood()
-  //     return supertest(app)
-  //       .post('/api/auth/signin')
-  //       .send(signInBody)
-  //       .then(res => {
-  //         authedUser = res.body
-  //       })
-  //   })
-
-  // beforeEach('signin authed creator', () => {
-  //   const signInBody = makeUser.signinGood2()
-  //   return supertest(app)
-  //     .post('/api/auth/signin')
-  //     .send(signInBody)
-  //     .then(async res => {
-  //        authedCreator = await res.body
-  //        return authedCreator
-  //     })
-  // })
 
   beforeEach('clears flyer and child tables', () => {
     return db.raw(truncate.flyerChildren())
@@ -211,7 +190,6 @@ describe.only('Flyer endpoints', () => {
 
   })
 
-
   describe('GET /api/flyer/:id endpoint', () => {
     beforeEach('signin authed user', () => {
       const signInBody = makeUser.signinGood()
@@ -295,7 +273,6 @@ describe.only('Flyer endpoints', () => {
     })
 
   })
-
 
   describe('POST /api/flyer endpoint', () => {
     beforeEach('signin authed creator', () => {
