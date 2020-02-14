@@ -13,12 +13,12 @@ const formData = require('express-form-data')
 
 const app = express()
 const morganOption = NODE_ENV === 'production' ? 'tiny' : 'dev'
-const corsOption = {
-  origin: true,
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  exposedHeaders: ['x-auth-token']
-}
+// const { CLIENT_ORIGIN } = require('./config');
+// app.use(
+//   cors({
+//     origin: CLIENT_ORIGIN
+//   })
+// );
 const {
   flyerRouter,
   eventRouter,
@@ -37,7 +37,7 @@ cloudinary.config({
 
 app.use(morgan(morganOption))
 app.use(helmet())
-app.use(cors(corsOption))
+app.use(cors())
 
 app.use(bodyParser.urlencoded({
   extended: false
