@@ -493,7 +493,58 @@ const seed = {
           'QC',
           'Canada',
           null
+        ),
+        (
+          '50862d34-885d-48cb-8ad0-6b4da488135f',
+          '6932cad2-48f1-11ea-b77f-2e728ce88125',
+          '2020-09-03T00:00:00.000Z',
+          'Pumpehuset',
+          'Copenhagen',
+          null,
+          'Denmark',
+          null
+        ),
+        (
+          'bf9f0bf4-b941-4b3e-9616-31ce71d69c6c',
+          '6932cad2-48f1-11ea-b77f-2e728ce88125',
+          '2020-09-04T00:00:00.000Z',
+          'Pumpehuset',
+          'Copenhagen',
+          null,
+          'Denmark',
+          null
+        ),
+        (
+          '37cbaad3-c23b-4492-8ad3-2e87ba19fd49',
+          '6932cad2-48f1-11ea-b77f-2e728ce88125',
+          '2020-09-05T00:00:00.000Z',
+          'Pumpehuset',
+          'Copenhagen',
+          null,
+          'Denmark',
+          null
+        ),
+        (
+          '1242df4b-e6b1-4a45-b052-49f70bd2194f',
+          '6932cad2-48f1-11ea-b77f-2e728ce88125',
+          '2020-09-06T00:00:00.000Z',
+          'Pumpehuset',
+          'Copenhagen',
+          null,
+          'Denmark',
+          null
+        ),
+        (
+          '81eb96ce-de51-4903-b15c-68be6a72fbf9',
+          '1c7ca37e-48f2-11ea-b77f-2e728ce88125',
+          '2020-04-16T00:00:00.000Z',
+          'MASTER''S CHAMBERS',
+          'Phoenix',
+          'AZ',
+          'United States',
+          null
         )
+        ;
     `
   }
 
