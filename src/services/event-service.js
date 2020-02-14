@@ -12,6 +12,28 @@ const EventService = {
       .where('flyer_id', flyerId)
   },
 
+  selectEventRegions(knex) {
+    return knex
+      .select('country_name', 'region_name')
+      .count('region_name as per_region')
+      .from('event')
+      .whereNot('country_name', null)
+      .andWhereNot('region_name', null)
+      .groupBy('country_name', 'region_name')
+      .orderBy('country_name', 'region_name')
+
+  },
+
+  selectEventCountries(knex) {
+    return knex
+      .select('country_name')
+      .count('country_name as per_country')
+      .from('event')
+      .whereNot('country_name', null)
+      .groupBy('country_name')
+      .orderBy('country_name')
+  },
+
   insertEvent(knex, postBody) {
     return knex
       .insert(postBody)

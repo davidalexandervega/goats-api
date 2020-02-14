@@ -508,7 +508,7 @@ describe('Flyer endpoints', () => {
           .expect(400, { message: `Unauthorized listing control.` })
       })
 
-      context.only('given the events field contains an event with errors', () => {
+      context.skip('given the events field contains an event with errors', () => {
         it('responds with 201 but does not post an event if it has no values', () => {
           const postBody = {
             ...makeFlyer.postBody(),

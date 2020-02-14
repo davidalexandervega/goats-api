@@ -8,13 +8,17 @@ const authUser = require('../mws/auth-user')
 
 
 eventRouter
-  .route('/')
+  .route('/event')
   .get(authUser.get, getAllEvents)
 
 eventRouter
-  .route('/:id')
+  .route('/event/:id')
   .all(checkExists)
   .get(authUser.get, getEvent)
+
+eventRouter
+  .route('/country-region-hash')
+  .get(authUser.get, getCountryRegionHashes)
 
 
 function checkExists(req, res, next) {
@@ -48,6 +52,31 @@ function getAllEvents(req, res, next) {
       logger.info(`Successful GET /event`)
       const sanitized = events.map(event => EventUtils.sanitize(event))
       res.json(sanitized)
+    })
+    .catch(next)
+}
+
+function getCountryRegionHashes(req, res, next) {
+  const knexI = req.app.get('db')
+  EventService
+    .selectEventCountries(knexI)
+    .then(countries => {
+
+      EventService
+        .selectEventRegions(knexI)
+        .then(regions => {
+          let response = countries.map(country => {
+            return {
+              country_name: country.country_name,
+              per_country: country.per_country,
+              regions: regions.filter(region => region.country_name === country.country_name).sort((a,b) => {
+                return (a.region_name > b.region_name) ? 1 : -1
+              })
+            }
+          })
+          return res.json(response)
+        })
+        .catch(next)
     })
     .catch(next)
 }
