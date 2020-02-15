@@ -68,7 +68,7 @@ describe('Flyer endpoints', () => {
     return db.destroy()
   })
 
-  describe('GET /api/flyer endpoint', () => {
+  describe.only('GET /api/flyer endpoint', () => {
     beforeEach('signin authed user', () => {
       const signInBody = makeUser.signinGood()
       return supertest(app)
@@ -121,6 +121,8 @@ describe('Flyer endpoints', () => {
               expect(res.body[0]).to.have.property('listing_state')
               expect(res.body[0]).to.have.property('created')
               expect(res.body[0]).to.have.property('modified')
+              expect(res.body[0]).to.have.property('creator_username')
+              expect(res.body[0]).to.have.property('creator_image_url')
               expect(res.body).to.deep.equal(expected)
             })
         })

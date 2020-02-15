@@ -6,6 +6,23 @@ const FlyerService = {
     .select('flyer.*')
     .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
     .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+    .orderBy('flyer.modified', 'desc')
+  },
+
+  selectPaginatedFlyers(knex, limit, offset) {
+    return knex
+      .from('flyer')
+      .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
+      .select(
+        'flyer.*',
+        'app_user.username as creator_username',
+        'app_user.image_url as creator_image_url'
+      )
+      .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
+      .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+      .orderBy('flyer.modified', 'desc')
+      .limit(limit)
+      .offset(offset)
   },
 
   insertFlyer(knex, postBody) {

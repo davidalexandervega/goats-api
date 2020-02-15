@@ -12,7 +12,10 @@ const sanitize = (flyer) => {
     publish_comment: xss(flyer.publish_comment),
     listing_state: flyer.listing_state,
     created: flyer.created,
-    modified: flyer.modified
+    modified: flyer.modified,
+    //
+    creator_image_url: flyer.creator_image_url,
+    creator_username: flyer.creator_username
   }
 }
 

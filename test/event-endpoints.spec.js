@@ -108,7 +108,7 @@ describe('Event endpoints', () => {
     })
   })
 
-  describe.only('GET /api/country-region-hash endpoint', () => {
+  describe('GET /api/country-region-hash endpoint', () => {
     context('given the request token is invalid', () => {
       it('responds with 401', () => {
         return supertest(app)

@@ -14,24 +14,34 @@ const EventService = {
 
   selectEventRegions(knex) {
     return knex
-      .select('country_name', 'region_name')
-      .count('region_name as per_region')
+      .join('flyer', 'event.flyer_id', '=', 'flyer.id')
+      .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
+      .select('event.country_name', 'event.region_name')
+      .count('event.region_name as per_region')
       .from('event')
-      .whereNot('country_name', null)
-      .andWhereNot('region_name', null)
-      .groupBy('country_name', 'region_name')
-      .orderBy('country_name', 'region_name')
-
+      .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
+      .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+      .andWhereNot('event.country_name', null)
+      .andWhereNot('event.country_name', '')
+      .andWhereNot('event.region_name', null)
+      .andWhereNot('event.region_name', '')
+      .groupBy('event.country_name', 'event.region_name')
+      .orderBy('event.country_name', 'event.region_name')
   },
 
   selectEventCountries(knex) {
     return knex
-      .select('country_name')
-      .count('country_name as per_country')
+      .join('flyer', 'event.flyer_id', '=', 'flyer.id')
+      .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
+      .select('event.country_name')
+      .count('event.country_name as per_country')
       .from('event')
-      .whereNot('country_name', null)
-      .groupBy('country_name')
-      .orderBy('country_name')
+      .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
+      .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+      .whereNot('event.country_name', null)
+      .andWhereNot('event.country_name', '')
+      .groupBy('event.country_name')
+      .orderBy('event.country_name')
   },
 
   insertEvent(knex, postBody) {

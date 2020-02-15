@@ -19,7 +19,7 @@ async function asyncForEach(array, callback) {
 
 flyerRouter
   .route('/')
-  .get(authUser.get, getAllFlyers)
+  .get(authUser.get, getPaginatedFlyers)
   .post(
     bodyParser,
     authUser.post,
@@ -109,6 +109,20 @@ function getAllFlyers(req, res, next) {
       res.json(sanitized)
     })
     .catch(next)
+}
+
+function getPaginatedFlyers(req, res, next) {
+  const knexI = req.app.get('db')
+  const { limit, offset } = req.params
+
+  FlyerService
+    .selectPaginatedFlyers(knexI, limit, offset)
+    .then(flyers => {
+      const sanitized = flyers.map(flyer => FlyerUtils.sanitize(flyer))
+      res.json(sanitized)
+    })
+    .catch(next)
+
 }
 
 function postFlyer(req, res, next) {
