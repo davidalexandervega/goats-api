@@ -4,7 +4,7 @@ const {  makeFlyer, makeFlyers } = require('./flyer-fixtures')
 const { makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
 
-describe.only('Flyer endpoints', () => {
+describe('Flyer endpoints', () => {
   let db;
 
   before('create knex db instance', () => {
