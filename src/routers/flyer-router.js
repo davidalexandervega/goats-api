@@ -113,16 +113,24 @@ function getAllFlyers(req, res, next) {
 
 function getPaginatedFlyers(req, res, next) {
   const knexI = req.app.get('db')
-  const { limit, offset } = req.params
+  const { limit, offset } = req.query
 
   FlyerService
-    .selectPaginatedFlyers(knexI, limit, offset)
-    .then(flyers => {
-      const sanitized = flyers.map(flyer => FlyerUtils.sanitize(flyer))
-      res.json(sanitized)
+    .getTotal(knexI)
+    .then(count => {
+      return FlyerService
+        .selectPaginatedFlyers(knexI, limit, offset)
+        .then(flyers => {
+          const sanitized = flyers.map(flyer => FlyerUtils.sanitize(flyer))
+          return res.json({
+            flyers: sanitized,
+            total: count[0].count
+          })
+        })
+        .catch(next)
+
     })
     .catch(next)
-
 }
 
 function postFlyer(req, res, next) {

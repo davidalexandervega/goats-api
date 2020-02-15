@@ -3,11 +3,8 @@ const knex = require('knex')
 const {  makeFlyer, makeFlyers } = require('./flyer-fixtures')
 const { makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
-// const dateString = require('chai-date-string')
-// const chaiJsonPattern = require('chai-json-pattern');
-// chai.use(chaiJsonPattern);
 
-describe('Flyer endpoints', () => {
+describe.only('Flyer endpoints', () => {
   let db;
 
   before('create knex db instance', () => {
@@ -68,7 +65,7 @@ describe('Flyer endpoints', () => {
     return db.destroy()
   })
 
-  describe.only('GET /api/flyer endpoint', () => {
+  describe('GET /api/flyer endpoint', () => {
     beforeEach('signin authed user', () => {
       const signInBody = makeUser.signinGood()
       return supertest(app)
@@ -86,7 +83,7 @@ describe('Flyer endpoints', () => {
           .set({
             "Authorization": `Bearer ${authedUser.token}`
           })
-          .expect(200, [])
+          .expect(200, { flyers: [], total: "0" })
       })
     })
 
@@ -108,22 +105,26 @@ describe('Flyer endpoints', () => {
             })
             .expect(200)
             .expect(res => {
-              assert.isArray(res.body)
-              expect(res.body.length).to.equal(4)
-              expect(res.body[0]).to.have.property('id')
-              expect(res.body[0]).to.have.property('creator_id')
-              expect(res.body[0]).to.have.property('flyer_type')
-              expect(res.body[0]).to.have.property('image_url')
-              expect(res.body[0]).to.have.property('headline')
-              expect(res.body[0]).to.have.property('bands')
-              expect(res.body[0]).to.have.property('details')
-              expect(res.body[0]).to.have.property('publish_comment')
-              expect(res.body[0]).to.have.property('listing_state')
-              expect(res.body[0]).to.have.property('created')
-              expect(res.body[0]).to.have.property('modified')
-              expect(res.body[0]).to.have.property('creator_username')
-              expect(res.body[0]).to.have.property('creator_image_url')
-              expect(res.body).to.deep.equal(expected)
+              assert.isObject(res.body)
+              expect(res.body).to.have.property('flyers')
+              assert.isArray(res.body.flyers)
+              expect(res.body.flyers.length).to.equal(4)
+              expect(res.body).to.have.property('total')
+              expect(res.body.total).to.equal('4')
+              expect(res.body.flyers[0]).to.have.property('id')
+              expect(res.body.flyers[0]).to.have.property('creator_id')
+              expect(res.body.flyers[0]).to.have.property('flyer_type')
+              expect(res.body.flyers[0]).to.have.property('image_url')
+              expect(res.body.flyers[0]).to.have.property('headline')
+              expect(res.body.flyers[0]).to.have.property('bands')
+              expect(res.body.flyers[0]).to.have.property('details')
+              expect(res.body.flyers[0]).to.have.property('publish_comment')
+              expect(res.body.flyers[0]).to.have.property('listing_state')
+              expect(res.body.flyers[0]).to.have.property('created')
+              expect(res.body.flyers[0]).to.have.property('modified')
+              expect(res.body.flyers[0]).to.have.property('creator_username')
+              expect(res.body.flyers[0]).to.have.property('creator_image_url')
+              expect(res.body.flyers).to.deep.equal(expected)
             })
         })
 
@@ -146,9 +147,11 @@ describe('Flyer endpoints', () => {
             })
             .expect(200)
             .expect(res => {
-              assert.isArray(res.body)
-              expect(res.body.length).to.equal(4)
-              expect(res.body).to.deep.equal(expected)
+              assert.isObject(res.body)
+              assert.isArray(res.body.flyers)
+              expect(res.body.flyers.length).to.equal(4)
+              expect(res.body.total).to.equal('4')
+              expect(res.body.flyers).to.deep.equal(expected)
             })
         })
       })
@@ -171,13 +174,15 @@ describe('Flyer endpoints', () => {
           })
           .expect(200)
           .expect(res => {
-            assert.isArray(res.body)
-            expect(res.body.length).to.equal(1)
-            expect(res.body[0].headline).to.eql(expected.headline)
-            expect(res.body[0].image_url).to.eql(expected.image_url)
-            expect(res.body[0].bands).to.eql(expected.bands)
-            expect(res.body[0].details).to.eql(expected.details)
-            expect(res.body[0].publish_comment).to.eql(expected.publish_comment)
+            assert.isObject(res.body)
+            assert.isArray(res.body.flyers)
+            expect(res.body.flyers.length).to.equal(1)
+            expect(res.body.total).to.equal('1')
+            expect(res.body.flyers[0].headline).to.eql(expected.headline)
+            expect(res.body.flyers[0].image_url).to.eql(expected.image_url)
+            expect(res.body.flyers[0].bands).to.eql(expected.bands)
+            expect(res.body.flyers[0].details).to.eql(expected.details)
+            expect(res.body.flyers[0].publish_comment).to.eql(expected.publish_comment)
           })
       })
     })
@@ -229,6 +234,8 @@ describe('Flyer endpoints', () => {
               expect(res.body).to.have.property('listing_state')
               expect(res.body).to.have.property('created')
               expect(res.body).to.have.property('modified')
+              expect(res.body).to.have.property('creator_username')
+              expect(res.body).to.have.property('creator_image_url')
               expect(res.body).to.deep.eql(expectedFlyer)
             })
         })
@@ -302,6 +309,7 @@ describe('Flyer endpoints', () => {
             .expect(201)
             .expect(res => {
               assert.isObject(res.body)
+              console.log(res.body)
               expect(res.headers.location).to.eql(`/api/flyer/${res.body.id}`)
               expect(res.body).to.have.property('id')
               expect(res.body.id).to.be.a.uuid()
@@ -327,6 +335,10 @@ describe('Flyer endpoints', () => {
               expect(res.body).to.have.property('modified')
               expect(new Date(res.body.modified).toLocaleString()).to.eql(expectedCreated)
               expect(res.body).to.have.property('events')
+              expect(res.body).to.have.property('creator_username')
+              expect(res.body.creator_username).to.eql(authedCreator.username)
+              expect(res.body).to.have.property('creator_image_url')
+              expect(res.body.creator_image_url).to.eql(authedCreator.image_url)
               assert.isArray(res.body.events)
             })
             .then(() => {
@@ -337,7 +349,7 @@ describe('Flyer endpoints', () => {
                 })
                 .expect(200)
                 .expect(res => {
-                  expect(res.body.length).to.equal(1)
+                  expect(res.body.flyers.length).to.equal(1)
                 })
             })
       })
@@ -596,7 +608,7 @@ describe('Flyer endpoints', () => {
                 "Authorization": `Bearer ${authedCreator.token}`
               })
               .then(res => {
-                expect(res.body.length).to.eql(1)
+                expect(res.body.flyers.length).to.eql(1)
                 return supertest(app)
                   .get(`/api/event`)
                   .set({
@@ -624,7 +636,7 @@ describe('Flyer endpoints', () => {
                   "Authorization": `Bearer ${authedCreator.token}`
                 })
                 .then(res => {
-                  expect(res.body.length).to.eql(0)
+                  expect(res.body.flyers.length).to.eql(0)
                   return supertest(app)
                     .get(`/api/event`)
                     .set({
@@ -661,7 +673,7 @@ describe('Flyer endpoints', () => {
                 .set({
                   "Authorization": `Bearer ${authedUser.token}`
                 })
-                .expect(res => expect(res.body.length).to.equal(1))
+                .expect(res => expect(res.body.flyers.length).to.equal(1))
             })
         })
       })

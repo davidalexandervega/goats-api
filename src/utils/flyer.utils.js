@@ -14,7 +14,7 @@ const sanitize = (flyer) => {
     created: flyer.created,
     modified: flyer.modified,
     //
-    creator_image_url: flyer.creator_image_url,
+    creator_image_url: xss(flyer.creator_image_url),
     creator_username: flyer.creator_username
   }
 }
