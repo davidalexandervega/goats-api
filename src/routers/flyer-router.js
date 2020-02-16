@@ -2,8 +2,10 @@ const express = require('express')
 const flyerRouter = express.Router()
 const FlyerService = require('../services/flyer-service')
 const EventService = require('../services/event-service')
+const UserService = require('../services/user-service')
 const FlyerUtils = require('../utils/flyer.utils')
 const EventUtils = require('../utils/event.utils')
+const UserUtils = require('../utils/user.utils')
 const logger = require('../utils/logger.utils')
 const authUser = require('../mws/auth-user')
 const bodyParser = express.json()
@@ -19,7 +21,7 @@ async function asyncForEach(array, callback) {
 
 flyerRouter
   .route('/')
-  .get(authUser.get, getPaginatedFlyers)
+  .get(authUser.get, getFlyers)
   .post(
     bodyParser,
     authUser.post,
@@ -111,24 +113,65 @@ function getAllFlyers(req, res, next) {
     .catch(next)
 }
 
-function getPaginatedFlyers(req, res, next) {
+function getFlyers(req, res, next) {
   const knexI = req.app.get('db')
-  const { limit, offset } = req.query
+  const { limit, offset, creator } = req.query
+
+  if (creator) {
+    return UserService
+      .getById(knexI, creator)
+      .then(user => {
+        FlyerService
+          .selectUserFlyers(knexI, creator)
+          .then(userFlyers => {
+            EventService
+              .selectEventsByUserId(knexI, user.id)
+              .then(usersFlyersEvents => {
+                return res.json({
+                  flyers: userFlyers.map(flyer => {
+                    const cleanFlyer = FlyerUtils.sanitize(flyer)
+                    const flyerEvents = usersFlyersEvents.filter(event => event.flyer_id === cleanFlyer.id )
+                    return {
+                      ...cleanFlyer,
+                      events: flyerEvents.map(event => EventUtils.sanitize(event))
+                    }
+                  }),
+                  creator: UserUtils.sanitize(user),
+                })
+              })
+              .catch(next)
+          })
+          .catch(next)
+
+      })
+  }
 
   FlyerService
     .getTotal(knexI)
     .then(count => {
       return FlyerService
         .selectPaginatedFlyers(knexI, limit, offset)
-        .then(flyers => {
-          const sanitized = flyers.map(flyer => FlyerUtils.sanitize(flyer))
+        .then(async flyers => {
+          const flyerRes = []
+          await asyncForEach(flyers, async (flyer) => {
+             await EventService
+               .selectFlyerEvents(knexI, flyer.id)
+               .then(flyerEvents => {
+                 const cleanFlyer = FlyerUtils.sanitize(flyer)
+                 flyerRes.push({
+                   ...cleanFlyer,
+                   events: flyerEvents.map(event => EventUtils.sanitize(event))
+                 })
+               })
+               .catch(next)
+          })
+
           return res.json({
-            flyers: sanitized,
-            total: count[0].count
+            flyers: flyerRes,
+            total: count[0].count,
           })
         })
         .catch(next)
-
     })
     .catch(next)
 }

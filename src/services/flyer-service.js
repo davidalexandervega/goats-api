@@ -25,6 +25,20 @@ const FlyerService = {
       .offset(offset)
   },
 
+  selectUserFlyers(knex, creatorId) {
+    return knex
+      .select(
+        'flyer.*',
+        'app_user.username as creator_username',
+        'app_user.image_url as creator_image_url'
+      )
+      .from('flyer')
+      .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
+      .where('flyer.creator_id', creatorId)
+      .whereNotIn('flyer.listing_state', ['Archived', 'Banned'])
+      .orderBy('flyer.modified', 'desc')
+  },
+
   getTotal(knex) {
     return knex
       .count('flyer.id')

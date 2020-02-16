@@ -8,8 +8,19 @@ const EventService = {
   selectFlyerEvents(knex, flyerId) {
     return knex
       .select('*')
-      .from(event)
+      .from('event')
       .where('flyer_id', flyerId)
+  },
+
+  selectEventsByUserId(knex, userId) {
+    return knex
+      .select('event.*')
+      .from('event')
+      .join('flyer', 'event.flyer_id', '=', 'flyer.id')
+      .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
+      .whereNotIn('flyer.listing_state', ['Archived', 'Banned'])
+      .whereNotIn('app_user.user_state', ['Archived', 'Banned'])
+      .where('app_user.id', userId)
   },
 
   selectEventRegions(knex) {
