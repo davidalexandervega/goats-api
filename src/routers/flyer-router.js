@@ -117,11 +117,15 @@ function getFlyers(req, res, next) {
   const knexI = req.app.get('db')
   const { limit, offset, creator } = req.query
 
+
   if (creator) {
     return UserService
       .getById(knexI, creator)
       .then(user => {
-        FlyerService
+        if (!user) {
+          throw Error('User does not exist')
+        }
+        return FlyerService
           .selectUserFlyers(knexI, creator)
           .then(userFlyers => {
             EventService
@@ -142,38 +146,39 @@ function getFlyers(req, res, next) {
               .catch(next)
           })
           .catch(next)
-
       })
+      .catch(err => res.status(404).json({ message: err.message }))
+  } else {
+    FlyerService
+      .getTotal(knexI)
+      .then(count => {
+        return FlyerService
+          .selectPaginatedFlyers(knexI, limit, offset)
+          .then(async flyers => {
+            const flyerRes = []
+            await asyncForEach(flyers, async (flyer) => {
+               await EventService
+                 .selectFlyerEvents(knexI, flyer.id)
+                 .then(flyerEvents => {
+                   const cleanFlyer = FlyerUtils.sanitize(flyer)
+                   flyerRes.push({
+                     ...cleanFlyer,
+                     events: flyerEvents.map(event => EventUtils.sanitize(event))
+                   })
+                 })
+                 .catch(next)
+            })
+
+            return res.json({
+              flyers: flyerRes,
+              total: count[0].count,
+            })
+          })
+          .catch(next)
+      })
+      .catch(next)
   }
 
-  FlyerService
-    .getTotal(knexI)
-    .then(count => {
-      return FlyerService
-        .selectPaginatedFlyers(knexI, limit, offset)
-        .then(async flyers => {
-          const flyerRes = []
-          await asyncForEach(flyers, async (flyer) => {
-             await EventService
-               .selectFlyerEvents(knexI, flyer.id)
-               .then(flyerEvents => {
-                 const cleanFlyer = FlyerUtils.sanitize(flyer)
-                 flyerRes.push({
-                   ...cleanFlyer,
-                   events: flyerEvents.map(event => EventUtils.sanitize(event))
-                 })
-               })
-               .catch(next)
-          })
-
-          return res.json({
-            flyers: flyerRes,
-            total: count[0].count,
-          })
-        })
-        .catch(next)
-    })
-    .catch(next)
 }
 
 function postFlyer(req, res, next) {
