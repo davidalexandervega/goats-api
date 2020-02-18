@@ -34,8 +34,8 @@ const FlyerService = {
         'app_user.image_url as creator_image_url'
       )
       .from('flyer')
+      .leftOuterJoin('event', 'flyer.id', '=', 'event.flyer_id')
       .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
-      .leftJoin('event', 'flyer.id', '=', 'event.flyer_id')
       .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
       .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
 
