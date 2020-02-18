@@ -115,8 +115,7 @@ function getAllFlyers(req, res, next) {
 
 function getFlyers(req, res, next) {
   const knexI = req.app.get('db')
-  const { limit, offset, creator } = req.query
-
+  const { limit, offset, creator, country, region } = req.query
 
   if (creator) {
     return UserService
@@ -151,7 +150,66 @@ function getFlyers(req, res, next) {
         logger.error(err.message)
         return res.status(404).json({ message: err.message })
       })
-  } else {
+
+  } else if (Boolean(region)) {
+    FlyerService
+      .getTotal(knexI)
+      .then(count => {
+        return FlyerService
+          .selectByRegion(knexI, limit, offset, region)
+          .then(async flyers => {
+            const flyerRes = []
+            await asyncForEach(flyers, async (flyer) => {
+              await EventService
+                .selectFlyerEvents(knexI, flyer.id)
+                .then(flyerEvents => {
+                  const cleanFlyer = FlyerUtils.sanitize(flyer)
+                  flyerRes.push({
+                    ...cleanFlyer,
+                    events: flyerEvents.map(event => EventUtils.sanitize(event))
+                  })
+                })
+                .catch(next)
+            })
+            return res.json({
+              flyers: flyerRes,
+              total: count[0].count,
+            })
+          })
+          .catch(next)
+      })
+      .catch(next)
+
+  } else if (Boolean(country)) {
+    FlyerService
+      .getTotal(knexI)
+      .then(count => {
+        return FlyerService
+          .selectByCountry(knexI, limit, offset, country)
+          .then(async flyers => {
+            const flyerRes = []
+            await asyncForEach(flyers, async (flyer) => {
+              await EventService
+                .selectFlyerEvents(knexI, flyer.id)
+                .then(flyerEvents => {
+                  const cleanFlyer = FlyerUtils.sanitize(flyer)
+                  flyerRes.push({
+                    ...cleanFlyer,
+                    events: flyerEvents.map(event => EventUtils.sanitize(event))
+                  })
+                })
+                .catch(next)
+            })
+            return res.json({
+              flyers: flyerRes,
+              total: count[0].count,
+            })
+          })
+          .catch(next)
+      })
+      .catch(next)
+
+    } else {
     FlyerService
       .getTotal(knexI)
       .then(count => {

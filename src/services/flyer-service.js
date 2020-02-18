@@ -20,6 +20,54 @@ const FlyerService = {
       .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
       .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
       .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+
+      .orderBy('flyer.modified', 'desc')
+      .limit(limit)
+      .offset(offset)
+  },
+
+  selectByRegion(knex, limit, offset, region) {
+    return knex
+      .select(
+        'flyer.*',
+        'app_user.username as creator_username',
+        'app_user.image_url as creator_image_url'
+      )
+      .from('flyer')
+      .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
+      .leftJoin('event', 'flyer.id', '=', 'event.flyer_id')
+      .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
+      .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+
+      .whereNotNull('event.region_name')
+      .andWhere('event.region_name', '=', region)
+      .andWhere('event.region_name', '!=', '')
+
+      .orderBy('flyer.modified', 'desc')
+      .limit(limit)
+      .offset(offset)
+  },
+
+  selectByCountry(knex, limit, offset, country) {
+    return knex
+      .select(
+        'flyer.*',
+        'app_user.username as creator_username',
+        'app_user.image_url as creator_image_url'
+      )
+      .from('flyer')
+      .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
+      .leftJoin('event', 'flyer.id', '=', 'event.flyer_id')
+      .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
+      .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+
+      .whereNotNull('event.country_name')
+      .andWhere('event.country_name', '=', country)
+      .andWhere('event.country_name', '!=', '')
+
+      // .orWhere('event.region_name', '=', region)
+      // .andWhere('event.region_name', '!=', '')
+
       .orderBy('flyer.modified', 'desc')
       .limit(limit)
       .offset(offset)
