@@ -34,14 +34,15 @@ const FlyerService = {
         'app_user.image_url as creator_image_url'
       )
       .from('flyer')
-      .leftOuterJoin('event', 'flyer.id', '=', 'event.flyer_id')
       .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
       .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
       .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
 
+      .join('event', 'flyer.id', '=', 'event.flyer_id')
       .whereNotNull('event.region_name')
-      .andWhere('event.region_name', '=', region)
       .andWhere('event.region_name', '!=', '')
+      .andWhere('event.region_name', '=', region)
+      .distinct('flyer.id')
 
       .orderBy('flyer.modified', 'desc')
       .limit(limit)
@@ -55,18 +56,17 @@ const FlyerService = {
         'app_user.username as creator_username',
         'app_user.image_url as creator_image_url'
       )
+
       .from('flyer')
       .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
-      .leftJoin('event', 'flyer.id', '=', 'event.flyer_id')
       .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
       .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
 
+      .join('event', 'flyer.id', '=', 'event.flyer_id')
       .whereNotNull('event.country_name')
-      .andWhere('event.country_name', '=', country)
       .andWhere('event.country_name', '!=', '')
-
-      // .orWhere('event.region_name', '=', region)
-      // .andWhere('event.region_name', '!=', '')
+      .andWhere('event.country_name', '=', country)
+      .distinct('flyer.id')
 
       .orderBy('flyer.modified', 'desc')
       .limit(limit)

@@ -153,9 +153,6 @@ function getFlyers(req, res, next) {
 
   } else if (Boolean(region)) {
     FlyerService
-      .getTotal(knexI)
-      .then(count => {
-        return FlyerService
           .selectByRegion(knexI, limit, offset, region)
           .then(async flyers => {
             const flyerRes = []
@@ -173,18 +170,13 @@ function getFlyers(req, res, next) {
             })
             return res.json({
               flyers: flyerRes,
-              total: count[0].count,
+              total: flyerRes.length,
             })
           })
           .catch(next)
-      })
-      .catch(next)
 
   } else if (Boolean(country)) {
     FlyerService
-      .getTotal(knexI)
-      .then(count => {
-        return FlyerService
           .selectByCountry(knexI, limit, offset, country)
           .then(async flyers => {
             const flyerRes = []
@@ -202,12 +194,10 @@ function getFlyers(req, res, next) {
             })
             return res.json({
               flyers: flyerRes,
-              total: count[0].count,
+              total: flyerRes.length,
             })
           })
           .catch(next)
-      })
-      .catch(next)
 
     } else {
     FlyerService
