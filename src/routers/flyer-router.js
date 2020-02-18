@@ -147,7 +147,10 @@ function getFlyers(req, res, next) {
           })
           .catch(next)
       })
-      .catch(err => res.status(404).json({ message: err.message }))
+      .catch(err => {
+        logger.error(err.message)
+        return res.status(404).json({ message: err.message })
+      })
   } else {
     FlyerService
       .getTotal(knexI)

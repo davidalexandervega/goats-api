@@ -28,7 +28,6 @@ function checkExists(req, res, next) {
         logger.error(`User with id ${id} does not exist`)
         return res.status(404).json({ error: { message: `User doesn't exist` } })
       }
-      //res.user = user
       res.user = user
 
       next()
@@ -49,7 +48,6 @@ function authPatchUser(req, res, next) {
     .then(user => {
       if (user.id == id) {
         req.user = user
-        //console.log('SETTING req USER', req.user)
         return next()
       }
       logger.error(`Not authorized!`)
@@ -64,10 +62,10 @@ async function getById(req, res, next) {
   const isAuthed = await UserUtils.isAuthenticated(knexI, res.user.id, req.user)
   console.log(isAuthed)
   if (isAuthed === true) {
-    logger.info(`Successful GET /user/${req.user.id} by authed user ${res.user.id}`)
+    //logger.info(`Successful GET /user/${req.user.id} by authed user ${res.user.id}`)
     return res.json(UserUtils.sanitizeAuthed(res.user))
   }
-  logger.info(`Successful GET /user/${req.user} by public user`)
+  //logger.info(`Successful GET /user/${req.user} by public user`)
   res.json(UserUtils.sanitize(res.user))
 }
 
@@ -76,7 +74,7 @@ function getAllUsers(req, res, next) {
   UserService
     .getAllUsers(knexI)
     .then(users => {
-      logger.info(`Successful GET /user by user`)
+      //logger.info(`Successful GET /user by user`)
       const sanitized = users.map(user => UserUtils.sanitize(user))
       res.json(sanitized)
     })

@@ -52,7 +52,6 @@ app.use('/api/country', countryRouter)
 app.use('/api/flyer', flyerRouter)
 app.use(formData.parse())
 app.post('/api/image-upload', (req, res) => {
-  console.log('inside img upload')
   const values = Object.values(req.files)
   const promises = values.map(image => cloudinary.uploader.upload(image.path))
 

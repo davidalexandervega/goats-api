@@ -94,7 +94,7 @@ function signup(req, res, next) {
       return UserService
         .insertUser(knexI, newUser)
         .then(user => {
-          logger.info(`successful POST /signup by username ${user.username}`)
+          //logger.info(`successful POST /signup by username ${user.username}`)
           res
             .status(201)
             .location(path.posix.join('/api/user', `/${user.id}`))
@@ -146,7 +146,7 @@ function signin(req, res, next) {
     })
     .then(() => {
       delete user.password_digest
-      logger.info(`Successful POST /signin by username ${user.username}`)
+      //logger.info(`Successful POST /signin by username ${user.username}`)
       res.status(201).json(UserUtils.sanitizeAuthed(user))
     })
     .catch(next)
