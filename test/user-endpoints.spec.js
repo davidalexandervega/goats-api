@@ -263,17 +263,30 @@ describe('User endpoints', () => {
               expect(res.body).to.eql(expected)
             })
         })
+
+        it('responds with 404 if user does not exist', () => {
+          return supertest(app)
+            .get(`/api/user/666`)
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(404, { error: { message: `User doesn't exist` } })
+        })
       })
 
-      context.skip('given the user is not signed in', () => {
+      context('given the user is not signed in', () => {
+        it('responds with 401 Unauthorized', () => {
+          return supertest(app)
+            .get(`/api/user/${otherUser.id}`)
+            // .set({
+            //   "Authorization": `Bearer ${authedUser.token}`
+            // })
+            .expect(401, { message: 'Unauthorized.'})
+        })
       })
     })
 
-    context('given user does not exist', () => {
-      return supertest(app)
-        .get(`/api/user/666`)
-        .expect(404, { error: { message: `User does not exist` } })
-    })
+
   })
 
   describe('PATCH /api/user/:id endpoint', () => {
@@ -401,7 +414,7 @@ describe('User endpoints', () => {
           return supertest(app)
             .patch(`/api/user/${authedUser.id}`)
             .send(patchBody)
-            .expect(401, { error: { message: 'Not authorized!'}})
+            .expect(401, { error: { message: 'Not authorized'}})
         })
       })
     })

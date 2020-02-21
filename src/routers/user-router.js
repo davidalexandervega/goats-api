@@ -3,6 +3,7 @@ const UserService = require('../services/user-service')
 const UserUtils = require('../utils/user.utils')
 const bodyParser = express.json()
 const logger = require('../utils/logger.utils')
+const authUser = require('../mws/auth-user')
 
 const userRouter = express.Router()
 
@@ -13,7 +14,7 @@ userRouter
 userRouter
   .route('/:id')
   .all(checkExists)
-  .get(getById)
+  .get(authUser.get, getById)
   .patch(bodyParser, authPatchUser, patchUser)
 
 
@@ -29,10 +30,14 @@ function checkExists(req, res, next) {
         return res.status(404).json({ error: { message: `User doesn't exist` } })
       }
       res.user = user
-
       next()
     })
-    .catch(next)
+    .catch(error => {
+      if (!!error.message && (/(invalid input syntax for type uuid)/.test(error.message)) ) {
+        return res.status(404).json({ error: { message: `User doesn't exist` } })
+      }
+      next(error)
+    })
 }
 
 function authPatchUser(req, res, next) {
@@ -41,7 +46,7 @@ function authPatchUser(req, res, next) {
   const { token } = req.user
   if (!token) {
     logger.error(`Not authorized!`)
-    return res.status(401).json({ error: { message: 'Not authorized!' } })
+    return res.status(401).json({ error: { message: 'Not authorized' } })
   }
 
   UserService.getByToken(knexI, token)

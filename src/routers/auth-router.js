@@ -31,6 +31,13 @@ authRouter
   )
 
 authRouter
+  .route('/check')
+  .post(
+    bodyParser,
+    getByIdToken
+  )
+
+authRouter
   .route('/signout')
   .get(signout)
 
@@ -151,6 +158,29 @@ function signin(req, res, next) {
     })
     .catch(next)
 
+}
+
+//write tests
+function getByIdToken(req, res, next) {
+  const knexI = req.app.get('db')
+  const { id, token } = req.body
+
+  UserService
+    .getByIdToken(knexI, id, token)
+    .then(user => {
+      if (!user) {
+        logger.error(`POST /auth/check user ${id} not found`)
+        return res.status(404).json({message: 'User not found.'})
+      }
+      return user
+    })
+    .then(user => {
+      if (!user.token || user.token != token) {
+        logger.error(`POST /auth/check token ${token} for user ${id} expired or null`)
+        return res.status(401).json({message: 'Unauthorized.'})
+      }
+      return res.status(200).json(user)
+    })
 }
 
 module.exports = authRouter;
