@@ -678,6 +678,40 @@ describe('Flyer endpoints', () => {
         })
       })
 
+      context('given the token user is not the creator, but is admin', () => {
+        beforeEach('signin authed user (admin)', () => {
+          const signInBody = makeUser.signinGood()
+          return supertest(app)
+            .post('/api/auth/signin')
+            .send(signInBody)
+            .then(res => {
+              authedUser = {
+                ...res.body,
+                admin: true
+              }
+              return db('app_user')
+                .where('id', res.body.id)
+                .update('admin', true)
+            })
+        })
+        it('responds with 204 and removes flyer', () => {
+          return supertest(app)
+            .delete(`/api/flyer/${deleteId}`)
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(204)
+            .then(() => {
+              return supertest(app)
+                .get('/api/flyer')
+                .set({
+                  "Authorization": `Bearer ${authedUser.token}`
+                })
+                .expect(res => expect(res.body.flyers.length).to.equal(0))
+            })
+        })
+      })
+
     })
   })
 

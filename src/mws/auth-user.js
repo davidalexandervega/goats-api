@@ -76,7 +76,7 @@ function deleteFlyer(req, res, next) {
 
   UserService.getByToken(knexI, token)
     .then(user => {
-      if (user.id === creator_id) {
+      if (user.id === creator_id || user.admin == true) {
         req.user = user
         return next()
       }
