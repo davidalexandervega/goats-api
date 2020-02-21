@@ -53,7 +53,7 @@ app.use('/api/flyer', flyerRouter)
 app.use(formData.parse())
 app.post('/api/image-upload', (req, res) => {
   const values = Object.values(req.files)
-  const promises = values.map(image => cloudinary.uploader.upload(image.path))
+  const promises = values.map(image => cloudinary.uploader.upload(image.path, { image_metadata: true }))
 
   Promise
     .all(promises)
