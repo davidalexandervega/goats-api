@@ -1,6 +1,5 @@
 const express = require('express')
 const path = require('path')
-const { UserCustom } = require('../models/user')
 const UserService = require('../services/user-service')
 const UserUtils = require('../utils/user.utils')
 const bodyParser = express.json()
@@ -80,10 +79,10 @@ function signup(req, res, next) {
   //check if username is unique
   // res.status(400).json({ error: { message: 'username already exists' }})
 
-  let newUser = new UserCustom ({
-    username,
-    email
-  })
+  const newUser = {
+    username: username,
+    email: email
+  }
 
   UserUtils.hashPassword(password)
     .then(hashedPassword => {

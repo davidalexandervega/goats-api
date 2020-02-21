@@ -1,6 +1,5 @@
 'use strict';
 const passport = require('passport');
-const { UserFB } = require('../models/user');
 const UserService = require('../services/user-service');
 const FacebookTokenStrategy = require('passport-facebook-token');
 const { facebookAuth } = require('../config/auth-config');
@@ -26,12 +25,12 @@ module.exports = function () {
 
           if (!existingUser) {
 
-            const newUser = new UserFB({
+            const newUser = {
               fullname: profile.displayName,
               email: profile.emails[0].value,
               facebook_provider_id: profile.id,
               facebook_provider_token: accessToken
-            })
+            }
 
             return UserService.insertUser(knexI, newUser)
               .then(newUser => {

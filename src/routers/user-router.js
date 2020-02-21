@@ -15,7 +15,7 @@ userRouter
   .route('/:id')
   .all(checkExists)
   .get(authUser.get, getById)
-  .patch(bodyParser, authPatchUser, patchUser)
+  .patch(bodyParser, authUser.patchUser, patchUser)
 
 
 function checkExists(req, res, next) {
@@ -40,26 +40,26 @@ function checkExists(req, res, next) {
     })
 }
 
-function authPatchUser(req, res, next) {
-  const knexI = req.app.get('db')
-  const { id } = req.params
-  const { token } = req.user
-  if (!token) {
-    logger.error(`Not authorized!`)
-    return res.status(401).json({ error: { message: 'Not authorized' } })
-  }
+// function authPatchUser(req, res, next) {
+//   const knexI = req.app.get('db')
+//   const { id } = req.params
+//   const { token } = req.user
+//   if (!token) {
+//     logger.error(`Not authorized!`)
+//     return res.status(401).json({ error: { message: 'Not authorized' } })
+//   }
 
-  UserService.getByToken(knexI, token)
-    .then(user => {
-      if (user.id == id) {
-        req.user = user
-        return next()
-      }
-      logger.error(`Not authorized!`)
-      return res.status(401).json({ error: { message: 'Not authorized!' } })
-    })
-    .catch(next)
-}
+//   UserService.getByToken(knexI, token)
+//     .then(user => {
+//       if (user.id == id) {
+//         req.user = user
+//         return next()
+//       }
+//       logger.error(`Not authorized!`)
+//       return res.status(401).json({ error: { message: 'Not authorized!' } })
+//     })
+//     .catch(next)
+// }
 
 async function getById(req, res, next) {
   const knexI = req.app.get('db')

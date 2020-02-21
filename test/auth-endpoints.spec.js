@@ -97,6 +97,9 @@ describe('Auth endpoints', () => {
             // confirming user exists in db, nothing more
             return supertest(app)
               .get(`/api/user/${res.body.id}`)
+              .set({
+                "Authorization": `Bearer ${res.body.token}`
+              })
               .expect(200)
           })
       })

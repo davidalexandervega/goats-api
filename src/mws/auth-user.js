@@ -23,6 +23,27 @@ function post(req, res, next) {
     .catch(next)
 }
 
+function patchUser(req, res, next) {
+  const knexI = req.app.get('db')
+  const { id } = req.params
+  const { token } = req.user
+  if (!token) {
+    logger.error(`Not authorized!`)
+    return res.status(401).json({ error: { message: 'Not authorized' } })
+  }
+
+  UserService.getByToken(knexI, token)
+    .then(user => {
+      if (user.id == id) {
+        req.user = user
+        return next()
+      }
+      logger.error(`Not authorized!`)
+      return res.status(401).json({ error: { message: 'Not authorized!' } })
+    })
+    .catch(next)
+}
+
 function get(req, res, next) {
   const knexI = req.app.get('db')
   const { token } = req.user
@@ -65,5 +86,5 @@ function deleteFlyer(req, res, next) {
     .catch(next)
 }
 
-module.exports = { post, get, deleteFlyer }
+module.exports = { post, get, deleteFlyer, patchUser }
 
