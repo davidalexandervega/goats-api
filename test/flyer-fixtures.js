@@ -13,7 +13,8 @@ function makeFlyers() {
         created: '2020-01-23T22:42:14.355Z',
         modified: '2020-01-23T22:42:14.355Z',
         creator_username: 'devilmaster',
-        creator_image_url: 'https://res.cloudinary.com/killeraliens/image/upload/v1580946398/devils_3_legend_production_company.jpg'
+        creator_image_url: 'https://res.cloudinary.com/killeraliens/image/upload/v1580946398/devils_3_legend_production_company.jpg',
+        events: []
       },
       {
         id: '6932cad2-48f1-11ea-b77f-2e728ce88125',
@@ -28,7 +29,8 @@ function makeFlyers() {
         created: '2020-01-23T21:42:14.355Z',
         modified: '2020-01-23T21:42:14.355Z',
         creator_username: 'devilmaster',
-        creator_image_url: 'https://res.cloudinary.com/killeraliens/image/upload/v1580946398/devils_3_legend_production_company.jpg'
+        creator_image_url: 'https://res.cloudinary.com/killeraliens/image/upload/v1580946398/devils_3_legend_production_company.jpg',
+        events: []
       },
       {
         id: 'a28ebf8c-48ee-11ea-b77f-2e728ce88125',
@@ -43,7 +45,8 @@ function makeFlyers() {
         created: '2020-01-03T16:03:22.000Z',
         modified: '2020-01-03T16:03:22.000Z',
         creator_username: 'killer',
-        creator_image_url: 'https://res.cloudinary.com/killeraliens/image/upload/v1580673041/lzasvcgmviuqa3fuo724.jpg'
+        creator_image_url: 'https://res.cloudinary.com/killeraliens/image/upload/v1580673041/lzasvcgmviuqa3fuo724.jpg',
+        events: []
       },
       {
         id: '83e0779a-48f0-11ea-b77f-2e728ce88125',
@@ -58,7 +61,8 @@ function makeFlyers() {
         created: '2019-01-05T19:42:00.000Z',
         modified: '2019-01-05T19:42:00.000Z',
         creator_username: 'greyalien',
-        creator_image_url: 'https://res.cloudinary.com/killeraliens/image/upload/v1580946417/roswell-ufo-alien-CREDIT-GETTY-1120.jpg'
+        creator_image_url: 'https://res.cloudinary.com/killeraliens/image/upload/v1580946417/roswell-ufo-alien-CREDIT-GETTY-1120.jpg',
+        events: []
       }
     ]
 

@@ -99,7 +99,19 @@ function checkExists(req, res, next) {
 }
 
 function getFlyer(req, res, next) {
-  res.json(FlyerUtils.sanitize(res.flyer))
+  const knexI = req.app.get('db')
+  const flyer = FlyerUtils.sanitize(res.flyer)
+
+  EventService
+    .selectFlyerEvents(knexI, flyer.id)
+    .then(events => {
+      res.json({
+        ...flyer,
+        events: events.map(event => EventUtils.sanitize(event))
+      })
+    })
+    .catch(next)
+
 }
 
 function getAllFlyers(req, res, next) {
