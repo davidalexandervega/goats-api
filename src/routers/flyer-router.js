@@ -59,14 +59,14 @@ flyerRouter
         .isIn(['Show', 'Fest', 'Tour'])
         .withMessage('flyer_type must be one of Show, Fest, or Tour.'),
       check('bands')
-        .isLength({ min: 0, max: 666 })
-        .withMessage(`bands character limit is 666`),
+        .isLength({ min: 0, max: 30000 })
+        .withMessage(`bands raw character limit is 30000`),
       check('details')
-        .isLength({ min: 0, max: 666 })
-        .withMessage(`details character limit is 666`),
+        .isLength({ min: 0, max: 20000 })
+        .withMessage(`details raw character limit is 20000`),
       check('publish_comment')
-        .isLength({ min: 0, max: 666 })
-        .withMessage(`publish comment character limit is 666`)
+        .isLength({ min: 0, max: 20000 })
+        .withMessage(`publish comment raw character limit is 20000`)
     ],
     postFlyer
   )
