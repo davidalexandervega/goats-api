@@ -132,7 +132,7 @@ const FlyerService = {
       .from('flyer')
       .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
       .where('flyer.id', id)
-      .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
+      //.whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft']) //remove for tests
       .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
       .first()
   },

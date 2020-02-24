@@ -30,7 +30,7 @@ flyerRouter
         .not().isEmpty().withMessage('creator is required.'),
       check('headline')
         .not().isEmpty().withMessage('headline is required.')
-        .isLength({ min: 0, max: 180 }).withMessage(`headline character limit is 180`),
+        .isLength({ min: 1, max: 180 }).withMessage(`headline character limit is 180`),
       check('image_url')
         .not().isEmpty().withMessage('image_url is required.')
         .isURL().withMessage('Must be valid source url.'),
@@ -77,18 +77,40 @@ flyerRouter
   .get(getFlyer)
   .patch(
     bodyParser,
-    ///authUser.deleteFlyer,
+    authUser.manageFlyer,
+    [
+      check('headline').optional()
+      .isLength({ min: 1, max: 180 }).withMessage(`headline character limit is 180`),
+      check('image_url').optional()
+        .isURL().withMessage('Must be valid source url.'),
+      check('events').optional()
+        .isArray().withMessage('events must be an array.'),
+      check('listing_state').optional()
+        .isIn(['Draft', 'Private', 'Public', 'Archived'])
+        .withMessage('Unauthorized listing control.'),
+      check('flyer_type').optional()
+        .isIn(['Show', 'Fest', 'Tour'])
+        .withMessage('flyer_type must be one of Show, Fest, or Tour.'),
+      check('bands')
+        .isLength({ min: 0, max: 30000 })
+        .withMessage(`bands raw character limit is 30000`),
+      check('details')
+        .isLength({ min: 0, max: 20000 })
+        .withMessage(`details raw character limit is 20000`),
+      check('publish_comment')
+        .isLength({ min: 0, max: 20000 })
+        .withMessage(`publish comment raw character limit is 20000`)
+    ],
     patchFlyer
   )
   .delete(
-    authUser.deleteFlyer,
+    authUser.manageFlyer,
     deleteFlyer
   )
 
 function checkExists(req, res, next) {
   const knexI = req.app.get('db')
   const { id } = req.params
-
   FlyerService
     .getById(knexI, id)
     .then(flyer => {
@@ -305,29 +327,36 @@ function deleteFlyer(req, res, next) {
 }
 
 function patchFlyer(req, res, next) {
+  const validErrors = validationResult(req)
+  if (!validErrors.isEmpty()) {
+    logger.error(`1 of ${validErrors.errors.length} ${validErrors.errors[0].msg}`)
+    return res.status(400).json({ message: validErrors.errors[0].msg })
+  }
+
   const knexI = req.app.get('db')
   const flyerId = res.flyer.id
-  // const { events, ...patchBody } = req.body
-  const { events, admin, id, creator_id, created, modified, ...patchBody } = req.body
-
-  // if (patchBody.listing_state && !['Draft', 'Public'].includes(patchBody.listing_state)) {
-  //   return res.status(400).json({ message: `listing_state can only be Draft or Public`})
-  // }
+  const { events, id, creator_id, created, modified, ...patchBody } = req.body
 
   FlyerService
     .updateFlyer(knexI, flyerId, patchBody)
     .then(numOfRowsAffected => {
-      const eventsWithFlyerId = events.map(event => {
-        return EventUtils.sanitize({
-          ...event,
-          flyer_id: flyerId
+      if (events) {
+        const eventsWithFlyerId = events.map(event => {
+          return {
+            ...event,
+            flyer_id: flyerId
+          }
         })
-      })
-      EventService
-        .replaceEventsForFlyer(knexI, flyerId, eventsWithFlyerId)
-        .then(rows => {
-          return res.status(204).end()
-        })
+
+        EventService
+          .replaceEventsForFlyer(knexI, flyerId, eventsWithFlyerId)
+          .then(rows => {
+            return res.status(204).end()
+          })
+          .catch(next)
+      } else {
+        return res.status(204).end()
+      }
     })
     .catch(next)
 }

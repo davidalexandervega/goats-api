@@ -65,10 +65,11 @@ function get(req, res, next) {
     .catch(next)
 }
 
-function deleteFlyer(req, res, next) {
+function manageFlyer(req, res, next) {
   const knexI = req.app.get('db')
   const { creator_id } = res.flyer
   const { token } = req.user
+
   if (!token) {
     logger.error(`Not authorized!`)
     return res.status(401).json({ message: `Unauthorized.` })
@@ -76,7 +77,7 @@ function deleteFlyer(req, res, next) {
 
   UserService.getByToken(knexI, token)
     .then(user => {
-      if (user.id === creator_id || user.admin == true) {
+      if (user.id === creator_id || user.admin === true) {
         req.user = user
         return next()
       }
@@ -86,5 +87,8 @@ function deleteFlyer(req, res, next) {
     .catch(next)
 }
 
-module.exports = { post, get, deleteFlyer, patchUser }
+
+
+
+module.exports = { post, get, manageFlyer, patchUser }
 

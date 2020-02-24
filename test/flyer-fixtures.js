@@ -108,6 +108,7 @@ const makeFlyer = {
   patchBody() {
     return {
       headline: 'Updated Fest Headline',
+      listing_state: 'Draft',
       publish_comment: 'Updated More info soon',
       events: [
           {
@@ -141,6 +142,20 @@ const makeFlyer = {
             city_id: null
           }
       ]
+    }
+  },
+
+  patchBodyUnauth204() {
+    return {
+      creator_id: 'f06ff48c-5726-11ea-82b4-0242ac130003', //permanent, should not be patched
+      headline: 'Updated Fest headline'
+    }
+  },
+
+  patchBodyUnauth400() {
+    return {
+      listing_state: 'Banned', //should not be patched
+      headline: 'Updated Fest headline',
     }
   },
 

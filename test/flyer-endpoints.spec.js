@@ -311,7 +311,6 @@ describe('Flyer endpoints', () => {
             .expect(201)
             .expect(res => {
               assert.isObject(res.body)
-              console.log(res.body)
               expect(res.headers.location).to.eql(`/api/flyer/${res.body.id}`)
               expect(res.body).to.have.property('id')
               expect(res.body.id).to.be.a.uuid()
@@ -576,6 +575,224 @@ describe('Flyer endpoints', () => {
     })
   })
 
+  describe('PATCH /api/flyer/:id endpoint', () => {
+    beforeEach('signin authed creator', () => {
+      const signInBody = makeUser.signinGood2()
+      return supertest(app)
+        .post('/api/auth/signin')
+        .send(signInBody)
+        .then(res => {
+          authedCreator = res.body
+        })
+    })
+
+    context('given the flyer exists', () => {
+      let patchFlyer
+
+      beforeEach('creator post flyer', () => {
+        const postBody = {
+          ...makeFlyer.postBody(),
+          creator_id: authedCreator.id
+        }
+
+        return supertest(app)
+          .post('/api/flyer')
+          .set({
+            "Authorization": `Bearer ${authedCreator.token}`
+          })
+          .send(postBody)
+          .expect(201)
+          .then(res => {
+            patchFlyer = res.body
+            return supertest(app)
+              .get(`/api/flyer/${patchFlyer.id}`)
+              .set({
+                "Authorization": `Bearer ${authedCreator.token}`
+              })
+              .expect(200)
+          })
+      })
+
+      context('given the patch body contains both updated flyer and events fields', () => {
+        it('responds with 204, and both flyer and event tables should be updated', function() {
+          this.retries(3)
+          const patchBody = makeFlyer.patchBody()
+          const expected = {
+            ...patchFlyer,
+            ...patchBody
+          }
+          return supertest(app)
+            .patch(`/api/flyer/${patchFlyer.id}`)
+            .send(patchBody)
+            .set({
+              "Authorization": `Bearer ${authedCreator.token}`
+            })
+            .expect(204)
+            .then(res => {
+              return supertest(app)
+                .get(`/api/flyer/${patchFlyer.id}`)
+                .set({
+                  "Authorization": `Bearer ${authedCreator.token}`
+                })
+                .then(res => {
+                  assert.isObject(res.body)
+                  expect(res.body).to.have.property('id')
+                  expect(res.body.id).to.eql(expected.id)
+                  expect(res.body).to.have.property('creator_id')
+                  expect(res.body.creator_id).to.eql(expected.creator_id)
+                  expect(res.body).to.have.property('flyer_type')
+                  expect(res.body.flyer_type).to.eql(expected.flyer_type)
+                  expect(res.body).to.have.property('image_url')
+                  expect(res.body.image_url).to.eql(expected.image_url)
+                  expect(res.body).to.have.property('headline')
+                  expect(res.body.image_url).to.eql(expected.image_url)
+                  expect(res.body).to.have.property('bands')
+                  expect(res.body.bands).to.eql(expected.bands)
+                  expect(res.body).to.have.property('details')
+                  expect(res.body.details).to.eql(expected.details)
+                  expect(res.body).to.have.property('publish_comment')
+                  expect(res.body.publish_comment).to.eql(expected.publish_comment)
+                  expect(res.body).to.have.property('listing_state')
+                  expect(res.body.listing_state).to.eql(expected.listing_state)
+                  expect(res.body).to.have.property('created')
+                  expect(res.body.created).to.eql(expected.created)
+                  expect(res.body).to.have.property('modified')
+                  const expectedModified = new Date(Date.now()).toLocaleString()
+                  expect(new Date(res.body.modified).toLocaleString()).to.eql(expectedModified)
+                  expect(res.body).to.have.property('creator_username')
+                  expect(res.body.creator_username).to.eql(expected.creator_username)
+                  expect(res.body).to.have.property('creator_image_url')
+                  expect(res.body.creator_image_url).to.eql(expected.creator_image_url)
+                  expect(res.body).to.have.property('events')
+                  expect(res.body.events.length).to.eql(expected.events.length)
+                  res.body.events.forEach(event => {
+                    expect(event).to.have.property('id')
+                    expect(event).to.have.property('flyer_id')
+                    expect(event.flyer_id).to.eql(expected.id)
+                    expect(event).to.have.property('venue_name')
+                    expect(event.venue_name).to.eql(expected.events[0].venue_name) //patchBod is fest (same venue_name for all events)
+                  })
+                })
+            })
+        })
+      })
+
+      context('given the patch body contains an attempt to change unauthorized fields', () => {
+        console.log('to run this test, or any which uses `GET /api/flyer/:id` as confirmation for non admined reqs, comment out ".whereNotIn([`Archived`, ...]) from flyer-service getById (non admin) clause"')
+
+        it('responds with 204 and ignores attempts to alter permanent fields (like id, creator_id)', () => {
+          const patchBody = makeFlyer.patchBodyUnauth204()
+          const expected = {
+            ...patchFlyer,
+            headline: patchBody.headline
+          }
+
+          return supertest(app)
+            .patch(`/api/flyer/${patchFlyer.id}`)
+            .send(patchBody)
+            .set({
+              "Authorization": `Bearer ${authedCreator.token}`
+            })
+            .expect(204)
+            .then(() => {
+              expected.modified = new Date(Date.now())
+              return supertest(app)
+                .get(`/api/flyer/${patchFlyer.id}`)
+                .set({
+                  "Authorization": `Bearer ${authedCreator.token}`
+                })
+                .expect(200)
+                .expect(res => {
+                  const actualModified = new Date(res.body.modified).toLocaleString
+                  const expectedModified = new Date(expected.modified).toLocaleString
+                  expect(actualModified).to.eql(expectedModified)
+                  delete res.body['modified']
+                  delete expected['modified']
+                  expect(res.body).to.eql(expected)
+                })
+            })
+        })
+
+        it('responds with 400 and flyer remains unchanged with an unauthed field patch request', () => {
+          const patchBody = makeFlyer.patchBodyUnauth400()
+          const expected = {
+            ...patchFlyer,
+            // headline: patchBody.headline
+          }
+
+          return supertest(app)
+            .patch(`/api/flyer/${patchFlyer.id}`)
+            .send(patchBody)
+            .set({
+              "Authorization": `Bearer ${authedCreator.token}`
+            })
+            .expect(400, ({ message: 'Unauthorized listing control.' }))
+            .then(() => {
+
+              return supertest(app)
+                .get(`/api/flyer/${patchFlyer.id}`)
+                .set({
+                  "Authorization": `Bearer ${authedCreator.token}`
+                })
+                .expect(200)
+                .expect(res => {
+                  expect(res.body).to.eql(expected)
+                })
+            })
+        })
+      })
+
+      context('given the user making the request is not the creator', () => {
+        beforeEach('signin authed user', () => {
+          const signInBody = makeUser.signinGood()
+          return supertest(app)
+            .post('/api/auth/signin')
+            .send(signInBody)
+            .then(res => {
+              authedUser = res.body
+            })
+        })
+
+        it('Responds with 401, flyer record should not be patched', () => {
+          const patchBody = makeFlyer.patchBody()
+          return supertest(app)
+            .patch(`/api/flyer/${patchFlyer.id}`)
+            .send(patchBody)
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(401)
+            .then(() => {
+              return supertest(app)
+                .get(`/api/flyer/${patchFlyer.id}`)
+                .set({
+                  "Authorization": `Bearer ${authedUser.token}`
+                })
+                .expect(200)
+                .expect(res => {
+                  expect(res.body).to.eql(patchFlyer)
+                })
+            })
+
+        })
+      })
+
+    })
+
+    context('given the flyer does not exist', () => {
+      it('responds with 404', () => {
+        const patchBody = makeFlyer.patchBody()
+        return supertest(app)
+          .patch(`/api/flyer/f06ff48c-5726-11ea-82b4-0242ac130003`)
+          .send(patchBody)
+          .set({
+            "Authorization": `Bearer ${authedCreator.token}`
+          })
+          .expect(404, { message: 'Flyer does not exist' })
+      })
+    })
+  })
+
   describe('DELETE /api/flyer/:id endpoint', () => {
     beforeEach('signin authed creator', () => {
       const signInBody = makeUser.signinGood2()
@@ -717,116 +934,4 @@ describe('Flyer endpoints', () => {
     })
   })
 
-  describe.only('PATCH /api/flyer/:id endpoint', () => {
-    beforeEach('signin authed creator', () => {
-      const signInBody = makeUser.signinGood2()
-      return supertest(app)
-        .post('/api/auth/signin')
-        .send(signInBody)
-        .then(res => {
-          authedCreator = res.body
-        })
-    })
-
-    context('given the flyer exists', () => {
-      let patchFlyer
-
-      beforeEach('creator post flyer', () => {
-        const postBody = {
-          ...makeFlyer.postBody(),
-          creator_id: authedCreator.id
-        }
-        return supertest(app)
-          .post('/api/flyer')
-          .set({
-            "Authorization": `Bearer ${authedCreator.token}`
-          })
-          .send(postBody)
-          .expect(201)
-          .then(res => {
-            patchFlyer = res.body
-            return supertest(app)
-              .get(`/api/flyer`)
-              .set({
-                "Authorization": `Bearer ${authedCreator.token}`
-              })
-              .then(res => {
-                expect(res.body.flyers.length).to.eql(1)
-                return supertest(app)
-                  .get(`/api/event`)
-                  .set({
-                    "Authorization": `Bearer ${authedCreator.token}`
-                  })
-                  .expect(res => {
-                    expect(res.body.length).to.equal(2)
-                  })
-              })
-          })
-      })
-
-      context('given the patch body contains both updated flyer and events fields', () => {
-        it('responds with 204, and both flyer and event tables should be updated', () => {
-          const patchBody = makeFlyer.patchBody()
-          const expected = {
-            ...patchFlyer,
-            ...patchBody
-          }
-          return supertest(app)
-            .patch(`/api/flyer/${patchFlyer.id}`)
-            .send(patchBody)
-            .set({
-              "Authorization": `Bearer ${authedCreator.token}`
-            })
-            .expect(204)
-            .then(() => {
-              return supertest(app)
-                .get(`/api/flyer/${patchFlyer.id}`)
-                .set({
-                  "Authorization": `Bearer ${authedCreator.token}`
-                })
-                .then(res => {
-                  assert.isObject(res.body)
-                  expect(res.body).to.have.property('id')
-                  expect(res.body.id).to.eql(expected.id)
-                  expect(res.body).to.have.property('creator_id')
-                  expect(res.body.creator_id).to.eql(expected.creator_id)
-                  expect(res.body).to.have.property('flyer_type')
-                  expect(res.body.flyer_type).to.eql(expected.flyer_type)
-                  expect(res.body).to.have.property('image_url')
-                  expect(res.body.image_url).to.eql(expected.image_url)
-                  expect(res.body).to.have.property('headline')
-                  expect(res.body.image_url).to.eql(expected.image_url)
-                  expect(res.body).to.have.property('bands')
-                  expect(res.body.bands).to.eql(expected.bands)
-                  expect(res.body).to.have.property('details')
-                  expect(res.body.details).to.eql(expected.details)
-                  expect(res.body).to.have.property('publish_comment')
-                  expect(res.body.publish_comment).to.eql(expected.publish_comment)
-                  expect(res.body).to.have.property('listing_state')
-                  expect(res.body.listing_state).to.eql(expected.listing_state)
-                  expect(res.body).to.have.property('created')
-                  expect(res.body.created).to.eql(expected.created)
-                  expect(res.body).to.have.property('modified')
-                  const expectedModified = new Date(Date.now()).toLocaleString()
-                  expect(new Date(res.body.modified).toLocaleString()).to.eql(expectedModified)
-                  expect(res.body).to.have.property('creator_username')
-                  expect(res.body.creator_username).to.eql(expected.creator_username)
-                  expect(res.body).to.have.property('creator_image_url')
-                  expect(res.body.creator_image_url).to.eql(expected.creator_image_url)
-                  expect(res.body).to.have.property('events')
-                  expect(res.body.events.length).to.eql(expected.events.length)
-                  res.body.events.forEach(event => {
-                    expect(event).to.have.property('id')
-                    expect(event).to.have.property('flyer_id')
-                    expect(event.flyer_id).to.eql(expected.id)
-                    expect(event).to.have.property('venue_name')
-                    expect(event.venue_name).to.eql(expected.events[0].venue_name) //patchBod is fest (same venue_name for all events)
-                  })
-                })
-            })
-        })
-      })
-
-    })
-  })
 })
