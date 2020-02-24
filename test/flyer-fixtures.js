@@ -95,12 +95,51 @@ const makeFlyer = {
           // id: db default uuid,
           // flyer_id: db default uuid from flyer,
           event_date: '2020-07-23T00:00:00.000Z',
-          venue_name: 'Test2 Tavern',
+          venue_name: 'Test Tavern',
           city_name: 'Phoenix',
           region_name: 'AZ',
           country_name: 'United States',
           city_id: null
         }
+      ]
+    }
+  },
+
+  patchBody() {
+    return {
+      headline: 'Updated Fest Headline',
+      publish_comment: 'Updated More info soon',
+      events: [
+          {
+            // id: db default uuid, should be completely new event id
+            // flyer_id: db default uuid from flyer,
+            event_date: '2020-07-22T00:00:00.000Z',
+            venue_name: 'Updated Test Tavern',
+            city_name: 'Phoenix',
+            region_name: 'AZ',
+            country_name: 'United States',
+            city_id: null
+          },
+          {
+            // id: db default uuid, should be completely new event id
+            // flyer_id: db default uuid from flyer,
+            event_date: '2020-07-23T00:00:00.000Z',
+            venue_name: 'Updated Test Tavern',
+            city_name: 'Phoenix',
+            region_name: 'AZ',
+            country_name: 'United States',
+            city_id: null
+          },
+          {
+            // id: db default uuid, should be completely new event id
+            // flyer_id: db default uuid from flyer,
+            event_date: '2020-07-24T00:00:00.000Z',
+            venue_name: 'Updated Test Tavern',
+            city_name: 'Phoenix',
+            region_name: 'AZ',
+            country_name: 'United States',
+            city_id: null
+          }
       ]
     }
   },

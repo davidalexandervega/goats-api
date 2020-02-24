@@ -75,6 +75,11 @@ flyerRouter
   .route('/:id')
   .all(checkExists)
   .get(getFlyer)
+  .patch(
+    bodyParser,
+    ///authUser.deleteFlyer,
+    patchFlyer
+  )
   .delete(
     authUser.deleteFlyer,
     deleteFlyer
@@ -297,6 +302,34 @@ function deleteFlyer(req, res, next) {
     })
     .catch(next)
 
+}
+
+function patchFlyer(req, res, next) {
+  const knexI = req.app.get('db')
+  const flyerId = res.flyer.id
+  // const { events, ...patchBody } = req.body
+  const { events, admin, id, creator_id, created, modified, ...patchBody } = req.body
+
+  // if (patchBody.listing_state && !['Draft', 'Public'].includes(patchBody.listing_state)) {
+  //   return res.status(400).json({ message: `listing_state can only be Draft or Public`})
+  // }
+
+  FlyerService
+    .updateFlyer(knexI, flyerId, patchBody)
+    .then(numOfRowsAffected => {
+      const eventsWithFlyerId = events.map(event => {
+        return EventUtils.sanitize({
+          ...event,
+          flyer_id: flyerId
+        })
+      })
+      EventService
+        .replaceEventsForFlyer(knexI, flyerId, eventsWithFlyerId)
+        .then(rows => {
+          return res.status(204).end()
+        })
+    })
+    .catch(next)
 }
 
 module.exports = flyerRouter

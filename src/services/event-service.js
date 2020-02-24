@@ -76,8 +76,21 @@ const EventService = {
       .where('id', id)
       .from('event')
       .delete()
-  }
+  },
 
+  replaceEventsForFlyer(knex, id, newEvents) {
+    return knex
+    .where('flyer_id', id)
+    .from('event')
+    .delete()
+    .then(() => {
+      return knex
+        .insert(newEvents)
+        .into('event')
+        .returning('*')
+        .then(rows => rows)
+    })
+  }
 }
 
 module.exports = EventService;

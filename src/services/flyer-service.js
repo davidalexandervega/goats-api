@@ -116,6 +116,12 @@ const FlyerService = {
       })
   },
 
+  updateFlyer(knex, id, patchBody) {
+    return knex('flyer')
+      .where('id', id)
+      .update(patchBody)
+  },
+
   getById(knex, id) {
     return knex
       .select(

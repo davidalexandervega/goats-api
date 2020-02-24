@@ -124,6 +124,7 @@ describe('Flyer endpoints', () => {
               expect(res.body.flyers[0]).to.have.property('modified')
               expect(res.body.flyers[0]).to.have.property('creator_username')
               expect(res.body.flyers[0]).to.have.property('creator_image_url')
+              expect(res.body.flyers[0]).to.have.property('events')
               expect(res.body.flyers).to.deep.equal(expected)
             })
         })
@@ -236,6 +237,7 @@ describe('Flyer endpoints', () => {
               expect(res.body).to.have.property('modified')
               expect(res.body).to.have.property('creator_username')
               expect(res.body).to.have.property('creator_image_url')
+              expect(res.body).to.have.property('events')
               expect(res.body).to.deep.eql(expectedFlyer)
             })
         })
@@ -715,111 +717,116 @@ describe('Flyer endpoints', () => {
     })
   })
 
-  describe.skip('PATCH /api/flyer/:id endpoint', () => {
-      // let authedCreator;
+  describe.only('PATCH /api/flyer/:id endpoint', () => {
+    beforeEach('signin authed creator', () => {
+      const signInBody = makeUser.signinGood2()
+      return supertest(app)
+        .post('/api/auth/signin')
+        .send(signInBody)
+        .then(res => {
+          authedCreator = res.body
+        })
+    })
 
-      // beforeEach('signup second test user as authed creator', () => {
-      //   const postBody = makeUser.postBody2()
-      //   return supertest(app)
-      //     .post('/api/auth/signup')
-      //     .send(postBody)
-      //     .then(res => {
-      //       anotherUser = res.body
-      //     })
-      // })
+    context('given the flyer exists', () => {
+      let patchFlyer
 
-  //       it('responds with 204 and user is updated in db (not admin level fields)', function() {
-  //         this.retries(3)
-  //         const patchBody = makeUser.patchBody()
-  //         let expectedModified;
-  //         return supertest(app)
-  //           .patch(`/api/user/${authedUser.id}`)
-  //           .send(patchBody)
-  //           .set({
-  //             "Authorization": `Bearer ${authedUser.token}`
-  //           })
-  //           .expect(204)
-  //           .then(() => {
-  //             expectedModified = Date.now()
-  //             return supertest(app)
-  //               .get(`/api/user/${authedUser.id}`)
-  //               .set({
-  //                 "Authorization": `Bearer ${authedUser.token}`
-  //               })
-  //               .expect(200)
-  //               .then(res => {
-  //                 const expected = {
-  //                   ...authedUser,
-  //                   ...patchBody,
-  //                   modified: res.body.modified
-  //                 }
-  //                 delete expected['password']
-  //                 expected['admin'] = false
-  //                 expected['user_state'] = 'Public'
-  //                 const actualModified = new Date(res.body.modified).toLocaleString()
-  //                 expectedModified = new Date(authedUser.modified).toLocaleString()
-  //                 expect(actualModified).to.eql(expectedModified)
-  //                 expect(res.body).to.eql(expected)
-  //               })
-  //           })
-  //       })
+      beforeEach('creator post flyer', () => {
+        const postBody = {
+          ...makeFlyer.postBody(),
+          creator_id: authedCreator.id
+        }
+        return supertest(app)
+          .post('/api/flyer')
+          .set({
+            "Authorization": `Bearer ${authedCreator.token}`
+          })
+          .send(postBody)
+          .expect(201)
+          .then(res => {
+            patchFlyer = res.body
+            return supertest(app)
+              .get(`/api/flyer`)
+              .set({
+                "Authorization": `Bearer ${authedCreator.token}`
+              })
+              .then(res => {
+                expect(res.body.flyers.length).to.eql(1)
+                return supertest(app)
+                  .get(`/api/event`)
+                  .set({
+                    "Authorization": `Bearer ${authedCreator.token}`
+                  })
+                  .expect(res => {
+                    expect(res.body.length).to.equal(2)
+                  })
+              })
+          })
+      })
 
-  //       it('responds with 400 when no relevant fields are supplied, does not update', function() {
-  //         this.retries(3)
-  //         const patchBody = makeUser.patchBodyMissingField()
+      context('given the patch body contains both updated flyer and events fields', () => {
+        it('responds with 204, and both flyer and event tables should be updated', () => {
+          const patchBody = makeFlyer.patchBody()
+          const expected = {
+            ...patchFlyer,
+            ...patchBody
+          }
+          return supertest(app)
+            .patch(`/api/flyer/${patchFlyer.id}`)
+            .send(patchBody)
+            .set({
+              "Authorization": `Bearer ${authedCreator.token}`
+            })
+            .expect(204)
+            .then(() => {
+              return supertest(app)
+                .get(`/api/flyer/${patchFlyer.id}`)
+                .set({
+                  "Authorization": `Bearer ${authedCreator.token}`
+                })
+                .then(res => {
+                  assert.isObject(res.body)
+                  expect(res.body).to.have.property('id')
+                  expect(res.body.id).to.eql(expected.id)
+                  expect(res.body).to.have.property('creator_id')
+                  expect(res.body.creator_id).to.eql(expected.creator_id)
+                  expect(res.body).to.have.property('flyer_type')
+                  expect(res.body.flyer_type).to.eql(expected.flyer_type)
+                  expect(res.body).to.have.property('image_url')
+                  expect(res.body.image_url).to.eql(expected.image_url)
+                  expect(res.body).to.have.property('headline')
+                  expect(res.body.image_url).to.eql(expected.image_url)
+                  expect(res.body).to.have.property('bands')
+                  expect(res.body.bands).to.eql(expected.bands)
+                  expect(res.body).to.have.property('details')
+                  expect(res.body.details).to.eql(expected.details)
+                  expect(res.body).to.have.property('publish_comment')
+                  expect(res.body.publish_comment).to.eql(expected.publish_comment)
+                  expect(res.body).to.have.property('listing_state')
+                  expect(res.body.listing_state).to.eql(expected.listing_state)
+                  expect(res.body).to.have.property('created')
+                  expect(res.body.created).to.eql(expected.created)
+                  expect(res.body).to.have.property('modified')
+                  const expectedModified = new Date(Date.now()).toLocaleString()
+                  expect(new Date(res.body.modified).toLocaleString()).to.eql(expectedModified)
+                  expect(res.body).to.have.property('creator_username')
+                  expect(res.body.creator_username).to.eql(expected.creator_username)
+                  expect(res.body).to.have.property('creator_image_url')
+                  expect(res.body.creator_image_url).to.eql(expected.creator_image_url)
+                  expect(res.body).to.have.property('events')
+                  expect(res.body.events.length).to.eql(expected.events.length)
+                  res.body.events.forEach(event => {
+                    expect(event).to.have.property('id')
+                    expect(event).to.have.property('flyer_id')
+                    expect(event.flyer_id).to.eql(expected.id)
+                    expect(event).to.have.property('venue_name')
+                    expect(event.venue_name).to.eql(expected.events[0].venue_name) //patchBod is fest (same venue_name for all events)
+                  })
+                })
+            })
+        })
+      })
 
-  //         return supertest(app)
-  //           .patch(`/api/user/${authedUser.id}`)
-  //           .send(patchBody)
-  //           .set({
-  //             "Authorization": `Bearer ${authedUser.token}`
-  //           })
-  //           .expect(400, { message: 'Request body must contain at least one required field'})
-  //           .then(() => {
-  //             return supertest(app)
-  //               .get(`/api/user/${authedUser.id}`)
-  //               .set({
-  //                 "Authorization": `Bearer ${authedUser.token}`
-  //               })
-  //               .expect(200)
-  //               .then(res => {
-  //                 const expected = {
-  //                   ...authedUser,
-  //                   modified: res.body.modified
-  //                   // ...patchBody
-  //                 }
-  //                 delete expected['password']
-  //                 expected['admin'] = false
-  //                 expected['user_state'] = 'Public'
-  //                 const actualModified = new Date(res.body.modified).toLocaleString()
-  //                 const expectedModified = new Date(authedUser.modified).toLocaleString()
-  //                 expect(actualModified).to.eql(expectedModified)
-  //                 expect(res.body).to.eql(expected)
-  //               })
-  //           })
-  //       })
-
-  //       it('responds with 401 when sent anothers token', () => {
-  //         const patchBody = makeUser.patchBody()
-  //         return supertest(app)
-  //           .patch(`/api/user/${authedUser.id}`)
-  //           .send(patchBody)
-  //           .set({
-  //             "Authorization": `Bearer ${anotherUser.token}`
-  //           })
-  //           .expect(401, { error: { message: 'Not authorized!' } })
-  //       })
-  //     })
-
-  //     context('given the user is not signed in', () => {
-  //       it('responds with 401 when missing auth header', () => {
-  //         const patchBody = makeUser.patchBody()
-  //         return supertest(app)
-  //           .patch(`/api/user/${authedUser.id}`)
-  //           .send(patchBody)
-  //           .expect(401, { error: { message: 'Not authorized!'}})
-  //       })
-  //     })
-  //   })
+    })
   })
 })
