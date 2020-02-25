@@ -743,7 +743,7 @@ describe('Flyer endpoints', () => {
 
       })
 
-      context('given the user making the request is not the creator', () => {
+      context('given the user making the patch is not the creator', () => {
         beforeEach('signin authed user', () => {
           const signInBody = makeUser.signinGood()
           return supertest(app)
@@ -799,6 +799,10 @@ describe('Flyer endpoints', () => {
 
           it('Responds with 204 and flyer record patched if user is admin', () => {
             const patchBody = makeFlyer.patchBody()
+            const expected = {
+              ...patchFlyer,
+              ...patchBody
+            }
             return supertest(app)
               .patch(`/api/flyer/${patchFlyer.id}`)
               .send(patchBody)
@@ -806,6 +810,57 @@ describe('Flyer endpoints', () => {
                 "Authorization": `Bearer ${authedUser.token}`
               })
               .expect(204)
+              .then(() => {
+                return supertest(app)
+                  .get(`/api/flyer/${patchFlyer.id}`)
+                  .set({
+                    "Authorization": `Bearer ${authedUser.token}`
+                  })
+                  .expect(200)
+                  .expect(res => {
+                    const actualModified = new Date(res.body.modified).toLocaleString
+                    const expectedModified = new Date(expected.modified).toLocaleString
+                    expect(actualModified).to.eql(expectedModified)
+                    delete res.body['modified']
+                    delete expected['modified']
+                    expect(res.body.events.length).to.eql(expected.events.length)
+                    delete res.body['events'] // test's patchBody includes and events update dont need to test ids and such
+                    delete expected['events']
+                    expect(res.body).to.eql(expected)
+                  })
+              })
+          })
+
+          it('responds with 204 and flyers listing_state can patch restricted options ', () => {
+            const patchBody = makeFlyer.patchBodyUnauth400()
+            const expected = {
+              ...patchFlyer,
+              ...patchBody
+            }
+            return supertest(app)
+              .patch(`/api/flyer/${patchFlyer.id}`)
+              .send(patchBody)
+              .set({
+                "Authorization": `Bearer ${authedUser.token}`
+              })
+              .expect(204)
+              .then(() => {
+                return supertest(app)
+                  .get(`/api/flyer/${patchFlyer.id}`)
+                  .set({
+                    "Authorization": `Bearer ${authedUser.token}`
+                  })
+                  .expect(200)
+                  .expect(res => {
+
+                    const actualModified = new Date(res.body.modified).toLocaleString
+                    const expectedModified = new Date(expected.modified).toLocaleString
+                    expect(actualModified).to.eql(expectedModified)
+                    delete res.body['modified']
+                    delete expected['modified']
+                    expect(res.body).to.eql(expected)
+                  })
+              })
           })
         })
       })
