@@ -740,6 +740,7 @@ describe('Flyer endpoints', () => {
                 })
             })
         })
+
       })
 
       context('given the user making the request is not the creator', () => {
@@ -753,8 +754,15 @@ describe('Flyer endpoints', () => {
             })
         })
 
+        beforeEach('make sure authedUser is not an admin', () => {
+          return db('app_user')
+            .where('id', authedUser.id)
+            .update('admin', false)
+        })
+
         it('Responds with 401, flyer record should not be patched', () => {
           const patchBody = makeFlyer.patchBody()
+
           return supertest(app)
             .patch(`/api/flyer/${patchFlyer.id}`)
             .send(patchBody)
@@ -774,6 +782,31 @@ describe('Flyer endpoints', () => {
                 })
             })
 
+        })
+
+        context('given the user making the request is admin', () => {
+          beforeEach('make authedUser an admin', () => {
+            return db('app_user')
+              .where('id', authedUser.id)
+              .update('admin', true)
+          })
+
+          afterEach('undo make authedUser an admin', () => {
+            return db('app_user')
+              .where('id', authedUser.id)
+              .update('admin', false)
+          })
+
+          it('Responds with 204 and flyer record patched if user is admin', () => {
+            const patchBody = makeFlyer.patchBody()
+            return supertest(app)
+              .patch(`/api/flyer/${patchFlyer.id}`)
+              .send(patchBody)
+              .set({
+                "Authorization": `Bearer ${authedUser.token}`
+              })
+              .expect(204)
+          })
         })
       })
 
@@ -879,6 +912,13 @@ describe('Flyer endpoints', () => {
               authedUser = res.body
             })
         })
+
+        beforeEach('make sure authedUser is not an admin', () => {
+          return db('app_user')
+            .where('id', authedUser.id)
+            .update('admin', false)
+        })
+
         it('responds with 401', () => {
           return supertest(app)
             .delete(`/api/flyer/${deleteId}`)
@@ -895,42 +935,31 @@ describe('Flyer endpoints', () => {
                 .expect(res => expect(res.body.flyers.length).to.equal(1))
             })
         })
-      })
 
-      context('given the token user is not the creator, but is admin', () => {
-        beforeEach('signin authed user (admin)', () => {
-          const signInBody = makeUser.signinGood()
-          return supertest(app)
-            .post('/api/auth/signin')
-            .send(signInBody)
-            .then(res => {
-              authedUser = {
-                ...res.body,
-                admin: true
-              }
-              return db('app_user')
-                .where('id', res.body.id)
-                .update('admin', true)
-            })
-        })
-        it('responds with 204 and removes flyer', () => {
-          return supertest(app)
-            .delete(`/api/flyer/${deleteId}`)
-            .set({
-              "Authorization": `Bearer ${authedUser.token}`
-            })
-            .expect(204)
-            .then(() => {
-              return supertest(app)
-                .get('/api/flyer')
-                .set({
-                  "Authorization": `Bearer ${authedUser.token}`
-                })
-                .expect(res => expect(res.body.flyers.length).to.equal(0))
-            })
-        })
-      })
+        context('given the user making the request is admin', () => {
+          beforeEach('make authedUser an admin', () => {
+            return db('app_user')
+              .where('id', authedUser.id)
+              .update('admin', true)
+          })
 
+          afterEach('undo make authedUser an admin', () => {
+            return db('app_user')
+              .where('id', authedUser.id)
+              .update('admin', false)
+          })
+
+          it('Responds with 204 and flyer deleted if user is admin', () => {
+            return supertest(app)
+              .delete(`/api/flyer/${deleteId}`)
+              .set({
+                "Authorization": `Bearer ${authedUser.token}`
+              })
+              .expect(204)
+          })
+        })
+
+      })
     })
   })
 
