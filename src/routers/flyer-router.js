@@ -87,22 +87,11 @@ flyerRouter
         .isArray().withMessage('events must be an array.'),
       check('listing_state').optional()
         .custom((val, { req }) => {
-          console.log('VALUEEEE', val)
-          console.log('IS ADMIN??', req.user.admin)
-          return req.user.admin || (Boolean(val) && ['Draft', 'Private', 'Public', 'Archived'].includes(val))
-
-          // return req.user.admin && ['Banned', 'Flagged', 'Draft', 'Private', 'Public', 'Archived'].includes(val)
-          //   ? true
-          //   : ['Draft', 'Private', 'Public', 'Archived'].includes(val)
-          //   ? true
-          //   : !val
-          //   ? true
-          //   : false
+          // console.log('VALUEEEE', val)
+          // console.log('IS ADMIN??', req.user.admin)
+          return (req.user.admin && ['Banned', 'Flagged', 'Draft', 'Private', 'Public', 'Archived'].includes(val)) || (['Draft', 'Private', 'Public', 'Archived'].includes(val))
         })
         .withMessage('Unauthorized listing control.'),
-      // check('listing_state').optional()
-      //   .isIn(['Draft', 'Private', 'Public', 'Archived'])
-      //   .withMessage('Unauthorized listing control.'),
       check('flyer_type').optional()
         .isIn(['Show', 'Fest', 'Tour'])
         .withMessage('flyer_type must be one of Show, Fest, or Tour.'),
