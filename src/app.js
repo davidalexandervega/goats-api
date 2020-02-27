@@ -55,18 +55,15 @@ app.post('/api/image-upload', (req, res) => {
   const values = Object.values(req.files)
   const promises = values.map(image =>
     cloudinary.v2.uploader.upload(image.path, {
-      image_metadata: true,
-      exif: true,
-      angle: 'exif',
-      // transform: [
-      //     { height: 30 }]
-    }, () => console.log('uploaded!!', image))
+      // image_metadata: true,
+      // exif: true,
+      angle: 'exif'
+    })
   )
 
   Promise
     .all(promises)
     .then(results => {
-      console.log('RESULTS', results)
       return res.json(results)
     } )
     .catch(error => {
