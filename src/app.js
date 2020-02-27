@@ -56,7 +56,8 @@ app.post('/api/image-upload', (req, res) => {
   const promises = values.map(image =>
     cloudinary.uploader.upload(image.path, {
       image_metadata: true,
-      exif: true
+      exif: true,
+      angle: ignore
     })
   )
 
