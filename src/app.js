@@ -55,19 +55,20 @@ app.post('/api/image-upload', (req, res) => {
   const values = Object.values(req.files)
   const promises = values.map(image =>
     cloudinary.v2.uploader.upload(image.path, {
-      // image_metadata: true,
-      // exif: true,
-
-        eager: [
-          { width: 400, height: 300, crop: "pad" },
-          { width: 260, height: 200, crop: "crop", gravity: "north" }]
-
-    })
+      image_metadata: true,
+      exif: true,
+      angle: 'exif',
+      // transform: [
+      //     { height: 30 }]
+    }, () => console.log('uploaded!!', image))
   )
 
   Promise
     .all(promises)
-    .then(results => res.json(results))
+    .then(results => {
+      console.log('RESULTS', results)
+      return res.json(results)
+    } )
     .catch(error => {
       console.log('error inside img upload')
       logger.error(`500 Error message: ${error.message}`)
