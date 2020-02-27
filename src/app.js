@@ -54,9 +54,8 @@ app.use(formData.parse())
 app.post('/api/image-upload', (req, res) => {
   const values = Object.values(req.files)
   const promises = values.map(image =>
-    cloudinary.uploader.upload(image.path, {
-
-      image_metadata: true,
+    cloudinary.v2.uploader.upload(image.path, {
+      // image_metadata: true,
       // exif: true,
 
         eager: [
