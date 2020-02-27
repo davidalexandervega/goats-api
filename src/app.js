@@ -58,10 +58,10 @@ app.post('/api/image-upload', (req, res) => {
 
       image_metadata: true,
       // exif: true,
-      transformation: {
-        width: 800
-        // angle: "ignore"
-      }
+
+        eager: [
+          { width: 400, height: 300, crop: "pad" },
+          { width: 260, height: 200, crop: "crop", gravity: "north" }]
 
     })
   )
