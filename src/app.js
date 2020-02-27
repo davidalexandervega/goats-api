@@ -57,7 +57,9 @@ app.post('/api/image-upload', (req, res) => {
     cloudinary.uploader.upload(image.path, {
       // image_metadata: true,
       // exif: true,
-      eager: [{ angle: "ignore" }]
+      eager: [{
+        width: 800
+      }]
 
     })
   )
