@@ -49,6 +49,21 @@ const FlyerService = {
       .offset(offset)
   },
 
+  getTotalByRegion(knex, region) {
+    return knex
+      .count('flyer.id')
+
+      .from('flyer')
+      .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
+      .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
+      .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+
+      .join('event', 'flyer.id', '=', 'event.flyer_id')
+      .whereNotNull('event.region_name')
+      .andWhere('event.region_name', '!=', '')
+      .andWhere('event.region_name', '=', region)
+  },
+
   selectByCountry(knex, limit, offset, country) {
     return knex
       .select(

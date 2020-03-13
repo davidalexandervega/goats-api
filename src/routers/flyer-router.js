@@ -193,30 +193,41 @@ function getFlyers(req, res, next) {
       })
 
   } else if (Boolean(region)) {
+
     FlyerService
           .selectByRegion(knexI, limit, offset, region)
-          .then(async flyers => {
-            const flyerRes = []
-            await asyncForEach(flyers, async (flyer) => {
-              await EventService
-                .selectFlyerEvents(knexI, flyer.id)
-                .then(flyerEvents => {
-                  const cleanFlyer = FlyerUtils.sanitize(flyer)
-                  flyerRes.push({
-                    ...cleanFlyer,
-                    events: flyerEvents.map(event => EventUtils.sanitize(event))
-                  })
+          .then(flyers => {
+
+            FlyerService
+              .getTotalByRegion(knexI, region)
+              .then(async count => {
+
+                const flyerRes = []
+                await asyncForEach(flyers, async (flyer) => {
+                  await EventService
+                    .selectFlyerEvents(knexI, flyer.id)
+                    .then(flyerEvents => {
+                      const cleanFlyer = FlyerUtils.sanitize(flyer)
+                      flyerRes.push({
+                        ...cleanFlyer,
+                        events: flyerEvents.map(event => EventUtils.sanitize(event))
+                      })
+                    })
+                    .catch(next)
                 })
-                .catch(next)
-            })
-            return res.json({
-              flyers: flyerRes,
-              total: flyerRes.length,
-            })
+                return res.json({
+                  flyers: flyerRes,
+                  total: count[0].count
+                })
+
+              })
+              .catch(next)
+
           })
           .catch(next)
 
   } else if (Boolean(country)) {
+    console.log('YES COUNTRY', country)
     FlyerService
           .selectByCountry(knexI, limit, offset, country)
           .then(async flyers => {

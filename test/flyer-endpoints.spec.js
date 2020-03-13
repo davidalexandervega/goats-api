@@ -156,6 +156,11 @@ describe('Flyer endpoints', () => {
             })
         })
       })
+
+      context('given the request includes a "limit, offset, country, region" query', () => {
+        it.skip('returns the limit=1 (one flyer) offset=0 (first of total 2) for the country=UnitedStates region=OH given query', () => {
+        })
+      })
     })
 
     context('given there is xss in a flyers text fields', () => {
