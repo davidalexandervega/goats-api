@@ -1,6 +1,6 @@
 # Goat's API
 
-Goats (RESTFUL) API hopes to provide a relevant datasource of heavy metal events, as well as related band and venue information. If you wish to contribute to the development of this project, see the pull request instruction below.
+Goat's (RESTFUL) API hopes to provide a relevant datasource of heavy metal events, as well as related band and venue information. If you wish to contribute to the development of this project, see the pull request instruction below.
 
 ## Getting Started
 
