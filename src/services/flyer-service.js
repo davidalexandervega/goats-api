@@ -64,6 +64,7 @@ const FlyerService = {
       .andWhere('event.region_name', '=', region)
   },
 
+
   selectByCountry(knex, limit, offset, country) {
     return knex
       .select(
@@ -86,6 +87,21 @@ const FlyerService = {
       .orderBy('flyer.modified', 'desc')
       .limit(limit)
       .offset(offset)
+  },
+
+  getTotalByCountry(knex, country) {
+    return knex
+      .count('flyer.id')
+
+      .from('flyer')
+      .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
+      .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
+      .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+
+      .join('event', 'flyer.id', '=', 'event.flyer_id')
+      .whereNotNull('event.country_name')
+      .andWhere('event.country_name', '!=', '')
+      .andWhere('event.country_name', '=', country)
   },
 
   selectUserFlyers(knex, creatorId) {
