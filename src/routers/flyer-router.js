@@ -217,7 +217,7 @@ function getFlyers(req, res, next) {
                 })
                 return res.json({
                   flyers: flyerRes,
-                  total: count[0].count
+                  total: count.length
                 })
 
               })
@@ -251,7 +251,7 @@ function getFlyers(req, res, next) {
                 })
                 return res.json({
                   flyers: flyerRes,
-                  total: count[0].count,
+                  total: count.length,
                 })
 
               })

@@ -51,9 +51,10 @@ const FlyerService = {
 
   getTotalByRegion(knex, region) {
     return knex
-      .count('flyer.id')
-
+      .select('flyer.id')
+      .groupBy('flyer.id')
       .from('flyer')
+
       .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
       .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
       .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
@@ -91,9 +92,10 @@ const FlyerService = {
 
   getTotalByCountry(knex, country) {
     return knex
-      .count('flyer.id')
-
+      .select('flyer.id')
+      .groupBy('flyer.id')
       .from('flyer')
+
       .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
       .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
       .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
