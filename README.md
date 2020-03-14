@@ -1,6 +1,6 @@
 # Goat's API
 
-Goat's RESTful API is a datasource for heavy metal fliers and events. If you wish to contribute to the development of this project, see the pull request instruction below.
+Goat's RESTful API is a datasource for heavy metal fliers and events, and the service layer of [goatsguide.com](https://goatsguide.com). If you wish to contribute to the development of this project, see the pull request instruction below.
 
 The client-side repository for this API can be found at [github.com/killeraliens/goats-client](https://github.com/killeraliens/goats-client), in case you would like to make frontend contributions.
 
