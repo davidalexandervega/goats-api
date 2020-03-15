@@ -14,7 +14,7 @@ These instructions will get you a copy of the project up and running on your loc
 1. Clone this repository to your local machine `git clone git@github.com:killeraliens/goats-api.git`
 2. `cd` into the cloned repository
 4. Install the node dependencies `npm install`
-5. [start PostrgreSQL](https://www.robinwieruch.de/postgres-sql-macos-setup)
+5. [start PostgreSQL](https://www.robinwieruch.de/postgres-sql-macos-setup)
 6. Make sure migrations are current with `npm run migrate`
 8. And `npm run migrate:test` if you wish to run and create tests
 7. Start the local server with nodemon `npm run dev`
