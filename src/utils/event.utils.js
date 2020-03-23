@@ -9,7 +9,8 @@ const sanitize = event => {
     city_name: xss(event.city_name),
     region_name: xss(event.region_name),
     country_name: xss(event.country_name),
-    city_id: event.city_id
+    city_id: event.city_id,
+    cancelled: event.cancelled
   }
 }
 

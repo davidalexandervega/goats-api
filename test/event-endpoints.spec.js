@@ -104,7 +104,7 @@ describe.only('Event endpoints', () => {
             expect(res.body[0]).to.have.property('country_name')
             expect(res.body[0]).to.have.property('city_id')
             expect(res.body[0]).to.have.property('cancelled')
-            expect(res.body[0]).to.be.a('boolean')
+            expect(res.body[0].cancelled).to.be.a('boolean')
             const eventsCancelled = res.body.filter(event => event.cancelled === true).length
             expect(eventsCancelled).eql(9)
           })
