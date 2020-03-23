@@ -106,7 +106,7 @@ describe.only('Event endpoints', () => {
             expect(res.body[0]).to.have.property('cancelled')
             expect(res.body[0].cancelled).to.be.a('boolean')
             const eventsCancelled = res.body.filter(event => event.cancelled === true).length
-            expect(eventsCancelled).eql(9)
+            expect(eventsCancelled).to.eql(9)
           })
       })
     })
