@@ -351,7 +351,8 @@ const seed = {
         city_name,
         region_name,
         country_name,
-        city_id
+        city_id,
+        cancelled
       )
       VALUES
         (
@@ -362,7 +363,8 @@ const seed = {
           'Mexico City',
           null,
           'Mexico',
-          null
+          null,
+          false
         ),
         (
           '9acbfa16-48f4-11ea-b77f-2e728ce88125',
@@ -372,7 +374,8 @@ const seed = {
           'Mexico City',
           null,
           'Mexico',
-          null
+          null,
+          false
         ),
         (
           'a2fb5362-48f4-11ea-b77f-2e728ce88125',
@@ -382,7 +385,8 @@ const seed = {
           'Mexico City',
           null,
           'Mexico',
-          null
+          null,
+          false
         ),
         (
           'ac671dc8-48f4-11ea-b77f-2e728ce88125',
@@ -392,7 +396,8 @@ const seed = {
           'Mexico City',
           null,
           'Mexico',
-          null
+          null,
+          false
         ),
         (
           '5a7d4a0e-48f5-11ea-b77f-2e728ce88125',
@@ -402,7 +407,8 @@ const seed = {
           'Clevland',
           'OH',
           'United States',
-          null
+          null,
+          true
         ),
         (
           '62b299fe-48f5-11ea-b77f-2e728ce88125',
@@ -412,7 +418,8 @@ const seed = {
           'Detroit',
           'MI',
           'United States',
-          null
+          null,
+          true
         ),
         (
           '6af351b2-48f5-11ea-b77f-2e728ce88125',
@@ -422,7 +429,8 @@ const seed = {
           'Chicago',
           'IL',
           'United States',
-          null
+          null,
+          true
         ),
         (
           '74de12f2-48f5-11ea-b77f-2e728ce88125',
@@ -432,7 +440,8 @@ const seed = {
           'Indianapolis',
           'IN',
           'United States',
-          null
+          null,
+          true
         ),
         (
           '80bf6cec-48f5-11ea-b77f-2e728ce88125',
@@ -442,7 +451,8 @@ const seed = {
           'Columbus',
           'OH',
           'United States',
-          null
+          null,
+          true
         ),
         (
           '88c6a400-48f5-11ea-b77f-2e728ce88125',
@@ -452,7 +462,8 @@ const seed = {
           'Pittsburgh',
           'PA',
           'United States',
-          null
+          null,
+          true
         ),
         (
           '90b0d6cc-48f5-11ea-b77f-2e728ce88125',
@@ -462,7 +473,8 @@ const seed = {
           'Baltimore',
           'MD',
           'United States',
-          null
+          null,
+          true
         ),
         (
           '973a5a04-48f5-11ea-b77f-2e728ce88125',
@@ -472,7 +484,8 @@ const seed = {
           'Philadelphia',
           'PA',
           'United States',
-          null
+          null,
+          true
         ),
         (
           '9ed5309a-48f5-11ea-b77f-2e728ce88125',
@@ -482,7 +495,8 @@ const seed = {
           'New York',
           'NY',
           'United States',
-          null
+          null,
+          true
         ),
         (
           'a7afef3e-48f5-11ea-8456-2e728ce88125',
@@ -492,7 +506,8 @@ const seed = {
           'Montreal',
           'QC',
           'Canada',
-          null
+          null,
+          false
         ),
         (
           '50862d34-885d-48cb-8ad0-6b4da488135f',
@@ -502,7 +517,8 @@ const seed = {
           'Copenhagen',
           null,
           'Denmark',
-          null
+          null,
+          false
         ),
         (
           'bf9f0bf4-b941-4b3e-9616-31ce71d69c6c',
@@ -512,7 +528,8 @@ const seed = {
           'Copenhagen',
           null,
           'Denmark',
-          null
+          null,
+          false
         ),
         (
           '37cbaad3-c23b-4492-8ad3-2e87ba19fd49',
@@ -522,7 +539,8 @@ const seed = {
           'Copenhagen',
           null,
           'Denmark',
-          null
+          null,
+          false
         ),
         (
           '1242df4b-e6b1-4a45-b052-49f70bd2194f',
@@ -532,7 +550,8 @@ const seed = {
           'Copenhagen',
           null,
           'Denmark',
-          null
+          null,
+          false
         ),
         (
           '81eb96ce-de51-4903-b15c-68be6a72fbf9',
@@ -542,7 +561,8 @@ const seed = {
           'Phoenix',
           'AZ',
           'United States',
-          null
+          null,
+          false
         )
         ;
     `
