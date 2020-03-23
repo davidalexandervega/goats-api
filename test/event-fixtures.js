@@ -8,7 +8,8 @@ const makeEvent = {
       city_name: 'Mexico City',
       region_name: "",
       country_name: 'Mexico',
-      city_id: null
+      city_id: null,
+      cancelled: false
     }
 
   },

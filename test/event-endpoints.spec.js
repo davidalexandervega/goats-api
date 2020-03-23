@@ -4,7 +4,7 @@ const { makeUser } = require('./user-fixtures')
 // const { makeEvent } = require('./event-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
 
-describe('Event endpoints', () => {
+describe.only('Event endpoints', () => {
   let db;
 
   before('create knex db instance', () => {
@@ -103,6 +103,8 @@ describe('Event endpoints', () => {
             expect(res.body[0]).to.have.property('region_name')
             expect(res.body[0]).to.have.property('country_name')
             expect(res.body[0]).to.have.property('city_id')
+            expect(res.body[0]).to.have.property('cancelled')
+            expect(res.body[0]).to.be.a('boolean')
           })
       })
     })
