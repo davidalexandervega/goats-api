@@ -4,7 +4,7 @@ const { makeUser } = require('./user-fixtures')
 // const { makeEvent } = require('./event-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
 
-describe.only('Event endpoints', () => {
+describe('Event endpoints', () => {
   let db;
 
   before('create knex db instance', () => {
