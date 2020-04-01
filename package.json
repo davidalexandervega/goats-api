@@ -20,6 +20,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^7.0.0",
     "bcrypt": "^3.0.7",
     "body-parser": "^1.19.0",
     "cloudinary": "^1.19.0",
@@ -43,12 +44,12 @@
     "pg": "^7.14.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
+    "sendgrid": "^4.2.0",
     "serve-favicon": "^2.5.0",
     "session": "^0.1.0",
     "uuid": "^3.3.3",
     "winston": "^3.2.1",
-    "xss": "^1.0.6",
-    "sendgrid": "^4.2.0"
+    "xss": "^1.0.6"
   },
   "devDependencies": {
     "chai": "^4.2.0",
