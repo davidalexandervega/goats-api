@@ -5,7 +5,7 @@ const { seed, truncate } = require('./seed-fixtures')
 chai.use(require('chai-uuid'));
 
 
-describe('Auth endpoints', () => {
+describe.only('Auth endpoints', () => {
   let db
   before('create knex db instance', () => {
     db = knex({
@@ -257,5 +257,42 @@ describe('Auth endpoints', () => {
     })
   })
 
+  describe('POST /api/auth/recover endpoint', () => {
+    context('given the username exists', () => {
+      let authedSignedInUser;
+      beforeEach('post a new user to match signedInRes', () => {
+        const postBody = makeUser.postBody()
+        return supertest(app)
+          .post('/api/auth/signup')
+          .send(postBody)
+          .then(res => {
+            return authedSignedInUser = res.body
+          })
+      })
+
+      it('responds with 201 and sends an email to the associated account', () => {
+        const postBody = {
+          username: authedSignedInUser.username
+        }
+        return supertest(app)
+          .post('/api/auth/recover')
+          .send(postBody)
+          .expect(201, {
+            message: `An email has been sent to the account associated with ${postBody.username}`
+          })
+      })
+    })
+    context('given the username does not exist', () => {
+        const postBody = {
+          username: 'badname'
+        }
+        return supertest(app)
+          .post('/api/auth/recover')
+          .send(postBody)
+          .expect(401, {
+            message: `There is no account associated with this username`
+          })
+    })
+  })
 })
 
