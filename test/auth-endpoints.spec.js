@@ -270,14 +270,14 @@ describe.only('Auth endpoints', () => {
           })
       })
 
-      it('responds with 201 and sends an email to the associated account', () => {
+      it('responds with 202 and sends an email to the associated account', () => {
         const postBody = {
           username: authedSignedInUser.username
         }
         return supertest(app)
           .post('/api/auth/recover')
           .send(postBody)
-          .expect(201, {
+          .expect(202, {
             message: `An email has been sent to the account associated with ${postBody.username}`
           })
       })

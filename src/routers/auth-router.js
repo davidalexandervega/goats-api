@@ -5,6 +5,9 @@ const UserUtils = require('../utils/user.utils')
 const bodyParser = express.json()
 const logger = require('../utils/logger.utils')
 const { check, validationResult, body, sanitizedBody } = require('express-validator');
+const sgMail = require('@sendgrid/mail');
+const { sendgridAuth } = require('../config/auth-config')
+sgMail.setApiKey(sendgridAuth.apiKey);
 
 const authRouter = express.Router()
 
@@ -27,6 +30,23 @@ authRouter
       })
     ],
     signup
+  )
+
+authRouter
+  .route('/recover')
+  .post(
+    bodyParser,
+    [
+      check('username').custom((value, { req }) => {
+        const knexI = req.app.get('db')
+        return UserService.getByUsername(knexI, value).then(user => {
+          if (!user) {
+            return Promise.reject(`Username ${value} does not exist.`);
+          }
+        })
+      })
+    ],
+    sendRecoveryEmail
   )
 
 authRouter
@@ -154,6 +174,51 @@ function signin(req, res, next) {
       delete user.password_digest
       //logger.info(`Successful POST /signin by username ${user.username}`)
       res.status(201).json(UserUtils.sanitizeAuthed(user))
+    })
+    .catch(next)
+
+}
+
+function sendRecoveryEmail(req, res, next) {
+  const validErrors = validationResult(req)
+  if (!validErrors.isEmpty()) {
+    logger.error(`POST /recover 401 error ${validErrors.errors[0].msg}`)
+    return res.status(401).json({ message: validErrors.errors[0].msg })
+  }
+
+  const knexI = req.app.get('db')
+  const { username } = req.body
+
+  UserService
+    .getByUsername(knexI, username)
+    .then(user => {
+      const msg = {
+        to: user.email,
+        from: 'goatsguide@gmail.com',
+        subject: `Your Goat's Guide password reset request`,
+        html: `
+          <div>
+            <h1>Hello ${user.username}<h1>
+            <p>A request has been received to change the password for your account.</p>
+            <a href="https://goatsguide.com/${user.id}/reset">Reset it here.</a>
+            <p>
+              If you did not initiate this request, let us know by replying to this message.
+            </p>
+            <p>Thank you.</br>
+            <a href="mailto: goatsguide@gmail.com">goatsguide@gmail.com</a></p>
+          </div>
+        `
+      }
+
+      sgMail.send(msg, (error, result) => {
+        if (error) {
+          logger.error(`/auth/recover sendgrid error: ${JSON.stringify(error)}`)
+          return res.status(401).send({ message: 'There was an error sending you your recovery email.'})
+        }
+        else {
+          return res.status(202).send({ message: 'An email has been sent to the account associated with testuser' })
+        }
+      })
     })
     .catch(next)
 
