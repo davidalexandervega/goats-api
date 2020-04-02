@@ -1,12 +1,10 @@
 doctype html
 html
     head
-
     body
-        - const user = { username: '', id: '' }
-        h1 Hello #{user.username}
+        h1 Hello #{username}
         p A request has been received to change the password for your account.
-        a(href="https://goatsguide.com/#{user.id}/reset") Reset it here.
+        a(href="https://goatsguide.com/reset/#{token}") Reset it here.
         p If you did not initiate this request,let us know by replying to this message.
         p Thank you.
         a(href="mailto: goatsguide@gmail.com") goatsguide@gmail.com

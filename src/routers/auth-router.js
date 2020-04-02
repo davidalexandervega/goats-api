@@ -5,9 +5,6 @@ const UserUtils = require('../utils/user.utils')
 const bodyParser = express.json()
 const logger = require('../utils/logger.utils')
 const { check, validationResult, body, sanitizedBody } = require('express-validator');
-const sgMail = require('@sendgrid/mail');
-const { sendgridAuth } = require('../config/auth-config')
-sgMail.setApiKey(sendgridAuth.apiKey);
 
 const authRouter = express.Router()
 
@@ -192,33 +189,27 @@ function sendRecoveryEmail(req, res, next) {
   UserService
     .getByUsername(knexI, username)
     .then(user => {
-      const msg = {
+      const mailOptions = {
         to: user.email,
         from: 'goatsguide@gmail.com',
         subject: `Your Goat's Guide password reset request`,
-        html: `
-          <div>
-            <h1>Hello ${user.username}<h1>
-            <p>A request has been received to change the password for your account.</p>
-            <a href="https://goatsguide.com/${user.id}/reset">Reset it here.</a>
-            <p>
-              If you did not initiate this request, let us know by replying to this message.
-            </p>
-            <p>Thank you.</br>
-            <a href="mailto: goatsguide@gmail.com">goatsguide@gmail.com</a></p>
-          </div>
-        `
+        vars: {
+          username: user.username,
+          token: user.token
+        },
+        htmlFile: 'recover-email.pug'
       }
 
-      sgMail.send(msg, (error, result) => {
-        if (error) {
+      UserUtils
+        .sendEmail(mailOptions)
+        .then(response => {
+          return res.status(202).json({ message: `An email has been sent to the account associated with ${user.username}` })
+        })
+        .catch(error => {
           logger.error(`/auth/recover sendgrid error: ${JSON.stringify(error)}`)
-          return res.status(401).send({ message: 'There was an error sending you your recovery email.'})
-        }
-        else {
-          return res.status(202).send({ message: 'An email has been sent to the account associated with testuser' })
-        }
-      })
+          return res.status(401).json({ message: 'There was an error sending you the password reset email.' })
+        })
+
     })
     .catch(next)
 

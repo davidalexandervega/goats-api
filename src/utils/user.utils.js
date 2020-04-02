@@ -2,6 +2,10 @@ const UserService = require('../services/user-service')
 const xss = require('xss')
 const bcrypt = require('bcrypt')                         // bcrypt will encrypt passwords to be saved in db
 const crypto = require('crypto')
+const sgMail = require('@sendgrid/mail');
+const { sendgridAuth } = require('../config/auth-config')
+sgMail.setApiKey(sendgridAuth.apiKey);
+const pug = require('pug')
 
 const sanitize = user => {
   return {
@@ -114,6 +118,34 @@ const isAuthenticated = (knexI, resUserId, reqUser) => {
 
 }
 
+const sendEmail = (mailOptions) => {
+
+  const html = pug.renderFile(
+    __dirname + "/../html/" + mailOptions.htmlFile,
+    mailOptions.vars
+  )
+
+  const msg = {
+    to: mailOptions.to,
+    from: mailOptions.from,
+    subject: mailOptions.subject,
+    html: html
+  }
+
+  return new Promise((resolve, reject) => {
+    sgMail.send(msg, (error, result) => {
+      if (error) {
+        reject(error)
+      } else if (result) {
+        resolve(result)
+      } else {
+        reject({ message: 'There was an error sending your email'})
+      }
+    })
+  })
+
+}
+
 
 module.exports = {
   sanitize,
@@ -122,5 +154,6 @@ module.exports = {
   hashPassword,
   createToken,
   checkPassword,
-  isAuthenticated
+  isAuthenticated,
+  sendEmail
  }
