@@ -17,14 +17,18 @@ authRouter
   .post(
     bodyParser,
     [
-      check('username').custom((value, { req }) => {
+      check('username')
+        .custom((value, { req }) => {
         const knexI = req.app.get('db')
         return UserService.getByUsername(knexI, value).then(user => {
             if (user) {
               return Promise.reject(`Username ${value} is already in use.`);
             }
         })
-      })
+      }),
+      check('password')
+        .isLength({ min: 5, max: 20})
+        .withMessage('password length must be between 5 and 20 characters')
     ],
     signup
   )
@@ -46,12 +50,12 @@ authRouter
     sendRecoveryEmail
   )
 
-authRouter
-  .route('/check')
-  .post(
-    bodyParser,
-    getByIdToken
-  )
+// authRouter
+//   .route('/check')
+//   .post(
+//     bodyParser,
+//     getByIdToken
+//   )
 
 authRouter
   .route('/signout')
@@ -207,7 +211,7 @@ function sendRecoveryEmail(req, res, next) {
         })
         .catch(error => {
           logger.error(`/auth/recover sendgrid error: ${JSON.stringify(error)}`)
-          return res.status(401).json({ message: 'There was an error sending you the password reset email.' })
+          return res.status(401).json({ message: 'There was a problem with sending your password recovery email.' })
         })
 
     })
@@ -216,26 +220,26 @@ function sendRecoveryEmail(req, res, next) {
 }
 
 //write tests
-function getByIdToken(req, res, next) {
-  const knexI = req.app.get('db')
-  const { id, token } = req.body
+// function getByIdToken(req, res, next) {
+//   const knexI = req.app.get('db')
+//   const { id, token } = req.body
 
-  UserService
-    .getByIdToken(knexI, id, token)
-    .then(user => {
-      if (!user) {
-        logger.error(`POST /auth/check user ${id} not found`)
-        return res.status(404).json({message: 'User not found.'})
-      }
-      return user
-    })
-    .then(user => {
-      if (!user.token || user.token != token) {
-        logger.error(`POST /auth/check token ${token} for user ${id} expired or null`)
-        return res.status(401).json({message: 'Unauthorized.'})
-      }
-      return res.status(200).json(user)
-    })
-}
+//   UserService
+//     .getByIdToken(knexI, id, token)
+//     .then(user => {
+//       if (!user) {
+//         logger.error(`POST /auth/check user ${id} not found`)
+//         return res.status(404).json({message: 'User not found.'})
+//       }
+//       return user
+//     })
+//     .then(user => {
+//       if (!user.token || user.token != token) {
+//         logger.error(`POST /auth/check token ${token} for user ${id} expired or null`)
+//         return res.status(401).json({message: 'Unauthorized.'})
+//       }
+//       return res.status(200).json(user)
+//     })
+// }
 
 module.exports = authRouter;

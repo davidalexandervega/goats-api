@@ -122,6 +122,19 @@ describe.only('Auth endpoints', () => {
             .expect(400, { message: `Username ${postBody.username} is already in use.`})
         })
 
+        const badPws = ['f0ur, too4long9twentyone921']
+        badPws.forEach(pw => {
+          it('responds with 400 if request password length is too outside of length range', () => {
+            const postBody = {
+              username: 'goodusername',
+              password: pw
+            }
+            return supertest(app)
+              .post('/api/auth/signup')
+              .send(postBody)
+              .expect(400, { message: 'password length must be between 5 and 20 characters' })
+          })
+        })
       })
 
     })
@@ -292,6 +305,118 @@ describe.only('Auth endpoints', () => {
           .expect(401, {
             message: `There is no account associated with this username`
           })
+    })
+  })
+
+  describe('POST /api/auth/reset endpoint', () => {
+    context('given the user exists', () => {
+      let authedUser;
+      let otherUser;
+      beforeEach('post a new user who will attempt to reset password', () => {
+        const postBody = makeUser.postBody()
+        return supertest(app)
+          .post('/api/auth/signup')
+          .send(postBody)
+          .then(res => {
+            return authedUser = res.body
+          })
+      })
+      beforeEach('post a second user for fail case usage', () => {
+        const postBody = makeUser.postBody2()
+        return supertest(app)
+          .post('/api/auth/signup')
+          .send(postBody)
+          .then(res => {
+            return otherUser = res.body
+          })
+      })
+
+      context('given the request contains the correct username and token, and new password', () => {
+        it('responds with 201 and signed in user (with additional auth fields)', () => {
+          const postBody = {
+            username: authedUser.username,
+            password: 'new666'
+          }
+          return supertest(app)
+            .post('/api/auth/reset')
+            .send(postBody)
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(201)
+            .expect(res => {
+              expect(res.body).to.have.property('id')
+              expect(res.body.id).to.eql(expected.id)
+              expect(res.body).to.have.property('username')
+              expect(res.body.username).to.eql(expected.username)
+              expect(res.body).to.have.property('email')
+              expect(res.body.email).to.eql(expected.email)
+              expect(res.body).to.have.property('admin')
+              expect(res.body.admin).to.eql(expected.admin)
+              expect(res.body).to.have.property('image_url')
+              expect(res.body.image_url).to.eql(expected.image_url)
+              expect(res.body).to.have.property('fullname')
+              expect(res.body.fullname).to.eql(expected.fullname)
+              expect(res.body).to.have.property('city_name')
+              expect(res.body.city_name).to.eql(expected.city_name)
+              expect(res.body).to.have.property('region_name')
+              expect(res.body.region_name).to.eql(expected.region_name)
+              expect(res.body).to.have.property('country_name')
+              expect(res.body.country_name).to.eql(expected.country_name)
+              expect(res.body).to.have.property('city_id')
+              expect(res.body.city_id).to.eql(expected.city_id)
+              expect(res.body).to.have.property('user_state')
+              expect(res.body.user_state).to.eql(expected.user_state)
+              expect(res.body).to.have.property('created')
+              expect(res.body).to.have.property('modified')
+              expect(res.body).to.have.property('last_login')
+              const actualModifiedDate = new Date(res.body.modified).toLocaleString()
+              const actualLastLoginDate = new Date(res.body.last_login).toLocaleString()
+              const expectedDate = new Date().toLocaleString()
+              expect(res.body.created).to.eql(expected.created)
+              expect(actualModifiedDate).to.eql(expectedDate)
+              expect(actualLastLoginDate).to.eql(expectedDate)
+              expect(res.body).to.have.property('token')
+              expect(res.body.token).to.not.eql(null)
+              expect(res.body).to.not.have.property('password_digest')
+              expect(res.body.password_digest).to.eql(undefined)
+            })
+        })
+      })
+
+      context('given there is a missing or incorrect request param', () => {
+        it('responds with 401 unauthorized if the username and token dont match an account', () => {
+          const postBody = {
+            username: authedUser.username,
+            password: 'new666'
+          }
+          return supertest(app)
+            .post('/api/auth/reset')
+            .send(postBody)
+            .set({
+              "Authorization": `Bearer ${otherUser.token}`
+            })
+            .expect(401, { message: 'Unauthorized.'})
+            // .then(check the db for authedUser)
+        })
+
+        const badPws = ['f0ur, too4long9twentyone921']
+        badPws.forEach(pw => {
+          it('responds with 400 if request password length is too outside of length range', () => {
+            const postBody = {
+              username: authedUser.username,
+              password: pw
+            }
+            return supertest(app)
+              .post('/api/auth/reset')
+              .send(postBody)
+              .set({
+                "Authorization": `Bearer ${authedUser.token}`
+              })
+              .expect(400, { message: 'password length must be between 5 and 20 characters' })
+          })
+        })
+      })
     })
   })
 })
