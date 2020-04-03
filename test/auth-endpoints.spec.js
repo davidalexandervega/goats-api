@@ -385,22 +385,6 @@ describe.only('Auth endpoints', () => {
       })
 
       context('given there is a missing or incorrect request param', () => {
-        const badPws = ['f0ur, too4long9twentyone921']
-        badPws.forEach(pw => {
-          it('responds with 400 if request password length is too outside of length range', () => {
-            const postBody = {
-              username: authedUser.username,
-              password: pw
-            }
-            return supertest(app)
-              .post('/api/auth/reset')
-              .send(postBody)
-              .set({
-                "Authorization": `Bearer ${authedUser.token}`
-              })
-              .expect(400, { message: 'password length must be between 5 and 20 characters' })
-          })
-        })
 
         it('responds with 401 expired token msg if token doesnt match the username account', () => {
           const postBody = {
@@ -413,7 +397,7 @@ describe.only('Auth endpoints', () => {
             .set({
               "Authorization": `Bearer ${otherUser.token}` //faking an expired (bad) token
             })
-            .expect(401, { message: 'This reset link has expired.'})
+            .expect(401, { message: 'This token has expired.'})
         })
 
         it('responds with 401 if no auth token is provided', () => {
@@ -439,6 +423,23 @@ describe.only('Auth endpoints', () => {
               "Authorization": `Bearer ${authedUser.token}` //faking an expired (bad) token
             })
             .expect(401, { message: `Username ${postBody.username} does not exist.` })
+        })
+
+        const badPws = ['f0ur', 'too4long9twentyone921']
+        badPws.forEach(pw => {
+          it('responds with 400 if request password length is too outside of length range', () => {
+            const postBody = {
+              username: authedUser.username,
+              password: pw
+            }
+            return supertest(app)
+            .post('/api/auth/reset')
+              .set({
+                "Authorization": `Bearer ${authedUser.token}`
+              })
+              .send(postBody)
+              .expect(400, { message: 'password length must be between 5 and 20 characters' })
+          })
         })
       })
 

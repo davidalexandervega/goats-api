@@ -2,9 +2,10 @@ const express = require('express')
 const path = require('path')
 const UserService = require('../services/user-service')
 const UserUtils = require('../utils/user.utils')
+const authUser = require('../mws/auth-user')
 const bodyParser = express.json()
 const logger = require('../utils/logger.utils')
-const { check, validationResult, body, sanitizedBody } = require('express-validator');
+const { check, validationResult } = require('express-validator');
 
 const authRouter = express.Router()
 
@@ -54,23 +55,27 @@ authRouter
   .route('/reset')
   .post(
     bodyParser,
+    authUser.resetPassword,
     [
-      check('username')
-        .custom((value, { req }) => {
-          const knexI = req.app.get('db')
-          const { token } = req.user
-          return UserService.getByUsername(knexI, value).then(user => {
-            if (!user) {
-              return Promise.reject(`Username ${ value } does not exist.`);
-            }
-            if (!token) {
-              return Promise.reject(`Unauthorized.`);
-            }
-            if (!!token && user.token !== token) {
-              return Promise.reject(`This reset link has expired.`);
-            }
-          })
-        }),
+      // check('username')
+      //   .custom((value, { req }) => {
+      //     const knexI = req.app.get('db')
+      //     // const authHeader = req.get('Authorization')
+      //     // const bearerToken = authHeader ? authHeader.split(' ')[1] : null;
+      //     // const  token = bearerToken
+      //     const { token } = req.user
+      //     console.log("!!!!!", token)
+      //     return UserService.getByUsername(knexI, value).then(user => {
+      //       if (!user) {
+      //         return Promise.reject(`Username ${ value } does not exist.`);
+      //       } else if (!!token === false) {
+      //         console.log('!!!!!!!NO token')
+      //         return Promise.reject(`Unauthorized.`);
+      //       } else if (!!token && user.token !== token) {
+      //         return Promise.reject(`This token has expired.`);
+      //       }
+      //     })
+      //   }),
       check('password')
         .isLength({ min: 5, max: 20 })
         .withMessage('password length must be between 5 and 20 characters')
@@ -117,9 +122,6 @@ function signup(req, res, next) {
     logger.error(`POST /signup ${url} is not a valid url`)
     return res.status(400).json({ error: { message: 'email is invalid' } })
   }
-
-  //check if username is unique
-  // res.status(400).json({ error: { message: 'username already exists' }})
 
   const newUser = {
     username: username,
@@ -243,8 +245,10 @@ function resetPassword(req, res, next) {
   const validErrors = validationResult(req)
   if (!validErrors.isEmpty()) {
     logger.error(`POST /reset 401 error ${validErrors.errors[0].msg}`)
-    return res.status(401).json({ message: validErrors.errors[0].msg })
+    return res.status(400).json({ message: validErrors.errors[0].msg })
   }
+
+  return res.status(201).end()
 }
 
 

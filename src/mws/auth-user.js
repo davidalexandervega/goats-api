@@ -87,8 +87,28 @@ function manageFlyer(req, res, next) {
     .catch(next)
 }
 
+// This auth mw is done using validation techniques inside /auth-endpoints
+function resetPassword(req, res, next) {
+  const knexI = req.app.get('db')
+  const { token } = req.user
+  const { username } = req.body
+
+  UserService.getByUsername(knexI, username)
+    .then(user => {
+      if(!user) {
+        return res.status(401).json({ message: `Username ${username} does not exist.` })
+      } else if (!token) {
+        return res.status(401).json({ message: `Unauthorized.` })
+      } else if (!!token && user.token !== token) {
+        return res.status(401).json({ message: 'This token has expired.' })
+      } else {
+        return next()
+      }
+    })
+    .catch(next)
+}
 
 
 
-module.exports = { post, get, manageFlyer, patchUser }
+module.exports = { post, get, manageFlyer, patchUser, resetPassword }
 
