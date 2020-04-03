@@ -51,6 +51,34 @@ authRouter
   )
 
 authRouter
+  .route('/reset')
+  .post(
+    bodyParser,
+    [
+      check('username')
+        .custom((value, { req }) => {
+          const knexI = req.app.get('db')
+          const { token } = req.user
+          return UserService.getByUsername(knexI, value).then(user => {
+            if (!user) {
+              return Promise.reject(`Username ${ value } does not exist.`);
+            }
+            if (!token) {
+              return Promise.reject(`Unauthorized.`);
+            }
+            if (!!token && user.token !== token) {
+              return Promise.reject(`This reset link has expired.`);
+            }
+          })
+        }),
+      check('password')
+        .isLength({ min: 5, max: 20 })
+        .withMessage('password length must be between 5 and 20 characters')
+    ],
+    resetPassword
+  )
+
+authRouter
   .route('/signout')
   .get(signout)
 
@@ -204,12 +232,20 @@ function sendRecoveryEmail(req, res, next) {
         })
         .catch(error => {
           logger.error(`/auth/recover sendgrid error: ${JSON.stringify(error)}`)
-          return res.status(401).json({ message: 'There was a problem with sending your password recovery email.' })
+          return res.status(400).json({ message: 'There was a problem with sending your password recovery email.' })
         })
 
     })
     .catch(next)
-
 }
+
+function resetPassword(req, res, next) {
+  const validErrors = validationResult(req)
+  if (!validErrors.isEmpty()) {
+    logger.error(`POST /reset 401 error ${validErrors.errors[0].msg}`)
+    return res.status(401).json({ message: validErrors.errors[0].msg })
+  }
+}
+
 
 module.exports = authRouter;
