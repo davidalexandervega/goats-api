@@ -332,11 +332,13 @@ describe.only('Auth endpoints', () => {
       })
 
       context('given the request contains the correct username and token, and new password', () => {
-        it('responds with 201 and signed in user (with additional auth fields)', () => {
+        it('responds with 201 and signed in user (with additional auth fields)', function() {
+          this.retries(3)
           const postBody = {
             username: authedUser.username,
             password: 'new666'
           }
+          const expected = authedUser
           return supertest(app)
             .post('/api/auth/reset')
             .send(postBody)

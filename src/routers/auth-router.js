@@ -177,7 +177,7 @@ function signin(req, res, next) {
     })
     .then(() => {
       delete user.password_digest
-      //logger.info(`Successful POST /signin by username ${user.username}`)
+      logger.info(`Successful POST /signin by username ${user.username}`)
       res.status(201).json(UserUtils.sanitizeAuthed(user))
     })
     .catch(next)
@@ -225,11 +225,34 @@ function sendRecoveryEmail(req, res, next) {
 function resetPassword(req, res, next) {
   const validErrors = validationResult(req)
   if (!validErrors.isEmpty()) {
-    logger.error(`POST /reset 401 error ${validErrors.errors[0].msg}`)
+    logger.error(`POST /reset 400 error ${validErrors.errors[0].msg}`)
     return res.status(400).json({ message: validErrors.errors[0].msg })
   }
 
-  return res.status(201).end()
+  // patch user's password
+  const knexI = req.app.get('db')
+  const  { id } = req.user
+  const { password } = req.body
+
+  const patchBody = {}
+  UserUtils.hashPassword(password)
+    .then(hashedPassword => {
+      patchBody.password_digest = hashedPassword
+    })
+    .then(() => {
+      return UserService
+       .updateUser(knexI, id, patchBody)
+       .then(numOfRowsAffected => {
+         return UserService.getById(knexI, id)
+           .then(user => {
+             delete user.password_digest
+             res.status(201).json(UserUtils.sanitizeAuthed(user))
+           })
+           .catch(next)
+       })
+       .catch(next)
+    })
+
 }
 
 
