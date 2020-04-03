@@ -87,7 +87,6 @@ function manageFlyer(req, res, next) {
     .catch(next)
 }
 
-// This auth mw is done using validation techniques inside /auth-endpoints
 function resetPassword(req, res, next) {
   const knexI = req.app.get('db')
   const { token } = req.user
