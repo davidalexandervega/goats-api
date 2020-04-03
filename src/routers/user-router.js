@@ -65,7 +65,7 @@ async function getById(req, res, next) {
   const knexI = req.app.get('db')
   //console.log(UserUtils.isAuthenticated(knexI, res.user.id, req.user))
   const isAuthed = await UserUtils.isAuthenticated(knexI, res.user.id, req.user)
-  console.log(isAuthed)
+
   if (isAuthed === true) {
     //logger.info(`Successful GET /user/${req.user.id} by authed user ${res.user.id}`)
     return res.json(UserUtils.sanitizeAuthed(res.user))
@@ -113,21 +113,30 @@ function patchUser(req, res, next) {
 
   //validate all in userReq as in signup
   let patchBody
-
-  if(password) {
-    const password_digest = UserUtils.hashPassword(password) //validate and encrypt
-    patchBody = { username, password_digest, email, image_url, fullname, city_name, region_name, country_name, city_id }
+  if(!!password) {
+    UserUtils
+    .hashPassword(password)
+    .then(password_digest => {
+      patchBody = { username, password_digest, email, image_url, fullname, city_name, region_name, country_name, city_id }
+      UserService
+        .updateUser(knexI, id, patchBody)
+        .then(numOfFieldsAffected => {
+          //logger.info(`Successful PATCH /user/${id}, affecting ${numOfFieldsAffected} fields`)
+          return res.status(204).end()
+        })
+        .catch(next)
+    })
   } else {
     patchBody = { username, email, image_url, fullname, city_name, region_name, country_name, city_id }
+    UserService
+      .updateUser(knexI, id, patchBody)
+      .then(numOfFieldsAffected => {
+        //logger.info(`Successful PATCH /user/${id}, affecting ${numOfFieldsAffected} fields`)
+        return res.status(204).end()
+      })
+      .catch(next)
   }
 
-  UserService
-    .updateUser(knexI, id, patchBody)
-    .then(numOfFieldsAffected => {
-      logger.info(`Successful PATCH /user/${id}, affecting ${numOfFieldsAffected} fields`)
-      return res.status(204).end()
-    })
-    .catch(next)
 
 }
 

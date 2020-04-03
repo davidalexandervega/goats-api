@@ -2,6 +2,7 @@ const app = require('../src/app')
 const knex = require('knex')
 const {  makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
+const UserService = require('../src/services/user-service')
 
 describe('User endpoints', () => {
   let db;
@@ -325,7 +326,7 @@ describe('User endpoints', () => {
             })
         })
 
-        it('responds with 204 and user is updated in db (not admin level fields)', function() {
+        it('responds with 204 and user is updated in db, also new password is hashed', function() {
           this.retries(3)
           const patchBody = makeUser.patchBody()
           let expectedModified;
@@ -357,6 +358,15 @@ describe('User endpoints', () => {
                   expectedModified = new Date(authedUser.modified).toLocaleString()
                   expect(actualModified).to.eql(expectedModified)
                   expect(res.body).to.eql(expected)
+                  return expected.id
+                })
+                .then(id => {
+                  return UserService
+                    .getById(db, id)
+                    .then(user => {
+                      expect(user.password_digest).to.be.a('string')
+                      expect(user.password_digest).to.be.length(60)
+                    })
                 })
             })
         })

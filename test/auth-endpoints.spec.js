@@ -3,9 +3,9 @@ const knex = require('knex')
 const { makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
 chai.use(require('chai-uuid'));
+const UserService = require('../src/services/user-service')
 
-
-describe.only('Auth endpoints', () => {
+describe('Auth endpoints', () => {
   let db
   before('create knex db instance', () => {
     db = knex({
@@ -50,7 +50,7 @@ describe.only('Auth endpoints', () => {
           .post('/api/auth/signup')
           .send(postBody)
           .expect(201)
-          .then(res => {
+          .then(async res => {
             expect(res.body).to.have.property('id')
             expect(res.body.id).to.be.a.uuid()
             expect(res.body).to.have.property('username')
@@ -91,6 +91,14 @@ describe.only('Auth endpoints', () => {
             expect(res.body).to.not.have.property('password_digest')
             expect(res.body.password_digest).to.eql(undefined)
             expect(res.headers.location).to.eql(`/api/user/${res.body.id}`)
+            const checkPasswordDigest = db('app_user').select('*').where('id', '=', res.body.id).first()
+            const pwDigest = await checkPasswordDigest.then(usr => {
+              if (usr) {
+                return usr.password_digest
+              }
+              return ''
+            })
+            expect(pwDigest).to.be.length(60)
             return res
           })
           .then(res => {
@@ -138,6 +146,7 @@ describe.only('Auth endpoints', () => {
       })
 
     })
+
   })
 
   describe('POST /api/auth/signin endpoint', () => {
