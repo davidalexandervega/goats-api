@@ -57,25 +57,6 @@ authRouter
     bodyParser,
     authUser.resetPassword,
     [
-      // check('username')
-      //   .custom((value, { req }) => {
-      //     const knexI = req.app.get('db')
-      //     // const authHeader = req.get('Authorization')
-      //     // const bearerToken = authHeader ? authHeader.split(' ')[1] : null;
-      //     // const  token = bearerToken
-      //     const { token } = req.user
-      //     console.log("!!!!!", token)
-      //     return UserService.getByUsername(knexI, value).then(user => {
-      //       if (!user) {
-      //         return Promise.reject(`Username ${ value } does not exist.`);
-      //       } else if (!!token === false) {
-      //         console.log('!!!!!!!NO token')
-      //         return Promise.reject(`Unauthorized.`);
-      //       } else if (!!token && user.token !== token) {
-      //         return Promise.reject(`This token has expired.`);
-      //       }
-      //     })
-      //   }),
       check('password')
         .isLength({ min: 5, max: 20 })
         .withMessage('password length must be between 5 and 20 characters')
