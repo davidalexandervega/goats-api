@@ -17,6 +17,7 @@ These instructions will get you a copy of the project up and running on your loc
 5. [start PostgreSQL](https://www.robinwieruch.de/postgres-sql-macos-setup)
 6. Make sure migrations are current with `npm run migrate`
 8. And `npm run migrate:test` if you wish to run and create tests
+9. To run tests, use `npm run test`.
 7. Start the local server with nodemon `npm run dev`
 8. Add an .env file to store keys and passwords locally.
 

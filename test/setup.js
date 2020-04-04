@@ -10,5 +10,5 @@ global.assert = assert
 global.supertest = supertest
 global.chai = chai
 
-console.log("use `npm run test` to pass integration tests with 'development' environment")
-console.log("use `npm run test-node-env` to pass unit tests requiring 'test' environment")
+console.log("use `npm run test` to pass all tests, esp those mocks requiring 'test' environment")
+console.log("use `npm run test-env-dev` to see which tests are using mock/sandbox interactions (these will fail)")

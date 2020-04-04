@@ -7,8 +7,8 @@ const UserUtils = require('../src/utils/user.utils')
 
 describe('UserUtils.sendEmail(mailOptions) function', () => {
 
-  before('Make sure you run the correct command `npm run test-node-env` for these tests to pass`', () => {
-    console.log('make sure you run the correct command `npm run test-node-env` for these tests to pass`')
+  before('Make sure you run the correct command `npm run test` for these tests to pass`', () => {
+    console.log('make sure you run the correct command `npm run test` (NOT `npm run test-env-dev`) for these tests to pass, these use sandbox scenarios.')
   })
 
   it('successfully sends an email with correct email format', () => {
