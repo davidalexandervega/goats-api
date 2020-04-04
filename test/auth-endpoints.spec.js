@@ -341,7 +341,7 @@ describe('Auth endpoints', () => {
       })
 
       context('given the request contains the correct username and token, and new password', () => {
-        it('responds with 201 and signed in user (with additional auth fields)', function() {
+        it('responds with 200 and signed in user (with additional auth fields)', function() {
           this.retries(3)
           const postBody = {
             username: authedUser.username,
@@ -354,7 +354,7 @@ describe('Auth endpoints', () => {
             .set({
               "Authorization": `Bearer ${authedUser.token}`
             })
-            .expect(201)
+            .expect(200)
             .expect(res => {
               expect(res.body).to.have.property('id')
               expect(res.body.id).to.eql(expected.id)

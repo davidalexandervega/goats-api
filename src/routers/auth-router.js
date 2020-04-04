@@ -230,7 +230,6 @@ function resetPassword(req, res, next) {
     return res.status(400).json({ message: validErrors.errors[0].msg })
   }
 
-  // patch user's password
   const knexI = req.app.get('db')
   const  { id } = req.user
   const { password } = req.body
@@ -247,7 +246,7 @@ function resetPassword(req, res, next) {
          return UserService.getById(knexI, id)
            .then(user => {
              delete user.password_digest
-             res.status(201).json(UserUtils.sanitizeAuthed(user))
+             res.status(200).json(UserUtils.sanitizeAuthed(user))
            })
            .catch(next)
        })
