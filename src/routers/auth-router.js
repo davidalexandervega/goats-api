@@ -116,20 +116,38 @@ function signup(req, res, next) {
     .then(() => UserUtils.createToken())
     .then(token => {
       newUser.token = token
-      // let now = Date.now()
-      // let last_login = new Date(now)
-      // newUser.last_login = last_login
+      let now = Date.now()
+      let last_login = new Date(now)
+      newUser.last_login = last_login
     })
     .then(() => {
 
       return UserService
         .insertUser(knexI, newUser)
         .then(user => {
-          //logger.info(`successful POST /signup by username ${user.username}`)
-          res
-            .status(201)
-            .location(path.posix.join('/api/user', `/${user.id}`))
-            .json(UserUtils.sanitizeAuthed(user))
+          const mailOptions = {
+            to: user.email,
+            from: 'goatsguide@gmail.com',
+            subject: `You created an account on Goat's Guide.`,
+            vars: {
+              username: user.username,
+              token: encodeURIComponent(user.token),
+              client_endpoint: CLIENT_ENDPOINT
+            },
+            htmlFile: 'welcome-email.pug'
+          }
+
+          return UserUtils
+            .sendEmail(mailOptions)
+            .then(response => {
+              return res
+                .status(201)
+                .location(path.posix.join('/api/user', `/${user.id}`))
+                .json(UserUtils.sanitizeAuthed(user))
+            })
+            .catch(error => {
+              logger.error(`/auth/signup sendgrid error: ${JSON.stringify(error.sgError)}`)
+            })
         })
         .catch(next)
     })

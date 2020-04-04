@@ -3,7 +3,7 @@ html
     head
     body
 
-        h1 Hello #{username}
+        h1 Hello #{username},
         p A request has been received to change the password for your account.
         //- a(href=`https://goatsguide.com/reset/` + token ) Reset it here.
         a(href= client_endpoint + `public/reset/` + token ) Reset it here.
