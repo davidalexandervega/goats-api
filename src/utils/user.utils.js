@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt')                         // bcrypt will encrypt 
 const crypto = require('crypto')
 const sgMail = require('@sendgrid/mail');
 const { sendgridAuth } = require('../config/auth-config')
-sgMail.setApiKey(sendgridAuth.apiKey);
+sgMail.setApiKey(sendgridAuth.API_KEY);
 const pug = require('pug')
 
 const sanitize = user => {
@@ -129,13 +129,18 @@ const sendEmail = (mailOptions) => {
     to: mailOptions.to,
     from: mailOptions.from,
     subject: mailOptions.subject,
-    html: html
+    html: html,
+    mail_settings: {
+      sandbox_mode: {
+        enable: sendgridAuth.IS_SANDBOX
+      }
+    }
   }
 
   return new Promise((resolve, reject) => {
     sgMail.send(msg, (error, result) => {
       if (error) {
-        reject(error)
+        reject({ sgError: error, message: 'There was an error sending your email' })
       } else if (result) {
         resolve(result)
       } else {

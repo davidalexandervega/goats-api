@@ -3,7 +3,6 @@ const knex = require('knex')
 const { makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
 chai.use(require('chai-uuid'));
-const UserService = require('../src/services/user-service')
 
 describe('Auth endpoints', () => {
   let db
@@ -296,6 +295,7 @@ describe('Auth endpoints', () => {
         const postBody = {
           username: authedSignedInUser.username
         }
+
         return supertest(app)
           .post('/api/auth/recover')
           .send(postBody)

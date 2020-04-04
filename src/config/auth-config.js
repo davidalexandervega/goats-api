@@ -1,3 +1,4 @@
+const { NODE_ENV } = require('./config')
 module.exports = {
   facebookAuth: {
     clientID: process.env.FACEBOOK_CLIENT_ID,
@@ -6,6 +7,9 @@ module.exports = {
     profileUrl: 'https://graph.facebook.com/v2.5/me?fields=first_name,last_name,email'
   },
   sendgridAuth: {
-    apiKey: process.env.SENDGRID_API_KEY
+    API_KEY: process.env.SENDGRID_API_KEY,
+    IS_SANDBOX: NODE_ENV === "test"
+      ? true
+      : false
   }
 }

@@ -215,7 +215,7 @@ function sendRecoveryEmail(req, res, next) {
           return res.status(202).json({ message: `An email has been sent to the account associated with ${user.username}` })
         })
         .catch(error => {
-          logger.error(`/auth/recover sendgrid error: ${JSON.stringify(error)}`)
+          logger.error(`/auth/recover sendgrid error: ${JSON.stringify(error.sgError)}`)
           return res.status(400).json({ message: 'There was a problem with sending your password recovery email.' })
         })
 
