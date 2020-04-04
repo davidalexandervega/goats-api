@@ -121,7 +121,6 @@ function signup(req, res, next) {
       newUser.last_login = last_login
     })
     .then(() => {
-
       return UserService
         .insertUser(knexI, newUser)
         .then(user => {
@@ -256,6 +255,9 @@ function resetPassword(req, res, next) {
   UserUtils.hashPassword(password)
     .then(hashedPassword => {
       patchBody.password_digest = hashedPassword
+      let now = Date.now()
+      let last_login = new Date(now)
+      patchBody.last_login = last_login
     })
     .then(() => {
       return UserService
