@@ -102,8 +102,8 @@ function resetPassword(req, res, next) {
         return res.status(401).json({ message: 'This token has expired.' })
       } else {
         req.user = user
+        return next()
       }
-      return next()
     })
     .catch(next)
 }

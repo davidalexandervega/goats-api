@@ -6,7 +6,7 @@ const authUser = require('../mws/auth-user')
 const bodyParser = express.json()
 const logger = require('../utils/logger.utils')
 const { check, validationResult } = require('express-validator');
-
+const { CLIENT_ENDPOINT } = require('../config/config')
 const authRouter = express.Router()
 
 authRouter
@@ -116,9 +116,9 @@ function signup(req, res, next) {
     .then(() => UserUtils.createToken())
     .then(token => {
       newUser.token = token
-      let now = Date.now()
-      let last_login = new Date(now)
-      newUser.last_login = last_login
+      // let now = Date.now()
+      // let last_login = new Date(now)
+      // newUser.last_login = last_login
     })
     .then(() => {
 
@@ -203,7 +203,8 @@ function sendRecoveryEmail(req, res, next) {
         subject: `Your Goat's Guide password reset request`,
         vars: {
           username: user.username,
-          token: user.token
+          token: encodeURIComponent(user.token),
+          client_endpoint: CLIENT_ENDPOINT
         },
         htmlFile: 'recover-email.pug'
       }
