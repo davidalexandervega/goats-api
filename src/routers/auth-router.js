@@ -127,7 +127,7 @@ function signup(req, res, next) {
           const mailOptions = {
             to: user.email,
             from: 'goatsguide@gmail.com',
-            subject: `You created an account on Goat's Guide.`,
+            subject: `You created an account on Goats Guide.`,
             vars: {
               username: user.username,
               token: encodeURIComponent(user.token),
@@ -217,7 +217,7 @@ function sendRecoveryEmail(req, res, next) {
       const mailOptions = {
         to: user.email,
         from: 'goatsguide@gmail.com',
-        subject: `Your Goat's Guide password reset request`,
+        subject: `Your Goats Guide password reset request`,
         vars: {
           username: user.username,
           token: encodeURIComponent(user.token),

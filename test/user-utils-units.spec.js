@@ -15,7 +15,7 @@ describe('UserUtils.sendEmail(mailOptions) function', () => {
     const mailOptions = {
       to: 'example@somefakeemail.com',
       from: 'goatsguide@gmail.com',
-      subject: `Your Goat's Guide password reset request`,
+      subject: `Your Goats Guide password reset request`,
       vars: {
         username: 'mockusername',
         token: 'moCKt0ken', // for pug html email template
@@ -35,7 +35,7 @@ describe('UserUtils.sendEmail(mailOptions) function', () => {
     const mailOptions = {
       to: 'not an email',
       from: 'goatsguide@gmail.com',
-      subject: `Your Goat's Guide password reset request`,
+      subject: `Your Goats Guide password reset request`,
       vars: {
         username: 'mockusername',
         token: 'moCKt0ken', // for pug html email template
