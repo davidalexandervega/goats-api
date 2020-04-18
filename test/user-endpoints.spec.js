@@ -290,7 +290,7 @@ describe('User endpoints', () => {
 
   })
 
-  describe('PATCH /api/user/:id endpoint', () => {
+  describe.only('PATCH /api/user/:id endpoint', () => {
     context('given the user exists', () => {
       let authedUser;
       // let authedUserNotModified;
@@ -415,6 +415,21 @@ describe('User endpoints', () => {
               "Authorization": `Bearer ${anotherUser.token}`
             })
             .expect(401, { error: { message: 'Not authorized!' } })
+        })
+      })
+
+      context('given the user is attempting to update their username to an existing users', () => {
+        it(`responds with 400 if requested username is already in use`, () => {
+          const patchBody = {
+            username: anotherUser.username
+          }
+          return supertest(app)
+            .patch(`/api/user/${authedUser.id}`)
+            .send(patchBody)
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(400, { message: `Username ${patchBody.username} is already in use.` })
         })
       })
 
