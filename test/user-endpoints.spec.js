@@ -416,13 +416,12 @@ describe('User endpoints', () => {
             })
             .expect(401, { error: { message: 'Not authorized!' } })
         })
-      })
 
-      context('given the user is attempting to update their username to an existing users', () => {
         it(`responds with 400 if requested username is already in use`, () => {
           const patchBody = {
             username: anotherUser.username
           }
+
           return supertest(app)
             .patch(`/api/user/${authedUser.id}`)
             .send(patchBody)
@@ -431,7 +430,23 @@ describe('User endpoints', () => {
             })
             .expect(400, { message: `Username ${patchBody.username} is already in use.` })
         })
+
+        it(`responds with 400 if password is over 20char`, () => {
+          const patchBody = {
+            password: 'tooLong89112345678921'
+          }
+
+          return supertest(app)
+            .patch(`/api/user/${authedUser.id}`)
+            .send(patchBody)
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(400, { message: `Password must be between 5 and 20 characters.` })
+        })
       })
+
+      // validators written for email, alphanumeric password - no 400 tests.
 
       context('given the user is not signed in', () => {
         it('responds with 401 when missing auth header', () => {

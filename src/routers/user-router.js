@@ -4,6 +4,7 @@ const UserUtils = require('../utils/user.utils')
 const bodyParser = express.json()
 const logger = require('../utils/logger.utils')
 const authUser = require('../mws/auth-user')
+const { check, validationResult } = require('express-validator');
 
 const userRouter = express.Router()
 
@@ -15,7 +16,39 @@ userRouter
   .route('/:id')
   .all(checkExists)
   .get(authUser.get, getById)
-  .patch(bodyParser, authUser.patchUser, patchUser)
+  .patch(
+    bodyParser,
+    authUser.patchUser,
+    [
+      check('username')
+        .custom((value, { req }) => {
+          const knexI = req.app.get('db')
+          const { id } = req.params
+          if(!!value) {
+            return UserService.getByUsername(knexI, value).then(user => {
+              if (user && user.id !== id) {
+                return Promise.reject(`Username ${value} is already in use.`);
+              }
+            })
+          }
+        })
+        .optional(),
+      check('password')
+        .isAlphanumeric()
+        .isLength({ min: 5, max: 20 })
+        .withMessage('Password must be between 5 and 20 characters.')
+        .optional(),
+      check('password')
+        .isAlphanumeric()
+        .withMessage('Password must be alphanumeric.')
+        .optional(),
+      check('email')
+        .isEmail()
+        .withMessage('Incorrect format for email.')
+        .optional()
+    ],
+    patchUser
+    )
 
 
 function checkExists(req, res, next) {
@@ -40,37 +73,13 @@ function checkExists(req, res, next) {
     })
 }
 
-// function authPatchUser(req, res, next) {
-//   const knexI = req.app.get('db')
-//   const { id } = req.params
-//   const { token } = req.user
-//   if (!token) {
-//     logger.error(`Not authorized!`)
-//     return res.status(401).json({ error: { message: 'Not authorized' } })
-//   }
-
-//   UserService.getByToken(knexI, token)
-//     .then(user => {
-//       if (user.id == id) {
-//         req.user = user
-//         return next()
-//       }
-//       logger.error(`Not authorized!`)
-//       return res.status(401).json({ error: { message: 'Not authorized!' } })
-//     })
-//     .catch(next)
-// }
-
 async function getById(req, res, next) {
   const knexI = req.app.get('db')
-  //console.log(UserUtils.isAuthenticated(knexI, res.user.id, req.user))
   const isAuthed = await UserUtils.isAuthenticated(knexI, res.user.id, req.user)
 
   if (isAuthed === true) {
-    //logger.info(`Successful GET /user/${req.user.id} by authed user ${res.user.id}`)
     return res.json(UserUtils.sanitizeAuthed(res.user))
   }
-  //logger.info(`Successful GET /user/${req.user} by public user`)
   res.json(UserUtils.sanitize(res.user))
 }
 
@@ -79,7 +88,6 @@ function getAllUsers(req, res, next) {
   UserService
     .getAllUsers(knexI)
     .then(users => {
-      //logger.info(`Successful GET /user by user`)
       const sanitized = users.map(user => UserUtils.sanitize(user))
       res.json(sanitized)
     })
@@ -87,10 +95,7 @@ function getAllUsers(req, res, next) {
 }
 
 function patchUser(req, res, next) {
-  const knexI = req.app.get('db')
   const { id } = req.params
-  // const { username, password, fullname, city_id, email } = req.body
-  // const userReq = { username, password, fullname, city_id, email }
   const { username, password, email, image_url, fullname, city_name, region_name, country_name, city_id } = req.body
   const userReq = {
     username,
@@ -104,40 +109,49 @@ function patchUser(req, res, next) {
     city_id
   }
 
-
   const arrWithVals = Object.values(userReq).filter(val => val)
   if (arrWithVals.length === 0) {
     logger.error(`PATCH /user/${id} Request body must contain at least one required field`)
     return res.status(400).json({ message: 'Request body must contain at least one required field'})
   }
 
-  //validate all in userReq as in signup
-  let patchBody
-  if(!!password) {
+  const validErrors = validationResult(req)
+  if (!validErrors.isEmpty()) {
+    console.log('!!!!', validErrors.errors)
+    logger.error(`PATCH /user/:id 400 error ${validErrors.errors[0].msg}`)
+    return res.status(400).json({ message: validErrors.errors[0].msg })
+  }
+
+  const knexI = req.app.get('db')
+  const { ...patchBody } = req.body
+
+  if (!!patchBody.password) {
     UserUtils
     .hashPassword(password)
     .then(password_digest => {
-      patchBody = { username, password_digest, email, image_url, fullname, city_name, region_name, country_name, city_id }
+      delete patchBody.password
+      delete patchBody.admin
+      delete patchBody.user_state
+      delete patchBody.id
+      patchBody.password_digest = password_digest
       UserService
         .updateUser(knexI, id, patchBody)
         .then(numOfFieldsAffected => {
-          //logger.info(`Successful PATCH /user/${id}, affecting ${numOfFieldsAffected} fields`)
           return res.status(204).end()
         })
         .catch(next)
     })
   } else {
-    patchBody = { username, email, image_url, fullname, city_name, region_name, country_name, city_id }
+    delete patchBody.admin
+    delete patchBody.user_state
+    delete patchBody.id
     UserService
       .updateUser(knexI, id, patchBody)
       .then(numOfFieldsAffected => {
-        //logger.info(`Successful PATCH /user/${id}, affecting ${numOfFieldsAffected} fields`)
         return res.status(204).end()
       })
       .catch(next)
   }
-
-
 }
 
 
