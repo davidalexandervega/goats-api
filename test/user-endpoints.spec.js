@@ -290,7 +290,7 @@ describe('User endpoints', () => {
 
   })
 
-  describe.only('PATCH /api/user/:id endpoint', () => {
+  describe('PATCH /api/user/:id endpoint', () => {
     context('given the user exists', () => {
       let authedUser;
       // let authedUserNotModified;

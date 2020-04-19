@@ -117,7 +117,6 @@ function patchUser(req, res, next) {
 
   const validErrors = validationResult(req)
   if (!validErrors.isEmpty()) {
-    console.log('!!!!', validErrors.errors)
     logger.error(`PATCH /user/:id 400 error ${validErrors.errors[0].msg}`)
     return res.status(400).json({ message: validErrors.errors[0].msg })
   }
