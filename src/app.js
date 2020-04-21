@@ -69,7 +69,6 @@ app.post('/api/image-upload', (req, res) => {
       logger.error(`500 Error message: ${error.message}`)
     })
 })
-express.static('client/build')
 app.use(errorHandler)
 
 function setReqUserBearerToken(req, res, next) {
