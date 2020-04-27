@@ -214,7 +214,7 @@ function sendRecoveryEmail(req, res, next) {
   UserService
     .getByUsername(knexI, username)
     .then(user => {
-      logger.info(`client END ${CLIENT_ENDPOINT}`)
+      console.log(`client END ${CLIENT_ENDPOINT}`)
       const mailOptions = {
         to: user.email,
         from: 'admin@unholygrail.org',
