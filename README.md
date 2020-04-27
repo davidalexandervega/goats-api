@@ -1,10 +1,10 @@
 # Goats API
 
-Goats RESTful API is a datasource for heavy metal fliers and events, and the service layer of [goatsguide.com](https://goatsguide.com). If you wish to contribute to the development of this project, see the pull request instruction below.
+Goats REST API is the service layer of [unholygrail.org](https://unholygrail.org) and a datasource for upcoming events and flier artwork. If you wish to contribute to the development of this project, see the pull request instruction below.
 
 The client-side repository for this API can be found at [github.com/killeraliens/goats-client](https://github.com/killeraliens/goats-client), in case you would like to make frontend contributions.
 
-This project is currently live at [goatsguide.com](https://goatsguide.com).
+This project is currently live at [unholygrail.org](https://unholygrail.org).
 
 
 ## Getting Started

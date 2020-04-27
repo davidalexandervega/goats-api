@@ -126,8 +126,8 @@ function signup(req, res, next) {
         .then(user => {
           const mailOptions = {
             to: user.email,
-            from: 'goatsguide@gmail.com',
-            subject: `You created an account on GoatsGuide.`,
+            from: 'admin@unholygrail.org',
+            subject: `You created an account on UNHOLYGRAIL.`,
             vars: {
               username: user.username,
               token: encodeURIComponent(user.token),
@@ -216,8 +216,8 @@ function sendRecoveryEmail(req, res, next) {
     .then(user => {
       const mailOptions = {
         to: user.email,
-        from: 'goatsguide@gmail.com',
-        subject: `Your GoatsGuide password reset request`,
+        from: 'admin@unholygrail.org',
+        subject: `Your UNHOLYGRAIL password reset request`,
         vars: {
           username: user.username,
           token: encodeURIComponent(user.token),

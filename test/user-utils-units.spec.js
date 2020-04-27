@@ -14,8 +14,8 @@ describe('UserUtils.sendEmail(mailOptions) function', () => {
   it('successfully sends an email with correct email format', () => {
     const mailOptions = {
       to: 'example@somefakeemail.com',
-      from: 'goatsguide@gmail.com',
-      subject: `Your GoatsGuide password reset request`,
+      from: 'admin@unholygrail.org',
+      subject: `Your UNHOLYGRAIL password reset request`,
       vars: {
         username: 'mockusername',
         token: 'moCKt0ken', // for pug html email template
@@ -34,8 +34,8 @@ describe('UserUtils.sendEmail(mailOptions) function', () => {
   it('returns an error with incorrect email format', () => {
     const mailOptions = {
       to: 'not an email',
-      from: 'goatsguide@gmail.com',
-      subject: `Your GoatsGuide password reset request`,
+      from: 'admin@unholygrail.org',
+      subject: `Your UNHOLYGRAIL password reset request`,
       vars: {
         username: 'mockusername',
         token: 'moCKt0ken', // for pug html email template
