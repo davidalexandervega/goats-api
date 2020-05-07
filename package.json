@@ -16,7 +16,9 @@
     "seed-schema:production": "heroku pg:psql -f ./seeds/002.seed.schema.sql",
     "predeploy": "npm audit && npm run migrate:production",
     "deploy": "git push heroku master",
-    "pug-pretty": "pug --pretty src/html"
+    "pug-pretty": "pug --pretty src/html",
+    "insert-sql": "psql -U goats_api -f ./seeds/003.seed.country_lat_lng.sql",
+    "insert-sql:production": "heroku pg:psql -f ./seeds/003.seed.country_lat_lng.sql"
   },
   "keywords": [],
   "author": "",

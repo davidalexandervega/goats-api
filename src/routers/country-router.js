@@ -11,7 +11,6 @@ function getAllCountries(req, res, next) {
   CountryService
     .getAllCountries(knexI)
     .then(countries => {
-
       res.json(countries)
     })
 }
