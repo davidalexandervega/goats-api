@@ -62,4 +62,27 @@ describe('Country endpoints', () => {
       })
     })
   })
+
+  describe('GET /api/country/:code endpoint', () => {
+    context('there are countries loaded', () => {
+      beforeEach('seed countries', () => {
+        return db.raw(seed.countryRegionCity())
+      })
+
+      it('responds with 200 and country', () => {
+        return supertest(app)
+          .get('/api/country/US')
+          .expect(200)
+          .expect(res => {
+            expect(res.body).to.have.property('country_code')
+            expect(res.body.country_code.length).to.eql(2)
+            expect(res.body).to.have.property('country_name')
+            expect(res.body.country_name.length).to.be.at.least(1)
+            expect(res.body).to.have.property('lat')
+            expect(res.body).to.have.property('lng')
+            expect(res.body).to.have.property('image_url')
+          })
+      })
+    })
+  })
 })
