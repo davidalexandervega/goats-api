@@ -16,9 +16,13 @@ eventRouter
   .all(checkExists)
   .get(authUser.get, getEvent)
 
+// refactor, add route to separate past from present counts
+// ?past=true
 eventRouter
   .route('/country-region-hash')
   .get(authUser.get, getCountryRegionHashes)
+
+
 
 
 function checkExists(req, res, next) {
@@ -58,15 +62,21 @@ function getAllEvents(req, res, next) {
 
 function getCountryRegionHashes(req, res, next) {
   const knexI = req.app.get('db')
+  // const { past } = req.query
   EventService
     .selectEventCountries(knexI)
     .then(countries => {
-
+      console.log('event countries', countries)
       EventService
-        .selectEventRegions(knexI)
-        .then(regions => {
-          let response = countries.map(country => {
-            return {
+      .selectEventRegions(knexI)
+      .then(regions => {
+        logger.info(`Successful GET product results: ${results.length}`)
+        let response = countries.map(country => {
+          // let results = regions
+          // if (!!past) {
+          //   results = results.filter(p => p.product_id == product)
+          // }
+          return {
               country_name: country.country_name,
               per_country: country.per_country,
               regions: regions.filter(region => region.country_name === country.country_name).sort((a,b) => {

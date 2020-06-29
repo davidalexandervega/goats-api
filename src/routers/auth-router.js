@@ -214,6 +214,7 @@ function sendRecoveryEmail(req, res, next) {
   UserService
     .getByUsername(knexI, username)
     .then(user => {
+      logger.info(`Preparing to send recovery to ${user.email}`)
       const mailOptions = {
         to: user.email,
         from: 'admin@unholygrail.org',
@@ -229,6 +230,7 @@ function sendRecoveryEmail(req, res, next) {
       UserUtils
         .sendEmail(mailOptions)
         .then(response => {
+          logger.info(`Recovery email sent sendgrid response ${response}`)
           return res.status(202).json({ message: `An email has been sent to the account associated with ${user.username}` })
         })
         .catch(error => {
