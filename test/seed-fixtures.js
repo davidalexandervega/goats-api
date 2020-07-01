@@ -556,7 +556,7 @@ const seed = {
         (
           '81eb96ce-de51-4903-b15c-68be6a72fbf9',
           '1c7ca37e-48f2-11ea-b77f-2e728ce88125',
-          '2020-04-16T00:00:00.000Z',
+          '2022-04-16T00:00:00.000Z',
           'MASTER''S CHAMBERS',
           'Phoenix',
           'AZ',
