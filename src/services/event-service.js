@@ -42,17 +42,34 @@ const EventService = {
 
   selectEventCountries(knex) {
     return knex
-      .join('flyer', 'event.flyer_id', '=', 'flyer.id')
-      .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
-      .select('event.country_name')
-      .count('event.country_name as per_country')
-      .from('event')
-      .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
-      .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
-      .whereNot('event.country_name', null)
-      .andWhereNot('event.country_name', '')
-      .groupBy('event.country_name')
-      .orderBy('event.country_name')
+      .raw(`
+        SELECT
+          e.country_name AS country_name,
+          COUNT(e.country_name) AS per_country,
+          SUM(CASE WHEN e.event_date > CURRENT_TIMESTAMP THEN 1 ELSE 0 END) AS upcoming_per_country
+        FROM
+          event e
+        WHERE e.country_name != ''
+        GROUP BY
+          e.country_name
+      `)
+       .then(rows => {
+         console.log(rows)
+         return rows.rows
+       })
+      // .join('flyer', 'event.flyer_id', '=', 'flyer.id')
+      // .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
+      // .select('event.country_name')
+      // .count('event.country_name as per_country')
+      // //.count('event.country_name as upcoming_per_country', knex.raw(`andwhere event.event_date > CURRENT_TIMESTAMP()`))
+      // //.count(knex.raw(`CASE WHEN event.event_date >= CURRENT_TIMESTAMP event.country_name as upcoming_per_country `))
+      // .from('event')
+      // .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
+      // .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+      // .whereNot('event.country_name', null)
+      // .andWhereNot('event.country_name', '')
+      // .groupBy('event.country_name')
+      // .orderBy('event.country_name')
   },
 
   insertEvent(knex, postBody) {

@@ -155,8 +155,11 @@ describe('Event endpoints', () => {
               expect(hash).to.have.property('per_country')
               expect(hash.per_country).to.not.be.null
               expect(hash.per_country).to.not.be.empty
-              // we only want Upcoming event counts now
-              if (hash.country_name === 'United States') expect(hash.per_country).to.equal('1')
+              // we want upcoming event counts now
+              expect(hash).to.have.property('upcoming_per_country')
+              expect(hash.upcoming_per_country).to.not.be.null
+              expect(hash.upcoming_per_country).to.not.be.empty
+              if (hash.country_name === 'United States') expect(hash.upcoming_per_country).to.equal('1')
               expect(hash).to.have.property('regions')
               assert.isArray(hash.regions)
               hash.regions.forEach(region => {

@@ -79,6 +79,7 @@ function getCountryRegionHashes(req, res, next) {
           return {
               country_name: country.country_name,
               per_country: country.per_country,
+              upcoming_per_country: country.upcoming_per_country,
               regions: regions.filter(region => region.country_name === country.country_name).sort((a,b) => {
                 return (a.region_name > b.region_name) ? 1 : -1
               })
