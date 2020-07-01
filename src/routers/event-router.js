@@ -70,7 +70,7 @@ function getCountryRegionHashes(req, res, next) {
       EventService
       .selectEventRegions(knexI)
       .then(regions => {
-        logger.info(`Successful GET product results: ${results.length}`)
+        //logger.info(`Successful GET product results: ${results.length}`)
         let response = countries.map(country => {
           // let results = regions
           // if (!!past) {

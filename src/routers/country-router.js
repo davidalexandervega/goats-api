@@ -1,5 +1,6 @@
 const express = require('express')
 const countryRouter = express.Router()
+const logger = require('../utils/logger.utils')
 const CountryService = require('../services/country-service')
 
 countryRouter
