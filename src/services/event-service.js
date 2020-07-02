@@ -49,12 +49,23 @@ const EventService = {
           SUM(CASE WHEN e.event_date > CURRENT_TIMESTAMP THEN 1 ELSE 0 END) AS upcoming_per_country
         FROM
           event e
-        WHERE e.country_name != ''
+          INNER JOIN
+            flyer f
+          ON
+            e.flyer_id = f.id
+          INNER JOIN
+            app_user a
+          ON
+            f.creator_id = a.id
+        WHERE NOT e.country_name = '' OR NOT e.country_name = null
+        AND f.listing_state NOT IN ('Archived', 'Banned', 'Draft')
+        AND a.user_state NOT IN ('Archived', 'Banned', 'Private')
         GROUP BY
+          e.country_name
+        ORDER BY
           e.country_name
       `)
        .then(rows => {
-         console.log(rows)
          return rows.rows
        })
       // .join('flyer', 'event.flyer_id', '=', 'flyer.id')

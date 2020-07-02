@@ -138,7 +138,6 @@ describe('Event endpoints', () => {
       })
 
       it('responds with 200 and array of region_name, country_name, event count hashes', () => {
-
         return supertest(app)
           .get('/api/country-region-hash')
           .set({
@@ -147,7 +146,6 @@ describe('Event endpoints', () => {
           .expect(200)
           .expect(res => {
             assert.isArray(res.body)
-            console.log("!!!!", res.body)
             res.body.forEach(hash => {
               expect(hash).to.have.property('country_name')
               expect(hash.country_name).to.not.be.null
@@ -177,6 +175,69 @@ describe('Event endpoints', () => {
               })
             })
           })
+      })
+
+      context('given a flyer creator user_state is set to Private', () => {
+        beforeEach('make flyer creator user_state Private', () => {
+          return db('app_user')
+            .where({ id: authedUser.id })
+            .update({
+              user_state: 'Private'
+            })
+            .then(() => {
+              return db('app_user')
+                .select('*')
+                .where({ id: authedUser.id })
+                .first()
+                .then(privateAuthedUser => {
+                   authedUser = privateAuthedUser
+                   return db('flyer')
+                     .where('id', '1c7ca37e-48f2-11ea-b77f-2e728ce88125')
+                     .first()
+                     .update({
+                       creator_id: authedUser.id
+                     })
+                })
+            })
+        })
+
+        afterEach('revert flyer creator user_state back to Public again', () => {
+            return db('app_user')
+              .where({ id: authedUser.id })
+              .update({
+                user_state: 'Public'
+              })
+              .then(() => {
+                return db('app_user')
+                  .select('*')
+                  .where({ id: authedUser.id })
+                  .first()
+                  .then(publicAuthedUser => {
+                    authedUser = publicAuthedUser
+                  })
+              })
+        })
+
+        it('will not return event results from a private user', () => {
+          return supertest(app)
+            .get('/api/country-region-hash')
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(200)
+            .expect(res => {
+              assert.isArray(res.body)
+              res.body.forEach(hash => {
+
+                expect(hash).to.have.property('upcoming_per_country')
+                expect(hash.upcoming_per_country).to.not.be.null
+                expect(hash.upcoming_per_country).to.not.be.empty
+                if (hash.country_name === 'United States') expect(hash.upcoming_per_country).to.equal('0')
+                expect(hash).to.have.property('regions')
+                assert.isArray(hash.regions)
+            })
+          })
+        })
       })
     })
   })

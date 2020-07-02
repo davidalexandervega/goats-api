@@ -1,3 +1,10 @@
+let pad = function (num) { return ('00' + num).slice(-2) }
+let futureDate
+futureDate = new Date()
+futureDate = futureDate.getUTCFullYear() + '-' +
+  pad(futureDate.getUTCMonth() + 2) + '-' + // one month ahead
+  pad(futureDate.getUTCDate()) + 'T' + '00' + ':' + '00'+ ':' + '00' + '.000Z'
+
 const seed = {
   countryRegionCity() {
     return `
@@ -556,7 +563,7 @@ const seed = {
         (
           '81eb96ce-de51-4903-b15c-68be6a72fbf9',
           '1c7ca37e-48f2-11ea-b77f-2e728ce88125',
-          '2022-04-16T00:00:00.000Z',
+          '${futureDate}',
           'MASTER''S CHAMBERS',
           'Phoenix',
           'AZ',
