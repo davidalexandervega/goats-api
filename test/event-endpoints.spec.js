@@ -190,33 +190,43 @@ describe('Event endpoints', () => {
                 .where({ id: authedUser.id })
                 .first()
                 .then(privateAuthedUser => {
+                  // console.log('private authed user', authedUser.id, privateAuthedUser)
                    authedUser = privateAuthedUser
                    return db('flyer')
                      .where('id', '1c7ca37e-48f2-11ea-b77f-2e728ce88125')
-                     .first()
                      .update({
                        creator_id: authedUser.id
                      })
+                     .then(() => {
+                       return db('flyer')
+                         .select('*')
+                         .where('id', '1c7ca37e-48f2-11ea-b77f-2e728ce88125')
+                         .first()
+                         .then(changedFlyer => {
+                           console.log('flyer with changed creator', authedUser.id, authedUser.user_state, changedFlyer)
+                         })
+                     })
                 })
+
             })
         })
 
-        afterEach('revert flyer creator user_state back to Public again', () => {
-            return db('app_user')
-              .where({ id: authedUser.id })
-              .update({
-                user_state: 'Public'
-              })
-              .then(() => {
-                return db('app_user')
-                  .select('*')
-                  .where({ id: authedUser.id })
-                  .first()
-                  .then(publicAuthedUser => {
-                    authedUser = publicAuthedUser
-                  })
-              })
-        })
+        // afterEach('revert flyer creator user_state back to Public again', () => {
+        //     return db('app_user')
+        //       .where({ id: authedUser.id })
+        //       .update({
+        //         user_state: 'Public'
+        //       })
+        //       .then(() => {
+        //         return db('app_user')
+        //           .select('*')
+        //           .where({ id: authedUser.id })
+        //           .then(publicAuthedUser => {
+        //             //console.log('public authed user', publicAuthedUser)
+        //             authedUser = publicAuthedUser
+        //           })
+        //       })
+        // })
 
         it('will not return event results from a private user', () => {
           return supertest(app)
@@ -228,7 +238,6 @@ describe('Event endpoints', () => {
             .expect(res => {
               assert.isArray(res.body)
               res.body.forEach(hash => {
-
                 expect(hash).to.have.property('upcoming_per_country')
                 expect(hash.upcoming_per_country).to.not.be.null
                 expect(hash.upcoming_per_country).to.not.be.empty

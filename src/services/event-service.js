@@ -57,9 +57,9 @@ const EventService = {
             app_user a
           ON
             f.creator_id = a.id
-        WHERE NOT e.country_name = '' OR NOT e.country_name = null
-        AND f.listing_state NOT IN ('Archived', 'Banned', 'Draft')
-        AND a.user_state NOT IN ('Archived', 'Banned', 'Private')
+        WHERE NOT
+          (e.country_name = '' OR NOT e.country_name = null)
+          AND (a.user_state = 'Archived' OR NOT a.user_state = 'Banned' OR NOT a.user_state = 'Private')
         GROUP BY
           e.country_name
         ORDER BY
@@ -68,6 +68,8 @@ const EventService = {
        .then(rows => {
          return rows.rows
        })
+    // AND f.listing_state NOT IN('Archived', 'Banned', 'Draft')
+    // AND a.user_state NOT IN('Archived', 'Banned', 'Private')
       // .join('flyer', 'event.flyer_id', '=', 'flyer.id')
       // .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
       // .select('event.country_name')
