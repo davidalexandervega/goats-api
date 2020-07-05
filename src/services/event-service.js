@@ -57,9 +57,10 @@ const EventService = {
             app_user a
           ON
             f.creator_id = a.id
-        WHERE NOT
-          (e.country_name = '' OR NOT e.country_name = null)
-          AND (a.user_state = 'Archived' OR NOT a.user_state = 'Banned' OR NOT a.user_state = 'Private')
+        WHERE
+          (e.country_name != '' OR  e.country_name != null)
+        AND
+          (a.user_state != 'Private')
         GROUP BY
           e.country_name
         ORDER BY
