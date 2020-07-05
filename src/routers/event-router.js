@@ -66,7 +66,6 @@ function getCountryRegionHashes(req, res, next) {
   EventService
     .selectEventCountries(knexI)
     .then(countries => {
-      console.log('event countries', countries)
       EventService
       .selectEventRegions(knexI)
       .then(regions => {
