@@ -60,7 +60,7 @@ const EventService = {
         WHERE
           (e.country_name != '' OR  e.country_name != null)
         AND
-          (a.user_state != 'Private')
+          (a.user_state != 'Private' AND a.user_state != 'Archived' AND a.user_state !='Banned')
         GROUP BY
           e.country_name
         ORDER BY

@@ -154,7 +154,6 @@ describe('Event endpoints', () => {
               expect(hash.per_country).to.not.be.null
               expect(hash.per_country).to.not.be.empty
               if (hash.country_name === 'United States') expect(hash.per_country).to.equal('10')
-              // we want upcoming event counts now
               expect(hash).to.have.property('upcoming_per_country')
               expect(hash.upcoming_per_country).to.not.be.null
               expect(hash.upcoming_per_country).to.not.be.empty
@@ -174,10 +173,10 @@ describe('Event endpoints', () => {
                   expect(region).to.have.property('per_region')
                   expect(region.per_region).to.not.be.null
                   // we want upcoming event counts now
-                  // expect(region).to.have.property('upcoming_per_region')
-                  // expect(hash.upcoming_per_country).to.not.be.null
-                  // expect(hash.upcoming_per_country).to.not.be.empty
-                  // if (hash.country_name === 'United States') expect(hash.upcoming_per_country).to.equal('1')
+                  expect(region).to.have.property('upcoming_per_region')
+                  expect(hash.upcoming_per_country).to.not.be.null
+                  expect(hash.upcoming_per_country).to.not.be.empty
+                  if (hash.country_name === 'United States') expect(hash.upcoming_per_country).to.equal('1')
                 }
               })
             })
