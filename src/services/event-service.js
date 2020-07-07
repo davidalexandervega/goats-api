@@ -71,21 +71,6 @@ const EventService = {
        .then(rows => {
          return rows.rows
        })
-    // AND f.listing_state NOT IN('Archived', 'Banned', 'Draft')
-    // AND a.user_state NOT IN('Archived', 'Banned', 'Private')
-      // .join('flyer', 'event.flyer_id', '=', 'flyer.id')
-      // .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
-      // .select('event.country_name')
-      // .count('event.country_name as per_country')
-      // //.count('event.country_name as upcoming_per_country', knex.raw(`andwhere event.event_date > CURRENT_TIMESTAMP()`))
-      // //.count(knex.raw(`CASE WHEN event.event_date >= CURRENT_TIMESTAMP event.country_name as upcoming_per_country `))
-      // .from('event')
-      // .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
-      // .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
-      // .whereNot('event.country_name', null)
-      // .andWhereNot('event.country_name', '')
-      // .groupBy('event.country_name')
-      // .orderBy('event.country_name')
   },
 
   insertEvent(knex, postBody) {
