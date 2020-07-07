@@ -61,6 +61,8 @@ const EventService = {
           (e.country_name != '' OR  e.country_name != null)
         AND
           (a.user_state != 'Private' AND a.user_state != 'Archived' AND a.user_state !='Banned')
+        AND
+          (f.listing_state != 'Draft' AND f.listing_state != 'Archived' AND f.listing_state !='Banned')
         GROUP BY
           e.country_name
         ORDER BY
