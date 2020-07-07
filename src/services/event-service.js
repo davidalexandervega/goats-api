@@ -25,19 +25,50 @@ const EventService = {
 
   selectEventRegions(knex) {
     return knex
-      .join('flyer', 'event.flyer_id', '=', 'flyer.id')
-      .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
-      .select('event.country_name', 'event.region_name')
-      .count('event.region_name as per_region')
-      .from('event')
-      .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
-      .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
-      .andWhereNot('event.country_name', null)
-      .andWhereNot('event.country_name', '')
-      .andWhereNot('event.region_name', null)
-      .andWhereNot('event.region_name', '')
-      .groupBy('event.country_name', 'event.region_name')
-      .orderBy('event.country_name', 'event.region_name')
+      .raw(`
+        SELECT
+          e.country_name AS country_name,
+          e.region_name AS region_name,
+          COUNT(e.region_name) AS per_region,
+          SUM(CASE WHEN e.event_date > CURRENT_TIMESTAMP THEN 1 ELSE 0 END) AS upcoming_per_region
+        FROM
+          event e
+          INNER JOIN
+            flyer f
+          ON
+            e.flyer_id = f.id
+          INNER JOIN
+            app_user a
+          ON
+            f.creator_id = a.id
+        WHERE
+          (e.region_name != '' OR  e.region_name != null)
+        AND
+          (a.user_state != 'Private' AND a.user_state != 'Archived' AND a.user_state !='Banned')
+        AND
+          (f.listing_state != 'Draft' AND f.listing_state != 'Archived' AND f.listing_state !='Banned')
+        GROUP BY
+          e.country_name, e.region_name
+        ORDER BY
+          e.country_name, e.region_name
+      `)
+      .then(rows => {
+        return rows.rows
+      })
+    // return knex
+      // .join('flyer', 'event.flyer_id', '=', 'flyer.id')
+      // .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
+      // .select('event.country_name', 'event.region_name')
+      // .count('event.region_name as per_region')
+      // .from('event')
+      // .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
+      // .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
+      // .andWhereNot('event.country_name', null)
+      // .andWhereNot('event.country_name', '')
+      // .andWhereNot('event.region_name', null)
+      // .andWhereNot('event.region_name', '')
+      // .groupBy('event.country_name', 'event.region_name')
+      // .orderBy('event.country_name', 'event.region_name')
   },
 
   countsByCountry(knex) {

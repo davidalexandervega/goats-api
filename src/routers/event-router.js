@@ -66,15 +66,12 @@ function getCountryRegionHashes(req, res, next) {
   EventService
     .countsByCountry(knexI)
     .then(countries => {
+      logger.info(`Successful GET country hash results: ${countries.length}`)
       EventService
       .selectEventRegions(knexI)
       .then(regions => {
-        //logger.info(`Successful GET product results: ${results.length}`)
+        logger.info(`Successful GET region hash results: ${regions.length}`)
         let response = countries.map(country => {
-          // let results = regions
-          // if (!!past) {
-          //   results = results.filter(p => p.product_id == product)
-          // }
           return {
               country_name: country.country_name,
               per_country: country.per_country,

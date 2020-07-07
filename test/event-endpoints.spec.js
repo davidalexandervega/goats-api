@@ -167,16 +167,16 @@ describe('Event endpoints', () => {
                   expect(region).to.have.property('region_name')
                   expect(region.region_name).to.not.be.null
                   expect(region.region_name).to.not.be.empty
-                  // expect(region).to.have.property('country_name')
-                  // expect(region.country_name).to.not.be.null
-                  // expect(region.country_name).to.not.be.empty
-                  // expect(region).to.have.property('per_region')
-                  // expect(region.per_region).to.not.be.null
+                  expect(region).to.have.property('country_name')
+                  expect(region.country_name).to.not.be.null
+                  expect(region.country_name).to.not.be.empty
+                  expect(region).to.have.property('per_region')
+                  expect(region.per_region).to.not.be.null
                   // we want upcoming event counts now
-                  // expect(region).to.have.property('upcoming_per_region')
-                  // expect(hash.upcoming_per_country).to.not.be.null
-                  // expect(hash.upcoming_per_country).to.not.be.empty
-                  // if (hash.country_name === 'United States') expect(hash.upcoming_per_country).to.equal('1')
+                  expect(region).to.have.property('upcoming_per_region')
+                  expect(region.upcoming_per_region).to.not.be.null
+                  expect(region.upcoming_per_region).to.not.be.empty
+                  if (region.region_name === 'AZ') expect(region.upcoming_per_region).to.equal('1')
                 }
               })
             })
