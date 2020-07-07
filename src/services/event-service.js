@@ -40,7 +40,7 @@ const EventService = {
       .orderBy('event.country_name', 'event.region_name')
   },
 
-  selectEventCountries(knex) {
+  countsByCountry(knex) {
     return knex
       .raw(`
         SELECT

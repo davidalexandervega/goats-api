@@ -196,22 +196,14 @@ describe('Event endpoints', () => {
                 .where({ id: authedUser.id })
                 .first()
                 .then(privateAuthedUser => {
-                  // console.log('private authed user', authedUser.id, privateAuthedUser)
-                   authedUser = privateAuthedUser
+                  // console.log('private authed user', privateAuthedUser)
+                  authedUser = privateAuthedUser
+                  // console.log('authed private', authedUser)
                    return db('flyer')
                      .where('id', '1c7ca37e-48f2-11ea-b77f-2e728ce88125')
                      .update({
                        creator_id: authedUser.id
                      })
-                    //  .then(() => {
-                    //    return db('flyer')
-                    //      .select('*')
-                    //      .where('id', '1c7ca37e-48f2-11ea-b77f-2e728ce88125')
-                    //      .first()
-                    //      .then(changedFlyer => {
-                    //        console.log('flyer with changed creator', authedUser.id, authedUser.user_state, changedFlyer)
-                    //      })
-                    //  })
                 })
 
             })
@@ -227,9 +219,11 @@ describe('Event endpoints', () => {
                 return db('app_user')
                   .select('*')
                   .where({ id: authedUser.id })
+                  .first()
                   .then(publicAuthedUser => {
-                    //console.log('public authed user', publicAuthedUser)
+                    // console.log('public authed user', publicAuthedUser)
                     authedUser = publicAuthedUser
+                    // console.log('authed public', authedUser)
                   })
               })
         })
@@ -261,8 +255,46 @@ describe('Event endpoints', () => {
       })
 
       context('given a flyer listing state is Draft', () => {
-        // before each set flyer listing state to draft
-        // make sure the counts for country and region are accurate
+        beforeEach('set a flyer listing state to Draft', () => {
+          return db('flyer')
+            .where('id', '1c7ca37e-48f2-11ea-b77f-2e728ce88125')
+            .update({
+              listing_state: 'Draft'
+            })
+        })
+
+        afterEach('revert flyer listing_state back to Public again', () => {
+          return db('flyer')
+            .where('id', '1c7ca37e-48f2-11ea-b77f-2e728ce88125')
+            .update({
+              listing_state: 'Public'
+            })
+        })
+
+        it('will not return event counts for a draft flyer', () => {
+          return supertest(app)
+            .get('/api/country-region-hash')
+            .set({
+              "Authorization": `Bearer ${authedUser.token}`
+            })
+            .expect(200)
+            .expect(res => {
+              assert.isArray(res.body)
+              res.body.forEach(hash => {
+                expect(hash).to.have.property('per_country')
+                expect(hash.per_country).to.not.be.null
+                expect(hash.per_country).to.not.be.empty
+                if (hash.country_name === 'United States') expect(hash.per_country).to.equal('9')
+                expect(hash).to.have.property('upcoming_per_country')
+                expect(hash.upcoming_per_country).to.not.be.null
+                expect(hash.upcoming_per_country).to.not.be.empty
+                if (hash.country_name === 'United States') expect(hash.upcoming_per_country).to.equal('0')
+                expect(hash).to.have.property('regions')
+                assert.isArray(hash.regions)
+                // check whether the regions have correct event counts
+              })
+            })
+        })
       })
     })
   })

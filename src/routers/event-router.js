@@ -64,7 +64,7 @@ function getCountryRegionHashes(req, res, next) {
   const knexI = req.app.get('db')
   // const { past } = req.query
   EventService
-    .selectEventCountries(knexI)
+    .countsByCountry(knexI)
     .then(countries => {
       EventService
       .selectEventRegions(knexI)
