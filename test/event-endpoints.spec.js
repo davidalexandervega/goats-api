@@ -162,7 +162,6 @@ describe('Event endpoints', () => {
               assert.isArray(hash.regions)
               hash.regions.forEach(region => {
                 if (region) {
-                  console.log('REEEGGGGIOOOON', region)
                   assert.isObject(region)
                   expect(region).to.have.property('region_name')
                   expect(region.region_name).to.not.be.null
@@ -171,8 +170,8 @@ describe('Event endpoints', () => {
                   expect(region.country_name).to.not.be.null
                   expect(region.country_name).to.not.be.empty
                   expect(region).to.have.property('per_region')
+                  if (region.region_name === 'AZ') expect(region.per_region).to.equal('1')
                   expect(region.per_region).to.not.be.null
-                  // we want upcoming event counts now
                   expect(region).to.have.property('upcoming_per_region')
                   expect(region.upcoming_per_region).to.not.be.null
                   expect(region.upcoming_per_region).to.not.be.empty
@@ -196,9 +195,7 @@ describe('Event endpoints', () => {
                 .where({ id: authedUser.id })
                 .first()
                 .then(privateAuthedUser => {
-                  // console.log('private authed user', privateAuthedUser)
                   authedUser = privateAuthedUser
-                  // console.log('authed private', authedUser)
                    return db('flyer')
                      .where('id', '1c7ca37e-48f2-11ea-b77f-2e728ce88125')
                      .update({
@@ -221,9 +218,7 @@ describe('Event endpoints', () => {
                   .where({ id: authedUser.id })
                   .first()
                   .then(publicAuthedUser => {
-                    // console.log('public authed user', publicAuthedUser)
                     authedUser = publicAuthedUser
-                    // console.log('authed public', authedUser)
                   })
               })
         })
@@ -236,19 +231,15 @@ describe('Event endpoints', () => {
             })
             .expect(200)
             .expect(res => {
+              console.log('RESULTS', res.body)
               assert.isArray(res.body)
               res.body.forEach(hash => {
-                expect(hash).to.have.property('per_country')
-                expect(hash.per_country).to.not.be.null
-                expect(hash.per_country).to.not.be.empty
                 if (hash.country_name === 'United States') expect(hash.per_country).to.equal('9')
-                expect(hash).to.have.property('upcoming_per_country')
-                expect(hash.upcoming_per_country).to.not.be.null
-                expect(hash.upcoming_per_country).to.not.be.empty
                 if (hash.country_name === 'United States') expect(hash.upcoming_per_country).to.equal('0')
-                expect(hash).to.have.property('regions')
-                assert.isArray(hash.regions)
-                // check whether the regions have correct event counts
+                hash.regions.forEach(region => {
+                  console.log('REGION', region)
+                  expect(region.region_name).to.not.equal('AZ')
+                })
             })
           })
         })

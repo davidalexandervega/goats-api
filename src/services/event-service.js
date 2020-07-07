@@ -44,9 +44,9 @@ const EventService = {
         WHERE
           (e.region_name != '' OR  e.region_name != null)
         AND
-          (a.user_state != 'Private' AND a.user_state != 'Archived' AND a.user_state !='Banned')
+          (a.user_state != 'Private' AND a.user_state != 'Archived' AND a.user_state != 'Banned')
         AND
-          (f.listing_state != 'Draft' AND f.listing_state != 'Archived' AND f.listing_state !='Banned')
+          (f.listing_state != 'Draft' AND f.listing_state != 'Archived' AND f.listing_state != 'Banned')
         GROUP BY
           e.country_name, e.region_name
         ORDER BY
