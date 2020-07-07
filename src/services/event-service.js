@@ -55,20 +55,6 @@ const EventService = {
       .then(rows => {
         return rows.rows
       })
-    // return knex
-      // .join('flyer', 'event.flyer_id', '=', 'flyer.id')
-      // .join('app_user', 'flyer.creator_id', '=', 'app_user.id')
-      // .select('event.country_name', 'event.region_name')
-      // .count('event.region_name as per_region')
-      // .from('event')
-      // .whereNotIn('flyer.listing_state', ['Archived', 'Banned', 'Draft'])
-      // .whereNotIn('app_user.user_state', ['Archived', 'Banned', 'Private'])
-      // .andWhereNot('event.country_name', null)
-      // .andWhereNot('event.country_name', '')
-      // .andWhereNot('event.region_name', null)
-      // .andWhereNot('event.region_name', '')
-      // .groupBy('event.country_name', 'event.region_name')
-      // .orderBy('event.country_name', 'event.region_name')
   },
 
   countsByCountry(knex) {
