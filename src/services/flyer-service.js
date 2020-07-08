@@ -71,7 +71,8 @@ const FlyerService = {
       .select(
         'flyer.*',
         'app_user.username as creator_username',
-        'app_user.image_url as creator_image_url'
+        'app_user.image_url as creator_image_url',
+        knex.raw('ARRAY_AGG(event.event_date ORDER BY event.event_date) as event_dates')
       )
 
       .from('flyer')
@@ -85,7 +86,9 @@ const FlyerService = {
       .andWhere('event.country_name', '=', country)
       .distinct('flyer.id')
 
-      .orderBy('flyer.modified', 'desc')
+      .groupBy('flyer.id', 'app_user.username', 'app_user.image_url')
+      // .orderBy('event_dates', 'asc')
+      .orderBy('flyer.created', 'desc')
       .limit(limit)
       .offset(offset)
   },
