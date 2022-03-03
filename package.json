@@ -25,7 +25,7 @@
   "license": "ISC",
   "dependencies": {
     "@sendgrid/mail": "^7.0.0",
-    "bcrypt": "^3.0.7",
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
     "cloudinary": "^1.19.0",
     "connect-flash": "^0.1.1",
@@ -45,7 +45,9 @@
     "passport": "^0.4.1",
     "passport-facebook": "^3.0.0",
     "passport-facebook-token": "^3.3.0",
-    "pg": "^7.18.2",
+    "pg": "^8.7.3",
+    "pg-native": "^3.0.0",
+    "postgrator-cli": "^5.1.0",
     "pug": "^2.0.4",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
@@ -63,10 +65,9 @@
     "chai-uuid": "^1.0.6",
     "eslint": "^6.6.0",
     "mocha": "^6.2.2",
-    "postgrator-cli": "^3.2.0",
     "supertest": "^4.0.2"
   },
   "engines": {
-    "node": "v10.15.3"
+    "node": "17.6.0"
   }
 }
