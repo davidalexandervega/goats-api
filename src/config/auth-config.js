@@ -9,7 +9,5 @@ module.exports = {
   sendgridAuth: {
     API_KEY: process.env.SENDGRID_API_KEY,
     IS_SANDBOX: NODE_ENV === "test"
-      ? true
-      : false
   }
 }
