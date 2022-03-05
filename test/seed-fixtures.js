@@ -9,7 +9,7 @@ const seed = {
   countryRegionCity() {
     return `
       COPY country(country_name, country_code)
-      FROM '/Users/user/code/killeraliens/goats-api/seeds/countries.csv' DELIMITER ',' CSV HEADER;
+      FROM 'C:\\dev\\goats-api\\seeds\\countries.csv' DELIMITER ',' CSV HEADER;
 
       INSERT INTO country
         (country_name, country_code)
