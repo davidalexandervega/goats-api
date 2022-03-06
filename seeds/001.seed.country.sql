@@ -1,8 +1,7 @@
 TRUNCATE event, flyer, app_user, city, region, country  RESTART IDENTITY CASCADE;
 
-COPY country(country_name, country_code)
-FROM 'C:\dev\goats-api\seeds\countries.csv' DELIMITER ',' CSV HEADER;
---FROM '/Users/killeraliens/goats-api/seeds/countries.csv' DELIMITER ',' CSV HEADER;
+\set csv_path :SEEDS_PATH 'countries.csv'
+COPY country(country_name, country_code) FROM :'csv_path' DELIMITER ',' CSV HEADER;
 
 INSERT INTO country
   (country_name, country_code)

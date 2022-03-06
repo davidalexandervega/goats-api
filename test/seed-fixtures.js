@@ -1,3 +1,5 @@
+const { SEEDS_PATH } = require("../src/config/config")
+
 let pad = function (num) { return ('00' + num).slice(-2) }
 let futureDate
 futureDate = new Date()
@@ -5,11 +7,12 @@ futureDate = futureDate.getUTCFullYear() + '-' +
   pad(futureDate.getUTCMonth() + 2) + '-' + // one month ahead
   pad(futureDate.getUTCDate()) + 'T' + '00' + ':' + '00'+ ':' + '00' + '.000Z'
 
+
 const seed = {
   countryRegionCity() {
     return `
       COPY country(country_name, country_code)
-      FROM 'C:\\dev\\goats-api\\seeds\\countries.csv' DELIMITER ',' CSV HEADER;
+      FROM '${SEEDS_PATH}countries.csv' DELIMITER ',' CSV HEADER;
 
       INSERT INTO country
         (country_name, country_code)
