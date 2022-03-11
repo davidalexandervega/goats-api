@@ -15,7 +15,7 @@
     "seed-latlng": "psql -U postgres -d goats_api -f ./seeds/002.seed.country_lat_lng.sql",
     "seed-adhoc:production": "heroku pg:psql -f ./seeds/002.seed.country_lat_lng.sql",
     "predeploy": "npm audit && npm run migrate:production",
-    "deploy": "git push heroku master",
+    "deploy": "dotenv cross-var \"heroku git:remote -a %HEROKU_APP_NAME%\" && git push heroku master",
     "pug-pretty": "pug --pretty src/html"
   },
   "keywords": [],
