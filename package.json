@@ -10,7 +10,7 @@
     "dev": "nodemon src/server.js",
     "migrate": "postgrator --config postgrator-config.js",
     "migrate:test": "env NODE_ENV=test npm run migrate",
-    "migrate:production": "env SSL=true DATABASE_URL=$(heroku config:get DATABASE_URL) npm run migrate",
+    "migrate:production": "env SSL=true DATABASE_URL=\"$(dotenv cross-var heroku config:get DATABASE_URL -a %HEROKU_APP_NAME%)\" npm run migrate",
     "seed-country": "dotenv cross-var \"psql -U postgres -d goats_api -v SEEDS_PATH=%SEEDS_PATH% -f ./seeds/001.seed.country.sql\"",
     "seed-latlng": "psql -U postgres -d goats_api -f ./seeds/002.seed.country_lat_lng.sql",
     "seed-adhoc:production": "heroku pg:psql -f ./seeds/002.seed.country_lat_lng.sql",
