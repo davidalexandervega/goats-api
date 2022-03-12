@@ -9,7 +9,7 @@ module.exports = {
       user: process.env.DATABASE_USER || "postgres",
       password: process.env.DATABASE_PW,
       database: process.env.NODE_ENV === "test" ? process.env.TEST_DATABASE_NAME : process.env.DATABASE_NAME,
-      port: process.env.PORT || 8000,
+      port: 5432,
       host: process.env.DATABASE_HOST || "localhost",
       ssl: process.env.NODE_ENV === "production"
   },
