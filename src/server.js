@@ -4,7 +4,7 @@ const knex = require('knex')
 const db = knex({
   client: 'pg',
   connection: {
-    connectionString: process.env.DATABASE_URL,
+    connectionString: DATABASE_URL,
     ssl: { rejectUnauthorized }//process.env.NODE_ENV === "production"
   }
 })
