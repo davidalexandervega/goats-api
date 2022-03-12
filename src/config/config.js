@@ -2,7 +2,7 @@ module.exports = {
   PORT: process.env.PORT || 8000,
   NODE_ENV: process.env.NODE_ENV || "development",
   DATABASE_URL: process.env.NODE_ENV === "production"
-    ? process.env.DATABASE_URL + `?ssl=true`
+    ? process.env.DATABASE_URL //+ `?ssl=true`
     : process.env.DATABASE_URL,
   TEST_DATABASE_URL: process.env.TEST_DATABASE_URL || `psql://${process.env.DATABASE_USER}:${process.env.DATABASE_PW}@${process.env.DATABASE_HOST}/${process.env.TEST_DATABASE_NAME}`,
   DATABASE_CONNECT: {
