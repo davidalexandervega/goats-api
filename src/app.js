@@ -1,5 +1,6 @@
 require('dotenv').config()
 const { NODE_ENV, API_KEY } = require('./config/config')
+const { cloudinaryConfig } = require('./config/auth-config')
 const express = require('express')
 const logger = require('./utils/logger.utils')
 
@@ -29,11 +30,7 @@ const {
 } = require('./routers')
 const UserService = require('./services/user-service')
 
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET
-})
+cloudinary.config(cloudinaryConfig)
 
 app.use(morgan(morganOption))
 app.use(helmet())
