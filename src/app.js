@@ -41,6 +41,7 @@ app.use(bodyParser.urlencoded({
 }))
 app.use(cookieParser())
 app.use(setReqUserBearerToken)
+app.use(setReqAppAccessToken)
 app.use('/api/v1', authFbRouter)
 app.use('/api/auth', authRouter)
 app.use('/api', eventRouter)
@@ -92,6 +93,13 @@ function setReqUserBearerToken(req, res, next) {
     })
     .catch(next)
 
+}
+
+function setReqAppAccessToken(req, res, next) {
+  const appAuthHeader = req.get('x-api-key')
+  req.appToken = appAuthHeader || null
+
+  return next()
 }
 
 function errorHandler(error, req, res, next) {
