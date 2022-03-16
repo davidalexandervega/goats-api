@@ -1,3 +1,4 @@
+const { API_KEY } = require('../config/config')
 const UserService = require('../services/user-service')
 const logger = require('../utils/logger.utils')
 
@@ -47,6 +48,11 @@ function patchUser(req, res, next) {
 function get(req, res, next) {
   const knexI = req.app.get('db')
   const { token } = req.user
+  const appToken = req.appToken
+
+  if (appToken && appToken === API_KEY) {
+    return next();
+  }
 
   if (!token) {
     logger.error(`Not authorized, no token`)
