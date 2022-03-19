@@ -4,7 +4,7 @@ const makeEvent = {
       id: '906d8774-48f4-11ea-b77f-2e728ce88125',
       flyer_id: 'a28ebf8c-48ee-11ea-b77f-2e728ce88125',
       event_date: '2020-03-13T00:00:00.000Z',
-      venue_name: 'Foro San Rafael',
+      venue_name: '28 Fòro Sãn Rafael¿',
       city_name: 'Mexico City',
       region_name: "",
       country_name: 'Mexico',
