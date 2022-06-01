@@ -53,7 +53,9 @@ app.post('/api/image-upload', (req, res) => {
   const values = Object.values(req.files)
   const promises = values.map(image =>
     cloudinary.v2.uploader.upload(image.path, {
-      angle: 'exif'
+      angle: 'exif',
+      folder: NODE_ENV === 'production' ? 'unholygrail' : NODE_ENV === 'test' ? 'test' : 'dev',
+      use_filename: true
     })
   )
 
