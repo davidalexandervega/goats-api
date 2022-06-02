@@ -55,7 +55,6 @@ app.post('/api/image-upload', (req, res) => {
     cloudinary.v2.uploader.upload(image.path, {
       angle: 'exif',
       folder: NODE_ENV === 'production' ? 'unholygrail' : NODE_ENV === 'test' ? 'test' : 'dev',
-      use_filename: true
     })
   )
 
