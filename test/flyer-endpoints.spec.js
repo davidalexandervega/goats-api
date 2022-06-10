@@ -3,6 +3,7 @@ const knex = require('knex')
 const {  makeFlyer, makeFlyers } = require('./flyer-fixtures')
 const { makeUser } = require('./user-fixtures')
 const { seed, truncate } = require('./seed-fixtures')
+chai.use(require('chai-uuid'));
 
 describe('Flyer endpoints', () => {
   let db;
@@ -573,7 +574,7 @@ describe('Flyer endpoints', () => {
           })
         })
 
-        it('responds with 201 but does not post an event if its date field is not null and is a past date', () => {
+        it.skip('responds with 201 but does not post an event if its date field is not null and is a past date', () => {
         })
       })
 
