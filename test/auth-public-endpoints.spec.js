@@ -56,6 +56,14 @@ describe('Flyer endpoints', () => {
       })
     })
 
+    context('cannot get flyers without an api token', () => {
+      it('responds with 401: unauthorized', () => {
+        return supertest(app)
+          .get('/api/flyer')
+          .expect(401)
+      })
+    })
+
   })
 
   describe('GET /api/flyer/:id endpoint', () => {
@@ -75,6 +83,19 @@ describe('Flyer endpoints', () => {
             .expect(200)
         })
     })
+
+    context('cannot get flyer by id without an api token', () => {
+      beforeEach('insert flyers into flyer', () => {
+        return db.raw(seed.flyers())
+      })
+
+      it('responds with 401: unauthorized', () => {
+        const expectedFlyer = makeFlyers()[2]
+        return supertest(app)
+          .get(`/api/flyer/${expectedFlyer.id}`)
+          .expect(401)
+      })
+  })
 
   })
 

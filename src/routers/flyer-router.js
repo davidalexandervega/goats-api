@@ -74,7 +74,7 @@ flyerRouter
 flyerRouter
   .route('/:id')
   .all(checkExists)
-  .get(getFlyer)
+  .get(authUser.get, getFlyer)
   .patch(
     bodyParser,
     authUser.manageFlyer,
